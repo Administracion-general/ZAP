@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestión Boutique | Alquiler Temporal</title>
+  <meta name="theme-color" content="#0D1B2A" />
+  <style>
+    :root{
+      --bg:#eef2f5;
+      --navy:#0D1B2A;
+      --navy-2:#1B2A3B;
+      --white:#ffffff;
+      --text:#0f1720;
+      --muted:#667085;
+      --line:#e7ecf1;
+      --soft:#f6f8fb;
+      --gold:#c9a96b;
+      --gold-soft:#efe3cc;
+      --blue:#20415d;
+      --ok:#1f9d65;
+      --ok-bg:#e9f8f1;
+      --warn:#b7791f;
+      --warn-bg:#fff4dd;
+      --bad:#c24141;
+      --bad-bg:#fdecec;
+      --shadow:0 18px 40px rgba(13,27,42,.08);
+      --shadow-soft:0 10px 24px rgba(13,27,42,.06);
+      --radius-xl:28px;
+      --radius-lg:22px;
+      --radius-md:18px;
+      --radius-sm:14px;
+      --sidebar-w:280px;
+      --tabbar-h:78px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:linear-gradient(180deg,#e9eef3 0%,#f7f9fb 100%);
+      color:var(--text);
+      font-family:Inter, Poppins, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+    button,input,select,textarea{font:inherit}
+    img{max-width:100%;display:block}
+    a{text-decoration:none;color:inherit}
+
+    .app{
+      min-height:100vh;
+      display:grid;
+      grid-template-columns:var(--sidebar-w) 1fr;
+    }
+
+    .sidebar{
+      position:sticky;
+      top:0;
+      height:100vh;
+      padding:22px 18px;
+      background:linear-gradient(180deg,var(--navy) 0%, var(--navy-2) 100%);
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+      box-shadow:inset -1px 0 0 rgba(255,255,255,.06);
+      z-index:20;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:12px 10px 18px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .brand-mark{
+      width:44px;height:44px;border-radius:16px;
+      background:linear-gradient(135deg,var(--gold) 0%, #f3dfb6 100%);
+      color:#172130;
+      display:grid;place-items:center;
+      font-weight:900;
+      box-shadow:0 8px 18px rgba(0,0,0,.16);
+    }
+    .brand h1{margin:0;font-size:18px;line-height:1.1;letter-spacing:-.03em}
+    .brand p{margin:4px 0 0;color:rgba(255,255,255,.72);font-size:12px}
+
+    .nav-list{display:grid;gap:10px}
+    .nav-btn{
+      width:100%;border:none;cursor:pointer;
+      display:flex;align-items:center;gap:12px;
+      padding:14px 16px;border-radius:18px;
+      background:transparent;color:rgba(255,255,255,.84);
+      text-align:left;
+      transition:.2s ease;
+    }
+    .nav-btn:hover{background:rgba(255,255,255,.08);color:#fff}
+    .nav-btn.active{background:#fff;color:var(--navy);font-weight:700;box-shadow:var(--shadow-soft)}
+    .nav-ico{
+      width:34px;height:34px;border-radius:12px;
+      display:grid;place-items:center;
+      background:rgba(255,255,255,.1);
+      font-size:16px;
+      flex:none;
+    }
+    .nav-btn.active .nav-ico{background:rgba(13,27,42,.08)}
+
+    .sidebar-card{
+      margin-top:auto;
+      padding:16px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:24px;
+    }
+    .sidebar-card strong{display:block;font-size:15px}
+    .sidebar-card p{margin:8px 0 0;color:rgba(255,255,255,.75);font-size:13px;line-height:1.45}
+
+    .main{
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topbar{
+      position:sticky;top:0;z-index:15;
+      background:rgba(247,249,251,.82);
+      backdrop-filter:blur(14px);
+      border-bottom:1px solid rgba(15,23,32,.06);
+      padding:16px 26px;
+      display:flex;align-items:center;justify-content:space-between;gap:16px;
+    }
+    .topbar-left h2{margin:0;font-size:22px;letter-spacing:-.03em}
+    .topbar-left p{margin:4px 0 0;color:var(--muted);font-size:14px}
+    .topbar-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+    .content{padding:26px;display:grid;gap:22px}
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(135deg,var(--navy) 0%, var(--navy-2) 100%);
+      border-radius:34px;
+      padding:30px;
+      color:#fff;
+      box-shadow:var(--shadow);
+    }
+    .hero::before,
+    .hero::after{
+      content:"";
+      position:absolute;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(201,169,107,.22) 0%, rgba(201,169,107,0) 70%);
+      pointer-events:none;
+    }
+    .hero::before{width:280px;height:280px;right:-70px;top:-40px}
+    .hero::after{width:220px;height:220px;left:-60px;bottom:-120px}
+    .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.4fr 1fr;gap:22px;align-items:end}
+    .hero h3{margin:0;font-size:clamp(30px,4vw,48px);line-height:1.02;letter-spacing:-.05em;max-width:700px}
+    .hero p{margin:14px 0 0;color:rgba(255,255,255,.8);max-width:720px;line-height:1.55}
+    .hero-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .soft-badge{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.1);font-size:13px;color:#fff}
+
+    .stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .stat-card{
+      background:rgba(255,255,255,.1);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:24px;
+      padding:18px;
+      backdrop-filter:blur(8px);
+    }
+    .stat-card span{display:block;color:rgba(255,255,255,.78);font-size:13px}
+    .stat-card strong{display:block;margin-top:10px;font-size:34px;letter-spacing:-.04em}
+    .stat-card small{display:block;margin-top:8px;color:rgba(255,255,255,.76)}
+
+    .section{
+      background:var(--white);
+      border-radius:30px;
+      box-shadow:var(--shadow);
+      padding:22px;
+    }
+    .section-head{
+      display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;
+      margin-bottom:18px;
+    }
+    .section-head h4{margin:0;font-size:24px;letter-spacing:-.03em}
+    .section-head p{margin:6px 0 0;color:var(--muted)}
+
+    .btn{
+      border:none;cursor:pointer;
+      padding:12px 18px;
+      border-radius:999px;
+      background:var(--navy);
+      color:#fff;
+      font-weight:700;
+      box-shadow:var(--shadow-soft);
+      transition:.2s ease;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn.secondary{background:#fff;color:var(--navy);border:1px solid var(--line);box-shadow:none}
+    .btn.gold{background:linear-gradient(135deg,var(--gold) 0%, #d8bc89 100%);color:#162334}
+    .btn.ghost{background:var(--soft);color:var(--text);box-shadow:none}
+    .btn.small{padding:9px 14px;font-size:13px}
+    .btn.danger{background:#fff1f1;color:var(--bad);box-shadow:none}
+
+    .units-grid,
+    .reservations-grid,
+    .cards-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+
+    .unit-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:28px;
+      overflow:hidden;
+      box-shadow:var(--shadow-soft);
+      display:flex;flex-direction:column;
+      min-width:0;
+    }
+    .unit-visual{
+      height:170px;
+      background:linear-gradient(145deg,#f4f7fa 0%,#e7edf3 100%);
+      position:relative;
+      overflow:hidden;
+    }
+    .unit-visual::before{
+      content:"";
+      position:absolute;inset:18px;
+      border-radius:22px;
+      background:linear-gradient(145deg,#ffffff 0%,#edf3f8 100%);
+      box-shadow:inset 0 0 0 1px rgba(13,27,42,.05);
+    }
+    .unit-visual::after{
+      content:"";
+      position:absolute;left:26px;right:26px;bottom:24px;height:55px;
+      border-radius:18px;
+      background:linear-gradient(180deg,#c7d5e2 0%,#b5c7d6 100%);
+      box-shadow:0 -72px 0 -54px #d6e2eb, 84px -22px 0 -46px #dbe6ee, -84px -18px 0 -46px #dce7ee;
+    }
+    .unit-body{padding:18px;display:grid;gap:14px}
+    .unit-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .unit-title{font-size:18px;font-weight:800;line-height:1.15;letter-spacing:-.03em}
+    .unit-address{color:var(--muted);font-size:14px;line-height:1.45;margin-top:6px}
+    .status{
+      display:inline-flex;align-items:center;gap:8px;
+      white-space:nowrap;
+      padding:8px 12px;border-radius:999px;font-size:12px;font-weight:800;
+    }
+    .status::before{content:"";width:9px;height:9px;border-radius:999px}
+    .status.available{background:var(--ok-bg);color:var(--ok)}
+    .status.available::before{background:var(--ok)}
+    .status.occupied{background:var(--bad-bg);color:var(--bad)}
+    .status.occupied::before{background:var(--bad)}
+    .status.reserved{background:var(--warn-bg);color:var(--warn)}
+    .status.reserved::before{background:var(--warn)}
+
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{
+      padding:8px 11px;border-radius:999px;
+      background:var(--soft);border:1px solid var(--line);
+      color:#364152;font-size:12px;font-weight:600;
+    }
+    .unit-actions{display:flex;gap:10px;flex-wrap:wrap}
+
+    .res-card{
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:linear-gradient(180deg,#fff 0%,#fbfcfe 100%);
+      padding:18px;
+      box-shadow:var(--shadow-soft);
+      display:grid;gap:12px;
+    }
+    .res-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+    .res-title{font-weight:800;font-size:18px;letter-spacing:-.03em}
+    .meta{display:grid;gap:6px;color:#344054;font-size:14px}
+    .meta-line strong{font-weight:700}
+    .private-tag{padding:6px 10px;border-radius:999px;background:#f3f6fa;color:var(--blue);font-size:12px;font-weight:800;display:inline-flex;width:max-content}
+
+    .panel-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
+
+    .calendar-panel,
+    .history-panel,
+    .form-panel,
+    .detail-panel{
+      border:1px solid var(--line);
+      border-radius:26px;
+      background:#fff;
+      padding:18px;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .toolbar.spread{justify-content:space-between}
+    .toolbar-group{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+    .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .field-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .field{display:grid;gap:8px;min-width:0}
+    .field label{font-size:13px;font-weight:700;color:#344054}
+    .field input,
+    .field select,
+    .field textarea{
+      width:100%;border:1px solid var(--line);outline:none;background:#fff;
+      border-radius:18px;padding:13px 14px;color:var(--text);
+      transition:.2s ease;
+    }
+    .field textarea{min-height:100px;resize:vertical}
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus{border-color:#b8c6d6;box-shadow:0 0 0 4px rgba(32,65,93,.08)}
+
+    .calendar-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+    .pill-tab{
+      border:none;cursor:pointer;
+      padding:10px 14px;border-radius:999px;
+      background:var(--soft);color:var(--text);font-weight:700;
+    }
+    .pill-tab.active{background:var(--navy);color:#fff}
+
+    .calendar-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    .calendar-title{font-size:20px;font-weight:800;letter-spacing:-.03em}
+    .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+    .weekday{font-size:12px;font-weight:800;color:var(--muted);text-align:center;padding:8px 4px}
+    .day{
+      min-height:82px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:10px;
+      background:#fff;
+      position:relative;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .day.muted{opacity:.38}
+    .day.today{box-shadow:inset 0 0 0 2px rgba(201,169,107,.6)}
+    .day-num{font-size:13px;font-weight:800;color:#344054}
+    .day-badge{
+      margin-top:auto;
+      font-size:11px;font-weight:800;
+      padding:6px 8px;border-radius:999px;width:max-content;
+    }
+    .day-badge.available{background:var(--ok-bg);color:var(--ok)}
+    .day-badge.occupied{background:var(--bad-bg);color:var(--bad)}
+    .day-badge.reserved{background:var(--warn-bg);color:var(--warn)}
+
+    .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
+    .legend-item{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+    .swatch{width:12px;height:12px;border-radius:999px}
+
+    .history-controls{display:grid;grid-template-columns:1.3fr .7fr;gap:10px;margin-bottom:14px}
+    .history-list{display:grid;gap:10px;max-height:560px;overflow:auto;padding-right:2px}
+    .history-item{
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:16px;
+      background:#fff;
+      display:grid;
+      gap:8px;
+    }
+    .history-item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+
+    .empty{
+      padding:22px;border:1px dashed #ccd7e2;border-radius:22px;background:linear-gradient(180deg,#fbfdff 0%,#f6f9fc 100%);
+      color:var(--muted);text-align:center;
+    }
+
+    .mobile-tabbar{
+      display:none;
+      position:fixed;left:12px;right:12px;bottom:12px;z-index:40;
+      background:rgba(13,27,42,.95);
+      color:#fff;border-radius:26px;padding:10px;
+      box-shadow:0 20px 40px rgba(13,27,42,.24);
+      grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
+      backdrop-filter:blur(16px);
+    }
+    .tab-btn{
+      border:none;background:transparent;color:rgba(255,255,255,.74);cursor:pointer;
+      display:grid;gap:4px;justify-items:center;padding:10px 6px;border-radius:18px;font-size:11px;font-weight:700;
+    }
+    .tab-btn.active{background:#fff;color:var(--navy)}
+    .tab-btn span:first-child{font-size:18px}
+
+    .hide-mobile{display:block}
+    .show-mobile{display:none}
+
+    @media (max-width: 1200px){
+      .units-grid,.reservations-grid,.cards-3{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .panel-grid{grid-template-columns:1fr}
+      .hero-grid{grid-template-columns:1fr}
+    }
+
+    @media (max-width: 980px){
+      .app{grid-template-columns:1fr}
+      .sidebar{display:none}
+      .main{padding-bottom:calc(var(--tabbar-h) + 24px)}
+      .mobile-tabbar{display:grid}
+      .topbar{padding:16px 18px}
+      .content{padding:18px}
+      .history-controls,.field-grid,.field-grid-3{grid-template-columns:1fr}
+      .topbar-actions{display:none}
+      .show-mobile{display:inline-flex}
+      .hide-mobile{display:none}
+    }
+
+    @media (max-width: 760px){
+      .hero{padding:22px;border-radius:28px}
+      .section{padding:18px;border-radius:26px}
+      .units-grid,.reservations-grid,.cards-3{grid-template-columns:1fr}
+      .stats-grid{grid-template-columns:1fr}
+      .calendar-grid{gap:6px}
+      .day{min-height:72px;padding:8px;border-radius:16px}
+      .unit-body,.res-card,.calendar-panel,.history-panel,.form-panel,.detail-panel{padding:16px}
+      .topbar-left h2{font-size:19px}
+      .hero h3{font-size:32px}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">D</div>
+        <div>
+          <h1>Departamentos<br>Temporales</h1>
+          <p>Gestión boutique</p>
+        </div>
+      </div>
+
+      <nav class="nav-list" id="sideNav"></nav>
+
+      <div class="sidebar-card">
+        <strong>Herramienta premium</strong>
+        <p>Panel simple, reservas ordenadas, calendario visual y persistencia local en un solo archivo.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <h2 id="pageTitle">Dashboard</h2>
+          <p id="pageSubtitle">Vista general de tus unidades y movimientos próximos.</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn secondary" id="exportBtn">Exportar JSON</button>
+          <label class="btn ghost" for="importInput">Importar JSON</label>
+          <input id="importInput" type="file" accept="application/json" hidden>
+          <button class="btn gold" id="newReservationTopBtn">Nueva reserva</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="view-dashboard" class="view">
+          <div class="hero">
+            <div class="hero-grid">
+              <div>
+                <h3>Tus Propiedades, Todo Bajo Control</h3>
+                <p>Administración clara de ocupación, huéspedes, entradas, salidas y condiciones pactadas. Diseño premium, carga rápida y sin complejidad operativa.</p>
+                <div class="hero-badges">
+                  <span class="soft-badge">3 unidades cargadas</span>
+                  <span class="soft-badge">Tarifa acordada privada</span>
+                  <span class="soft-badge">Persistencia local activa</span>
+                </div>
+              </div>
+              <div class="stats-grid" id="heroStats"></div>
+            </div>
+          </div>
+
+          <section class="section">
+            <div class="section-head">
+              <div>
+                <h4>Unidades</h4>
+                <p>Estado actual, amenities, ocupación y accesos rápidos.</p>
+              </div>
+              <button class="btn show-mobile" id="newReservationMobileBtn">Nueva reserva</button>
+            </div>
+            <div class="units-grid" id="unitsGrid"></div>
+          </section>
+
+          <section class="section">
+            <div class="section-head">
+              <div>
+                <h4>Reservas activas y próximas</h4>
+                <p>Visual similar a una grilla boutique para revisar ingresos, salidas y condiciones clave.</p>
+              </div>
+            </div>
+            <div class="reservations-grid" id="activeReservations"></div>
+          </section>
+        </section>
+
+        <section id="view-reservations" class="view" hidden>
+          <div class="cards-3">
+            <div class="form-panel" style="grid-column:span 2">
+              <div class="section-head">
+                <div>
+                  <h4 id="reservationFormTitle">Nueva reserva</h4>
+                  <p>Registrá huésped, fechas, modalidad, cochera, tarifa pactada y notas internas.</p>
+                </div>
+              </div>
+              <form id="reservationForm">
+                <input type="hidden" id="reservationId">
+                <div class="field-grid">
+                  <div class="field">
+                    <label for="reservationUnit">Unidad</label>
+                    <select id="reservationUnit" required></select>
+                  </div>
+                  <div class="field">
+                    <label for="guestType">Tipo de huésped</label>
+                    <select id="guestType" required>
+                      <option value="Particular">Particular</option>
+                      <option value="Empresa">Empresa</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="guestName">Nombre del huésped</label>
+                    <input id="guestName" required placeholder="Nombre y apellido o empresa">
+                  </div>
+                  <div class="field">
+                    <label for="guestContact">Contacto</label>
+                    <input id="guestContact" required placeholder="Teléfono, mail o referencia">
+                  </div>
+                  <div class="field">
+                    <label for="checkIn">Entrada</label>
+                    <input id="checkIn" type="date" required>
+                  </div>
+                  <div class="field">
+                    <label for="checkOut">Salida</label>
+                    <input id="checkOut" type="date" required>
+                  </div>
+                  <div class="field">
+                    <label for="stayType">Modalidad</label>
+                    <select id="stayType" required>
+                      <option value="Corta 1 a 7 días">Corta 1 a 7 días</option>
+                      <option value="Media 8 a 29 días">Media 8 a 29 días</option>
+                      <option value="Mensual recurrente">Mensual recurrente</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="agreedRate">Tarifa acordada</label>
+                    <input id="agreedRate" placeholder="Ej. $420.000 o valor privado">
+                  </div>
+                  <div class="field">
+                    <label for="reservationStatus">Estado</label>
+                    <select id="reservationStatus" required>
+                      <option value="reserved">Reservado</option>
+                      <option value="occupied">Ocupado</option>
+                      <option value="completed">Finalizado</option>
+                      <option value="cancelled">Cancelado</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="parkingIncluded">Cochera</label>
+                    <select id="parkingIncluded">
+                      <option value="No">No</option>
+                      <option value="Sí">Sí</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="field" style="margin-top:14px">
+                  <label for="reservationNotes">Notas internas</label>
+                  <textarea id="reservationNotes" placeholder="Observaciones especiales, condiciones pactadas, horario de ingreso, limpieza, etc."></textarea>
+                </div>
+                <div class="toolbar" style="margin-top:16px">
+                  <button class="btn gold" type="submit">Guardar reserva</button>
+                  <button class="btn secondary" type="button" id="resetReservationForm">Limpiar</button>
+                </div>
+              </form>
+            </div>
+
+            <div class="detail-panel">
+              <div class="section-head">
+                <div>
+                  <h4>Resumen operativo</h4>
+                  <p>Datos rápidos del movimiento actual.</p>
+                </div>
+              </div>
+              <div id="reservationQuickStats" class="cards-3" style="grid-template-columns:1fr;gap:12px"></div>
+            </div>
+          </div>
+
+          <section class="section" style="margin-top:22px">
+            <div class="section-head">
+              <div>
+                <h4>Todas las reservas</h4>
+                <p>Edición directa de registros actuales e históricos.</p>
+              </div>
+            </div>
+            <div class="reservations-grid" id="allReservations"></div>
+          </section>
+        </section>
+
+        <section id="view-calendar" class="view" hidden>
+          <div class="panel-grid">
+            <div class="calendar-panel">
+              <div class="calendar-tabs" id="calendarTabs"></div>
+              <div class="calendar-head">
+                <div>
+                  <div class="calendar-title" id="calendarTitle"></div>
+                  <div class="muted" id="calendarSubtitle"></div>
+                </div>
+                <div class="toolbar-group">
+                  <button class="btn secondary small" id="prevMonthBtn">Mes anterior</button>
+                  <button class="btn secondary small" id="todayMonthBtn">Hoy</button>
+                  <button class="btn secondary small" id="nextMonthBtn">Mes siguiente</button>
+                </div>
+              </div>
+              <div class="calendar-grid" id="calendarGrid"></div>
+              <div class="legend">
+                <div class="legend-item"><span class="swatch" style="background:var(--ok-bg);border:1px solid rgba(31,157,101,.18)"></span> Disponible</div>
+                <div class="legend-item"><span class="swatch" style="background:var(--warn-bg);border:1px solid rgba(183,121,31,.18)"></span> Reservado</div>
+                <div class="legend-item"><span class="swatch" style="background:var(--bad-bg);border:1px solid rgba(194,65,65,.18)"></span> Ocupado</div>
+              </div>
+            </div>
+
+            <div class="detail-panel">
+              <div class="section-head">
+                <div>
+                  <h4>Detalle de unidad</h4>
+                  <p>Resumen del departamento seleccionado.</p>
+                </div>
+              </div>
+              <div id="calendarUnitSummary"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-history" class="view" hidden>
+          <div class="history-panel">
+            <div class="section-head">
+              <div>
+                <h4>Historial de huéspedes</h4>
+                <p>Buscador por nombre, fecha, contacto, notas o unidad.</p>
+              </div>
+            </div>
+            <div class="history-controls">
+              <div class="field">
+                <label for="historySearch">Buscar</label>
+                <input id="historySearch" placeholder="Nombre, fecha, contacto, tarifa o nota interna">
+              </div>
+              <div class="field">
+                <label for="historyUnitFilter">Unidad</label>
+                <select id="historyUnitFilter"></select>
+              </div>
+            </div>
+            <div class="history-list" id="historyList"></div>
+          </div>
+        </section>
+
+        <section id="view-units" class="view" hidden>
+          <div class="cards-3" id="unitsEditor"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <nav class="mobile-tabbar" id="mobileNav"></nav>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD-vaiTZyXzIWdFJ61A8ppXu2h2E4A1uQA",
+      authDomain: "departamentos-37c4e.firebaseapp.com",
+      projectId: "departamentos-37c4e",
+      storageBucket: "departamentos-37c4e.firebasestorage.app",
+      messagingSenderId: "477447574305",
+      appId: "1:477447574305:web:8eaeb10e11f99e9cbd2460"
+    };
+    const firebaseApp = initializeApp(firebaseConfig);
+    window.firebaseApp = firebaseApp;
+
+    const STORAGE_KEY = "departamentos_boutique_v2";
+    const viewsMeta = {
+      dashboard: { title: "Dashboard", subtitle: "Vista general de tus unidades y movimientos próximos.", icon: "⌂", label: "Inicio" },
+      reservations: { title: "Reservas", subtitle: "Alta, edición y control completo de estadías.", icon: "🗓", label: "Reservas" },
+      calendar: { title: "Calendario", subtitle: "Ocupación mensual por unidad, de un vistazo.", icon: "▦", label: "Calendario" },
+      history: { title: "Historial", subtitle: "Consulta rápida de huéspedes y reservas previas.", icon: "🕘", label: "Historial" },
+      units: { title: "Unidades", subtitle: "Edición de datos, amenities, fotos y observaciones.", icon: "🏢", label: "Unidades" }
+    };
+
+    const defaultState = {
+      units: [
+        {
+          id: "u1",
+          name: "Unidad 1",
+          title: "Stefenelli & Matheu",
+          subtitle: "Barrio Gama",
+          address: "Stefenelli & Matheu, Barrio Gama",
+          description: "Monoambiente totalmente equipado, balcón a la calle, cochera opcional.",
+          amenities: ["Monoambiente", "Totalmente equipado", "Balcón a la calle", "Cochera opcional"],
+          photos: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80"],
+          notes: "Unidad orientada a estadías temporales con administración flexible.",
+          parkingOptional: true
+        },
+        {
+          id: "u2",
+          name: "Unidad 2",
+          title: "Roca 135, Piso 12-B",
+          subtitle: "A 1 cuadra del Monumento a San Martín",
+          address: "Roca 135, Piso 12-B",
+          description: "Monoambiente equipamiento full, balcón a la calle, cochera opcional.",
+          amenities: ["Monoambiente", "Equipamiento full", "Balcón a la calle", "Cochera opcional"],
+          photos: ["https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80"],
+          notes: "Unidad céntrica con salida rápida hacia puntos neurálgicos de la ciudad.",
+          parkingOptional: true
+        },
+        {
+          id: "u3",
+          name: "Unidad 3",
+          title: "Roca 135, Piso 13-B",
+          subtitle: "A 1 cuadra del Monumento a San Martín",
+          address: "Roca 135, Piso 13-B",
+          description: "Monoambiente equipamiento full, balcón a la calle, cochera opcional.",
+          amenities: ["Monoambiente", "Equipamiento full", "Balcón a la calle", "Cochera opcional"],
+          photos: ["https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80"],
+          notes: "Ideal para estadías medias y mensuales recurrentes.",
+          parkingOptional: true
+        }
+      ],
+      reservations: [
+        {
+          id: uid(),
+          unitId: "u1",
+          guestName: "Marina López",
+          guestContact: "+54 9 299 555 0191",
+          guestType: "Particular",
+          checkIn: plusDays(1),
+          checkOut: plusDays(5),
+          stayType: "Corta 1 a 7 días",
+          parkingIncluded: "Sí",
+          agreedRate: "$210.000",
+          status: "reserved",
+          notes: "Ingreso coordinado por la tarde. Solicita cochera fija.",
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: uid(),
+          unitId: "u2",
+          guestName: "Consultora Vértice",
+          guestContact: "operaciones@vertice.com",
+          guestType: "Empresa",
+          checkIn: plusDays(-2),
+          checkOut: plusDays(10),
+          stayType: "Media 8 a 29 días",
+          parkingIncluded: "No",
+          agreedRate: "$640.000",
+          status: "occupied",
+          notes: "Factura A. Renovación posible por 15 días más.",
+          createdAt: new Date().toISOString()
+        }
+      ]
+    };
+
+    let state = loadState();
+    let currentView = "dashboard";
+    let calendarUnitId = state.units[0]?.id || "u1";
+    let calendarDate = new Date();
+
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    function uid(){
+      return "id_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
+    }
+    function plusDays(days){
+      const d = new Date();
+      d.setHours(0,0,0,0);
+      d.setDate(d.getDate()+days);
+      return d.toISOString().slice(0,10);
+    }
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(!raw) return structuredClone(defaultState);
+        const parsed = JSON.parse(raw);
+        if(!parsed.units || !parsed.reservations) return structuredClone(defaultState);
+        return parsed;
+      }catch{
+        return structuredClone(defaultState);
+      }
+    }
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function parseDate(value){
+      const d = new Date(value + "T00:00:00");
+      d.setHours(0,0,0,0);
+      return d;
+    }
+    function formatDate(dateStr){
+      if(!dateStr) return "-";
+      return new Intl.DateTimeFormat("es-AR", { day:"2-digit", month:"short", year:"numeric" }).format(parseDate(dateStr));
+    }
+    function formatRange(a,b){
+      return `${formatDate(a)} al ${formatDate(b)}`;
+    }
+    function daysBetween(a,b){
+      const ms = parseDate(b) - parseDate(a);
+      return Math.max(1, Math.round(ms / 86400000));
+    }
+    function sameDay(a,b){
+      return a.toISOString().slice(0,10) === b.toISOString().slice(0,10);
+    }
+    function isActiveReservation(r){
+      return r.status !== "completed" && r.status !== "cancelled";
+    }
+    function today(){
+      const d = new Date();
+      d.setHours(0,0,0,0);
+      return d;
+    }
+    function reservationIntersectsDate(reservation, date){
+      const checkIn = parseDate(reservation.checkIn);
+      const checkOut = parseDate(reservation.checkOut);
+      return date >= checkIn && date < checkOut;
+    }
+    function reservationIncludesToday(reservation){
+      return reservationIntersectsDate(reservation, today());
+    }
+    function getReservationsByUnit(unitId){
+      return state.reservations.filter(r => r.unitId === unitId);
+    }
+    function getUnit(unitId){
+      return state.units.find(u => u.id === unitId);
+    }
+    function getUnitStatus(unitId, date=today()){
+      const reservations = getReservationsByUnit(unitId).filter(isActiveReservation);
+      const hit = reservations.find(r => reservationIntersectsDate(r, date));
+      if(hit){
+        if(hit.status === "occupied") return "occupied";
+        return "reserved";
+      }
+      return "available";
+    }
+    function getStatusLabel(status){
+      return ({available:"Disponible", occupied:"Ocupado", reserved:"Reservado", completed:"Finalizado", cancelled:"Cancelado"})[status] || status;
+    }
+    function sanitize(text){
+      return String(text || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+    function sortReservations(list){
+      return [...list].sort((a,b) => parseDate(a.checkIn) - parseDate(b.checkIn));
+    }
+
+    function computeStats(){
+      const t = today();
+      const unitsFree = state.units.filter(u => getUnitStatus(u.id, t) === "available").length;
+      const upcomingEntries = state.reservations.filter(r => isActiveReservation(r) && parseDate(r.checkIn) >= t).sort((a,b)=>parseDate(a.checkIn)-parseDate(b.checkIn));
+      const upcomingExits = state.reservations.filter(r => isActiveReservation(r) && parseDate(r.checkOut) >= t).sort((a,b)=>parseDate(a.checkOut)-parseDate(b.checkOut));
+      const occupiedNow = state.reservations.filter(r => r.status === "occupied" && reservationIncludesToday(r)).length;
+      return {
+        unitsFree,
+        upcomingEntries,
+        upcomingExits,
+        occupiedNow
+      };
+    }
+
+    function renderNav(){
+      const entries = Object.entries(viewsMeta);
+      $("#sideNav").innerHTML = entries.map(([key,meta]) => `
+        <button class="nav-btn ${currentView===key?'active':''}" data-view="${key}">
+          <span class="nav-ico">${meta.icon}</span>
+          <span>${meta.label}</span>
+        </button>
+      `).join("");
+      $("#mobileNav").innerHTML = entries.slice(0,4).map(([key,meta]) => `
+        <button class="tab-btn ${currentView===key?'active':''}" data-view="${key}">
+          <span>${meta.icon}</span>
+          <span>${meta.label}</span>
+        </button>
+      `).join("") + `
+        <button class="tab-btn ${currentView==='units'?'active':''}" data-view="units">
+          <span>🏢</span>
+          <span>Unidades</span>
+        </button>`;
+
+      $$('[data-view]').forEach(btn => btn.addEventListener('click', () => setView(btn.dataset.view)));
+    }
+
+    function setView(view){
+      currentView = view;
+      Object.keys(viewsMeta).forEach(key => {
+        const el = document.getElementById(`view-${key}`);
+        if(el) el.hidden = key !== view;
+      });
+      $("#pageTitle").textContent = viewsMeta[view].title;
+      $("#pageSubtitle").textContent = viewsMeta[view].subtitle;
+      renderNav();
+    }
+
+    function renderHeroStats(){
+      const stats = computeStats();
+      $("#heroStats").innerHTML = `
+        <div class="stat-card"><span>Libres hoy</span><strong>${stats.unitsFree}</strong><small>${state.units.length} unidades cargadas</small></div>
+        <div class="stat-card"><span>Próximas entradas</span><strong>${stats.upcomingEntries.length}</strong><small>${stats.upcomingEntries[0] ? formatDate(stats.upcomingEntries[0].checkIn) : 'Sin ingresos próximos'}</small></div>
+        <div class="stat-card"><span>Próximas salidas</span><strong>${stats.upcomingExits.length}</strong><small>${stats.upcomingExits[0] ? formatDate(stats.upcomingExits[0].checkOut) : 'Sin salidas próximas'}</small></div>
+      `;
+    }
+
+    function renderUnitsGrid(){
+      $("#unitsGrid").innerHTML = state.units.map(unit => {
+        const status = getUnitStatus(unit.id);
+        const reservations = sortReservations(getReservationsByUnit(unit.id).filter(isActiveReservation));
+        const nextReservation = reservations.find(r => parseDate(r.checkOut) >= today());
+        return `
+          <article class="unit-card">
+            <div class="unit-visual"></div>
+            <div class="unit-body">
+              <div class="unit-top">
+                <div>
+                  <div class="unit-title">${sanitize(unit.name)} — ${sanitize(unit.title)}</div>
+                  <div class="unit-address">${sanitize(unit.subtitle)}<br>${sanitize(unit.address)}</div>
+                </div>
+                <span class="status ${status}">${getStatusLabel(status)}</span>
+              </div>
+              <div class="chips">${(unit.amenities || []).map(a => `<span class="chip">${sanitize(a)}</span>`).join("")}</div>
+              <div class="muted">${sanitize(unit.description || '')}</div>
+              <div class="muted">${nextReservation ? `Próximo movimiento: ${sanitize(nextReservation.guestName)} · ${formatRange(nextReservation.checkIn, nextReservation.checkOut)}` : 'Sin reservas activas ni próximas.'}</div>
+              <div class="unit-actions">
+                <button class="btn small" data-open-reservation-unit="${unit.id}">Nueva reserva</button>
+                <button class="btn secondary small" data-open-calendar-unit="${unit.id}">Ver calendario</button>
+                <button class="btn ghost small" data-open-unit-editor="${unit.id}">Editar unidad</button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      $$('[data-open-reservation-unit]').forEach(btn => btn.addEventListener('click', () => {
+        resetReservationForm(btn.dataset.openReservationUnit);
+        setView('reservations');
+      }));
+      $$('[data-open-calendar-unit]').forEach(btn => btn.addEventListener('click', () => {
+        calendarUnitId = btn.dataset.openCalendarUnit;
+        setView('calendar');
+        renderCalendar();
+      }));
+      $$('[data-open-unit-editor]').forEach(btn => btn.addEventListener('click', () => {
+        setView('units');
+        setTimeout(() => document.getElementById(`unit-editor-${btn.dataset.openUnitEditor}`)?.scrollIntoView({behavior:'smooth', block:'start'}), 0);
+      }));
+    }
+
+    function renderActiveReservations(){
+      const list = sortReservations(state.reservations.filter(isActiveReservation).filter(r => parseDate(r.checkOut) >= today()));
+      const target = $("#activeReservations");
+      if(!list.length){
+        target.innerHTML = `<div class="empty" style="grid-column:1/-1">No hay reservas activas ni próximas.</div>`;
+        return;
+      }
+      target.innerHTML = list.map(r => reservationCard(r, true)).join("");
+      attachReservationCardActions();
+    }
+
+    function reservationCard(r, compact=false){
+      const unit = getUnit(r.unitId);
+      const duration = daysBetween(r.checkIn, r.checkOut);
+      return `
+        <article class="res-card">
+          <div class="res-top">
+            <div>
+              <div class="res-title">${sanitize(r.guestName)}</div>
+              <div class="muted">${sanitize(unit?.name || '')} · ${sanitize(unit?.title || '')}</div>
+            </div>
+            <span class="status ${r.status==='occupied'?'occupied':r.status==='reserved'?'reserved':'available'}">${getStatusLabel(r.status)}</span>
+          </div>
+          <div class="meta">
+            <div class="meta-line"><strong>Contacto:</strong> ${sanitize(r.guestContact)}</div>
+            <div class="meta-line"><strong>Tipo:</strong> ${sanitize(r.guestType)}</div>
+            <div class="meta-line"><strong>Estadía:</strong> ${sanitize(r.stayType)} · ${duration} ${duration===1?'día':'días'}</div>
+            <div class="meta-line"><strong>Fechas:</strong> ${formatRange(r.checkIn, r.checkOut)}</div>
+            <div class="meta-line"><strong>Cochera:</strong> ${sanitize(r.parkingIncluded)}</div>
+          </div>
+          <span class="private-tag">Tarifa acordada: ${sanitize(r.agreedRate || 'No especificada')}</span>
+          ${r.notes ? `<div class="muted">${sanitize(r.notes)}</div>` : ''}
+          <div class="toolbar">
+            <button class="btn secondary small" data-edit-reservation="${r.id}">Editar</button>
+            <button class="btn danger small" data-delete-reservation="${r.id}">Eliminar</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function attachReservationCardActions(){
+      $$('[data-edit-reservation]').forEach(btn => btn.addEventListener('click', () => editReservation(btn.dataset.editReservation)));
+      $$('[data-delete-reservation]').forEach(btn => btn.addEventListener('click', () => deleteReservation(btn.dataset.deleteReservation)));
+    }
+
+    function renderReservationQuickStats(){
+      const stats = computeStats();
+      $("#reservationQuickStats").innerHTML = `
+        <div class="res-card"><div class="res-title">${stats.occupiedNow}</div><div class="muted">Unidades ocupadas hoy</div></div>
+        <div class="res-card"><div class="res-title">${stats.upcomingEntries.length}</div><div class="muted">Entradas programadas</div></div>
+        <div class="res-card"><div class="res-title">${stats.upcomingExits.length}</div><div class="muted">Salidas programadas</div></div>
+      `;
+    }
+
+    function renderAllReservations(){
+      const list = sortReservations(state.reservations);
+      const target = $("#allReservations");
+      if(!list.length){
+        target.innerHTML = `<div class="empty" style="grid-column:1/-1">Todavía no hay reservas cargadas.</div>`;
+        return;
+      }
+      target.innerHTML = list.map(r => reservationCard(r)).join("");
+      attachReservationCardActions();
+    }
+
+    function fillReservationUnitOptions(){
+      $("#reservationUnit").innerHTML = state.units.map(u => `<option value="${u.id}">${sanitize(u.name)} — ${sanitize(u.title)}</option>`).join("");
+      $("#historyUnitFilter").innerHTML = `<option value="all">Todas las unidades</option>` + state.units.map(u => `<option value="${u.id}">${sanitize(u.name)} — ${sanitize(u.title)}</option>`).join("");
+    }
+
+    function resetReservationForm(unitId = state.units[0]?.id || ''){
+      $("#reservationFormTitle").textContent = 'Nueva reserva';
+      $("#reservationId").value = '';
+      $("#reservationUnit").value = unitId;
+      $("#guestType").value = 'Particular';
+      $("#guestName").value = '';
+      $("#guestContact").value = '';
+      $("#checkIn").value = plusDays(0);
+      $("#checkOut").value = plusDays(2);
+      $("#stayType").value = 'Corta 1 a 7 días';
+      $("#parkingIncluded").value = 'No';
+      $("#agreedRate").value = '';
+      $("#reservationStatus").value = 'reserved';
+      $("#reservationNotes").value = '';
+    }
+
+    function editReservation(id){
+      const r = state.reservations.find(x => x.id === id);
+      if(!r) return;
+      setView('reservations');
+      $("#reservationFormTitle").textContent = 'Editar reserva';
+      $("#reservationId").value = r.id;
+      $("#reservationUnit").value = r.unitId;
+      $("#guestType").value = r.guestType;
+      $("#guestName").value = r.guestName;
+      $("#guestContact").value = r.guestContact;
+      $("#checkIn").value = r.checkIn;
+      $("#checkOut").value = r.checkOut;
+      $("#stayType").value = r.stayType;
+      $("#parkingIncluded").value = r.parkingIncluded;
+      $("#agreedRate").value = r.agreedRate;
+      $("#reservationStatus").value = r.status;
+      $("#reservationNotes").value = r.notes || '';
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function deleteReservation(id){
+      const r = state.reservations.find(x => x.id === id);
+      if(!r) return;
+      const ok = confirm(`Eliminar la reserva de ${r.guestName}?`);
+      if(!ok) return;
+      state.reservations = state.reservations.filter(x => x.id !== id);
+      saveState();
+      renderAll();
+    }
+
+    function handleReservationSubmit(e){
+      e.preventDefault();
+      const payload = {
+        id: $("#reservationId").value || uid(),
+        unitId: $("#reservationUnit").value,
+        guestType: $("#guestType").value,
+        guestName: $("#guestName").value.trim(),
+        guestContact: $("#guestContact").value.trim(),
+        checkIn: $("#checkIn").value,
+        checkOut: $("#checkOut").value,
+        stayType: $("#stayType").value,
+        parkingIncluded: $("#parkingIncluded").value,
+        agreedRate: $("#agreedRate").value.trim(),
+        status: $("#reservationStatus").value,
+        notes: $("#reservationNotes").value.trim(),
+        createdAt: new Date().toISOString()
+      };
+
+      if(parseDate(payload.checkOut) <= parseDate(payload.checkIn)){
+        alert('La fecha de salida debe ser posterior a la entrada.');
+        return;
+      }
+
+      const index = state.reservations.findIndex(r => r.id === payload.id);
+      if(index >= 0){
+        payload.createdAt = state.reservations[index].createdAt || payload.createdAt;
+        state.reservations[index] = payload;
+      } else {
+        state.reservations.push(payload);
+      }
+
+      saveState();
+      resetReservationForm(payload.unitId);
+      renderAll();
+      setView('reservations');
+    }
+
+    function renderCalendarTabs(){
+      $("#calendarTabs").innerHTML = state.units.map(u => `
+        <button class="pill-tab ${u.id===calendarUnitId?'active':''}" data-calendar-unit="${u.id}">${sanitize(u.name)}</button>
+      `).join("");
+      $$('[data-calendar-unit]').forEach(btn => btn.addEventListener('click', () => {
+        calendarUnitId = btn.dataset.calendarUnit;
+        renderCalendar();
+      }));
+    }
+
+    function getDateStatusForUnit(unitId, date){
+      const active = getReservationsByUnit(unitId).filter(isActiveReservation);
+      const hit = active.find(r => reservationIntersectsDate(r, date));
+      if(hit){
+        return hit.status === 'occupied' ? 'occupied' : 'reserved';
+      }
+      return 'available';
+    }
+
+    function renderCalendar(){
+      renderCalendarTabs();
+      const unit = getUnit(calendarUnitId);
+      if(!unit) return;
+
+      const year = calendarDate.getFullYear();
+      const month = calendarDate.getMonth();
+      const first = new Date(year, month, 1);
+      const last = new Date(year, month + 1, 0);
+      const startWeekDay = (first.getDay() + 6) % 7;
+      const daysInMonth = last.getDate();
+      const prevMonthDays = new Date(year, month, 0).getDate();
+      const weekdays = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+
+      $("#calendarTitle").textContent = new Intl.DateTimeFormat('es-AR', { month:'long', year:'numeric' }).format(first);
+      $("#calendarSubtitle").textContent = `${unit.name} · ${unit.title}`;
+
+      let html = weekdays.map(w => `<div class="weekday">${w}</div>`).join('');
+
+      for(let i = 0; i < startWeekDay; i++){
+        const d = new Date(year, month - 1, prevMonthDays - startWeekDay + i + 1);
+        html += dayCell(d, true);
+      }
+      for(let d = 1; d <= daysInMonth; d++){
+        html += dayCell(new Date(year, month, d), false);
+      }
+      const totalCells = startWeekDay + daysInMonth;
+      const tail = (7 - (totalCells % 7)) % 7;
+      for(let i = 1; i <= tail; i++){
+        html += dayCell(new Date(year, month + 1, i), true);
+      }
+      $("#calendarGrid").innerHTML = html;
+
+      const unitReservations = sortReservations(getReservationsByUnit(unit.id).filter(isActiveReservation));
+      $("#calendarUnitSummary").innerHTML = `
+        <div class="res-card">
+          <div class="res-title">${sanitize(unit.name)} — ${sanitize(unit.title)}</div>
+          <div class="muted">${sanitize(unit.address)}</div>
+          <div class="chips">${(unit.amenities || []).map(a => `<span class="chip">${sanitize(a)}</span>`).join('')}</div>
+          <div class="muted">${sanitize(unit.description || '')}</div>
+        </div>
+        <div style="height:12px"></div>
+        ${unitReservations.length ? unitReservations.map(r => reservationCard(r)).join('') : '<div class="empty">No hay reservas cargadas para esta unidad.</div>'}
+      `;
+      attachReservationCardActions();
+
+      function dayCell(date, muted){
+        const status = getDateStatusForUnit(unit.id, date);
+        const isToday = sameDay(date, today());
+        return `
+          <div class="day ${muted ? 'muted' : ''} ${isToday ? 'today' : ''}">
+            <div class="day-num">${date.getDate()}</div>
+            <span class="day-badge ${status}">${getStatusLabel(status)}</span>
+          </div>
+        `;
+      }
+    }
+
+    function renderHistory(){
+      const q = $("#historySearch").value.trim().toLowerCase();
+      const unitFilter = $("#historyUnitFilter").value;
+      let list = sortReservations(state.reservations);
+      if(unitFilter !== 'all') list = list.filter(r => r.unitId === unitFilter);
+      if(q){
+        list = list.filter(r => {
+          const unit = getUnit(r.unitId);
+          const blob = [
+            r.guestName, r.guestContact, r.guestType, r.checkIn, r.checkOut, r.stayType,
+            r.agreedRate, r.notes, getStatusLabel(r.status), unit?.name, unit?.title, unit?.address
+          ].join(' ').toLowerCase();
+          return blob.includes(q);
+        });
+      }
+
+      const target = $("#historyList");
+      if(!list.length){
+        target.innerHTML = `<div class="empty">No se encontraron coincidencias.</div>`;
+        return;
+      }
+      target.innerHTML = list.map(r => {
+        const unit = getUnit(r.unitId);
+        return `
+          <article class="history-item">
+            <div class="history-item-top">
+              <div>
+                <div class="res-title">${sanitize(r.guestName)}</div>
+                <div class="muted">${sanitize(unit?.name || '')} · ${sanitize(unit?.title || '')}</div>
+              </div>
+              <span class="status ${r.status==='occupied'?'occupied':r.status==='reserved'?'reserved':'available'}">${getStatusLabel(r.status)}</span>
+            </div>
+            <div class="meta">
+              <div><strong>Fechas:</strong> ${formatRange(r.checkIn, r.checkOut)}</div>
+              <div><strong>Contacto:</strong> ${sanitize(r.guestContact)}</div>
+              <div><strong>Tipo:</strong> ${sanitize(r.guestType)} · <strong>Modalidad:</strong> ${sanitize(r.stayType)}</div>
+              <div><strong>Cochera:</strong> ${sanitize(r.parkingIncluded)} · <strong>Tarifa acordada:</strong> ${sanitize(r.agreedRate || 'No especificada')}</div>
+              ${r.notes ? `<div><strong>Notas:</strong> ${sanitize(r.notes)}</div>` : ''}
+            </div>
+            <div class="toolbar">
+              <button class="btn secondary small" data-edit-reservation="${r.id}">Editar</button>
+              <button class="btn danger small" data-delete-reservation="${r.id}">Eliminar</button>
+            </div>
+          </article>
+        `;
+      }).join('');
+      attachReservationCardActions();
+    }
+
+    function renderUnitsEditor(){
+      const target = $("#unitsEditor");
+      target.innerHTML = state.units.map(unit => `
+        <article class="form-panel" id="unit-editor-${unit.id}">
+          <div class="section-head">
+            <div>
+              <h4>${sanitize(unit.name)} — ${sanitize(unit.title)}</h4>
+              <p>Edición completa de descripción, amenities, fotos y observaciones.</p>
+            </div>
+          </div>
+          <form data-unit-form="${unit.id}">
+            <div class="field-grid">
+              <div class="field">
+                <label>Nombre corto</label>
+                <input name="name" value="${sanitize(unit.name)}">
+              </div>
+              <div class="field">
+                <label>Título principal</label>
+                <input name="title" value="${sanitize(unit.title)}">
+              </div>
+              <div class="field">
+                <label>Subtítulo</label>
+                <input name="subtitle" value="${sanitize(unit.subtitle || '')}">
+              </div>
+              <div class="field">
+                <label>Dirección</label>
+                <input name="address" value="${sanitize(unit.address || '')}">
+              </div>
+            </div>
+            <div class="field" style="margin-top:14px">
+              <label>Descripción</label>
+              <textarea name="description">${sanitize(unit.description || '')}</textarea>
+            </div>
+            <div class="field-grid" style="margin-top:14px">
+              <div class="field">
+                <label>Amenities separados por coma</label>
+                <textarea name="amenities">${sanitize((unit.amenities || []).join(', '))}</textarea>
+              </div>
+              <div class="field">
+                <label>Fotos por URL separadas por coma</label>
+                <textarea name="photos">${sanitize((unit.photos || []).join(', '))}</textarea>
+              </div>
+            </div>
+            <div class="field" style="margin-top:14px">
+              <label>Observaciones internas</label>
+              <textarea name="notes">${sanitize(unit.notes || '')}</textarea>
+            </div>
+            <div class="toolbar" style="margin-top:16px">
+              <button class="btn gold" type="submit">Guardar unidad</button>
+            </div>
+          </form>
+        </article>
+      `).join('');
+
+      $$('[data-unit-form]').forEach(form => form.addEventListener('submit', e => {
+        e.preventDefault();
+        const id = form.getAttribute('data-unit-form');
+        const unit = getUnit(id);
+        if(!unit) return;
+        const fd = new FormData(form);
+        unit.name = String(fd.get('name') || '').trim();
+        unit.title = String(fd.get('title') || '').trim();
+        unit.subtitle = String(fd.get('subtitle') || '').trim();
+        unit.address = String(fd.get('address') || '').trim();
+        unit.description = String(fd.get('description') || '').trim();
+        unit.amenities = String(fd.get('amenities') || '').split(',').map(x => x.trim()).filter(Boolean);
+        unit.photos = String(fd.get('photos') || '').split(',').map(x => x.trim()).filter(Boolean);
+        unit.notes = String(fd.get('notes') || '').trim();
+        saveState();
+        renderAll();
+      }));
+    }
+
+    function bindControls(){
+      $("#reservationForm").addEventListener('submit', handleReservationSubmit);
+      $("#resetReservationForm").addEventListener('click', () => resetReservationForm());
+      $("#prevMonthBtn").addEventListener('click', () => { calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth()-1, 1); renderCalendar(); });
+      $("#nextMonthBtn").addEventListener('click', () => { calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth()+1, 1); renderCalendar(); });
+      $("#todayMonthBtn").addEventListener('click', () => { calendarDate = new Date(); renderCalendar(); });
+      $("#historySearch").addEventListener('input', renderHistory);
+      $("#historyUnitFilter").addEventListener('change', renderHistory);
+      $("#newReservationTopBtn").addEventListener('click', () => { resetReservationForm(); setView('reservations'); });
+      $("#newReservationMobileBtn").addEventListener('click', () => { resetReservationForm(); setView('reservations'); });
+
+      $("#exportBtn").addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `departamentos-backup-${new Date().toISOString().slice(0,10)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      $("#importInput").addEventListener('change', async (e) => {
+        const file = e.target.files?.[0];
+        if(!file) return;
+        const text = await file.text();
+        try{
+          const parsed = JSON.parse(text);
+          if(!parsed.units || !parsed.reservations) throw new Error('Formato inválido');
+          state = parsed;
+          saveState();
+          renderAll();
+        }catch{
+          alert('El archivo no tiene un formato válido.');
+        } finally {
+          e.target.value = '';
+        }
+      });
+    }
+
+    function renderAll(){
+      fillReservationUnitOptions();
+      renderHeroStats();
+      renderUnitsGrid();
+      renderActiveReservations();
+      renderReservationQuickStats();
+      renderAllReservations();
+      renderCalendar();
+      renderHistory();
+      renderUnitsEditor();
+      renderNav();
+    }
+
+    bindControls();
+    renderAll();
+    resetReservationForm();
+    setView('dashboard');
+  </script>
+</body>
+</html>
