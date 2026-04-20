@@ -1471,7 +1471,8 @@ function renderClientUnits(){
     const available=unitIsAvailable(u.id,startDate,endDate);
     const nights=calcStayNights(startDate,endDate);
     const total=nights * Number(u.baseRate||0);
-    return `<article class="client-unit-card">
+    const isSelected=clientUi.selectedUnitId===u.id;
+    return `<article class="client-unit-card ${isSelected?'selected':''}">
       <div class="client-unit-media"><img src="${u.photos?.[0]||''}" alt="${u.name}"></div>
       <div>
         <h3>${u.name}</h3>
@@ -1488,6 +1489,7 @@ function renderClientUnits(){
       <button class="btn ${available?'dark':'light'}" type="button" ${available?'':'disabled'} onclick="selectClientUnit('${u.id}')">${available?'Reservar esta unidad':'Sin disponibilidad'}</button>
     </article>`;
   }).join('');
+  $('#clientUnitsGrid').innerHTML=units || '<div class="empty">No hay unidades cargadas.</div>';
 }
 function renderClientSummary(){
   const u=getClientSelectedUnit();
