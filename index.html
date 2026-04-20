@@ -1,1354 +1,1166 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gestión Boutique | Alquiler Temporal</title>
-  <meta name="theme-color" content="#0D1B2A" />
-  <style>
-    :root{
-      --bg:#eef2f5;
-      --navy:#0D1B2A;
-      --navy-2:#1B2A3B;
-      --white:#ffffff;
-      --text:#0f1720;
-      --muted:#667085;
-      --line:#e7ecf1;
-      --soft:#f6f8fb;
-      --gold:#c9a96b;
-      --gold-soft:#efe3cc;
-      --blue:#20415d;
-      --ok:#1f9d65;
-      --ok-bg:#e9f8f1;
-      --warn:#b7791f;
-      --warn-bg:#fff4dd;
-      --bad:#c24141;
-      --bad-bg:#fdecec;
-      --shadow:0 18px 40px rgba(13,27,42,.08);
-      --shadow-soft:0 10px 24px rgba(13,27,42,.06);
-      --radius-xl:28px;
-      --radius-lg:22px;
-      --radius-md:18px;
-      --radius-sm:14px;
-      --sidebar-w:280px;
-      --tabbar-h:78px;
-    }
-
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      background:linear-gradient(180deg,#e9eef3 0%,#f7f9fb 100%);
-      color:var(--text);
-      font-family:Inter, Poppins, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    }
-    button,input,select,textarea{font:inherit}
-    img{max-width:100%;display:block}
-    a{text-decoration:none;color:inherit}
-
-    .app{
-      min-height:100vh;
-      display:grid;
-      grid-template-columns:var(--sidebar-w) 1fr;
-    }
-
-    .sidebar{
-      position:sticky;
-      top:0;
-      height:100vh;
-      padding:22px 18px;
-      background:linear-gradient(180deg,var(--navy) 0%, var(--navy-2) 100%);
-      color:#fff;
-      display:flex;
-      flex-direction:column;
-      gap:18px;
-      box-shadow:inset -1px 0 0 rgba(255,255,255,.06);
-      z-index:20;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding:12px 10px 18px;
-      border-bottom:1px solid rgba(255,255,255,.08);
-    }
-    .brand-mark{
-      width:44px;height:44px;border-radius:16px;
-      background:linear-gradient(135deg,var(--gold) 0%, #f3dfb6 100%);
-      color:#172130;
-      display:grid;place-items:center;
-      font-weight:900;
-      box-shadow:0 8px 18px rgba(0,0,0,.16);
-    }
-    .brand h1{margin:0;font-size:18px;line-height:1.1;letter-spacing:-.03em}
-    .brand p{margin:4px 0 0;color:rgba(255,255,255,.72);font-size:12px}
-
-    .nav-list{display:grid;gap:10px}
-    .nav-btn{
-      width:100%;border:none;cursor:pointer;
-      display:flex;align-items:center;gap:12px;
-      padding:14px 16px;border-radius:18px;
-      background:transparent;color:rgba(255,255,255,.84);
-      text-align:left;
-      transition:.2s ease;
-    }
-    .nav-btn:hover{background:rgba(255,255,255,.08);color:#fff}
-    .nav-btn.active{background:#fff;color:var(--navy);font-weight:700;box-shadow:var(--shadow-soft)}
-    .nav-ico{
-      width:34px;height:34px;border-radius:12px;
-      display:grid;place-items:center;
-      background:rgba(255,255,255,.1);
-      font-size:16px;
-      flex:none;
-    }
-    .nav-btn.active .nav-ico{background:rgba(13,27,42,.08)}
-
-    .sidebar-card{
-      margin-top:auto;
-      padding:16px;
-      background:rgba(255,255,255,.08);
-      border:1px solid rgba(255,255,255,.08);
-      border-radius:24px;
-    }
-    .sidebar-card strong{display:block;font-size:15px}
-    .sidebar-card p{margin:8px 0 0;color:rgba(255,255,255,.75);font-size:13px;line-height:1.45}
-
-    .main{
-      min-width:0;
-      display:flex;
-      flex-direction:column;
-    }
-
-    .topbar{
-      position:sticky;top:0;z-index:15;
-      background:rgba(247,249,251,.82);
-      backdrop-filter:blur(14px);
-      border-bottom:1px solid rgba(15,23,32,.06);
-      padding:16px 26px;
-      display:flex;align-items:center;justify-content:space-between;gap:16px;
-    }
-    .topbar-left h2{margin:0;font-size:22px;letter-spacing:-.03em}
-    .topbar-left p{margin:4px 0 0;color:var(--muted);font-size:14px}
-    .topbar-actions{display:flex;gap:10px;flex-wrap:wrap}
-
-    .content{padding:26px;display:grid;gap:22px}
-
-    .hero{
-      position:relative;
-      overflow:hidden;
-      background:linear-gradient(135deg,var(--navy) 0%, var(--navy-2) 100%);
-      border-radius:34px;
-      padding:30px;
-      color:#fff;
-      box-shadow:var(--shadow);
-    }
-    .hero::before,
-    .hero::after{
-      content:"";
-      position:absolute;
-      border-radius:999px;
-      background:radial-gradient(circle, rgba(201,169,107,.22) 0%, rgba(201,169,107,0) 70%);
-      pointer-events:none;
-    }
-    .hero::before{width:280px;height:280px;right:-70px;top:-40px}
-    .hero::after{width:220px;height:220px;left:-60px;bottom:-120px}
-    .hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1.4fr 1fr;gap:22px;align-items:end}
-    .hero h3{margin:0;font-size:clamp(30px,4vw,48px);line-height:1.02;letter-spacing:-.05em;max-width:700px}
-    .hero p{margin:14px 0 0;color:rgba(255,255,255,.8);max-width:720px;line-height:1.55}
-    .hero-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-    .soft-badge{padding:10px 14px;border-radius:999px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.1);font-size:13px;color:#fff}
-
-    .stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-    .stat-card{
-      background:rgba(255,255,255,.1);
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:24px;
-      padding:18px;
-      backdrop-filter:blur(8px);
-    }
-    .stat-card span{display:block;color:rgba(255,255,255,.78);font-size:13px}
-    .stat-card strong{display:block;margin-top:10px;font-size:34px;letter-spacing:-.04em}
-    .stat-card small{display:block;margin-top:8px;color:rgba(255,255,255,.76)}
-
-    .section{
-      background:var(--white);
-      border-radius:30px;
-      box-shadow:var(--shadow);
-      padding:22px;
-    }
-    .section-head{
-      display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;
-      margin-bottom:18px;
-    }
-    .section-head h4{margin:0;font-size:24px;letter-spacing:-.03em}
-    .section-head p{margin:6px 0 0;color:var(--muted)}
-
-    .btn{
-      border:none;cursor:pointer;
-      padding:12px 18px;
-      border-radius:999px;
-      background:var(--navy);
-      color:#fff;
-      font-weight:700;
-      box-shadow:var(--shadow-soft);
-      transition:.2s ease;
-    }
-    .btn:hover{transform:translateY(-1px)}
-    .btn.secondary{background:#fff;color:var(--navy);border:1px solid var(--line);box-shadow:none}
-    .btn.gold{background:linear-gradient(135deg,var(--gold) 0%, #d8bc89 100%);color:#162334}
-    .btn.ghost{background:var(--soft);color:var(--text);box-shadow:none}
-    .btn.small{padding:9px 14px;font-size:13px}
-    .btn.danger{background:#fff1f1;color:var(--bad);box-shadow:none}
-
-    .units-grid,
-    .reservations-grid,
-    .cards-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-
-    .unit-card{
-      background:#fff;
-      border:1px solid var(--line);
-      border-radius:28px;
-      overflow:hidden;
-      box-shadow:var(--shadow-soft);
-      display:flex;flex-direction:column;
-      min-width:0;
-    }
-    .unit-visual{
-      height:170px;
-      background:linear-gradient(145deg,#f4f7fa 0%,#e7edf3 100%);
-      position:relative;
-      overflow:hidden;
-    }
-    .unit-visual::before{
-      content:"";
-      position:absolute;inset:18px;
-      border-radius:22px;
-      background:linear-gradient(145deg,#ffffff 0%,#edf3f8 100%);
-      box-shadow:inset 0 0 0 1px rgba(13,27,42,.05);
-    }
-    .unit-visual::after{
-      content:"";
-      position:absolute;left:26px;right:26px;bottom:24px;height:55px;
-      border-radius:18px;
-      background:linear-gradient(180deg,#c7d5e2 0%,#b5c7d6 100%);
-      box-shadow:0 -72px 0 -54px #d6e2eb, 84px -22px 0 -46px #dbe6ee, -84px -18px 0 -46px #dce7ee;
-    }
-    .unit-body{padding:18px;display:grid;gap:14px}
-    .unit-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-    .unit-title{font-size:18px;font-weight:800;line-height:1.15;letter-spacing:-.03em}
-    .unit-address{color:var(--muted);font-size:14px;line-height:1.45;margin-top:6px}
-    .status{
-      display:inline-flex;align-items:center;gap:8px;
-      white-space:nowrap;
-      padding:8px 12px;border-radius:999px;font-size:12px;font-weight:800;
-    }
-    .status::before{content:"";width:9px;height:9px;border-radius:999px}
-    .status.available{background:var(--ok-bg);color:var(--ok)}
-    .status.available::before{background:var(--ok)}
-    .status.occupied{background:var(--bad-bg);color:var(--bad)}
-    .status.occupied::before{background:var(--bad)}
-    .status.reserved{background:var(--warn-bg);color:var(--warn)}
-    .status.reserved::before{background:var(--warn)}
-
-    .chips{display:flex;flex-wrap:wrap;gap:8px}
-    .chip{
-      padding:8px 11px;border-radius:999px;
-      background:var(--soft);border:1px solid var(--line);
-      color:#364152;font-size:12px;font-weight:600;
-    }
-    .unit-actions{display:flex;gap:10px;flex-wrap:wrap}
-
-    .res-card{
-      border:1px solid var(--line);
-      border-radius:24px;
-      background:linear-gradient(180deg,#fff 0%,#fbfcfe 100%);
-      padding:18px;
-      box-shadow:var(--shadow-soft);
-      display:grid;gap:12px;
-    }
-    .res-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-    .res-title{font-weight:800;font-size:18px;letter-spacing:-.03em}
-    .meta{display:grid;gap:6px;color:#344054;font-size:14px}
-    .meta-line strong{font-weight:700}
-    .private-tag{padding:6px 10px;border-radius:999px;background:#f3f6fa;color:var(--blue);font-size:12px;font-weight:800;display:inline-flex;width:max-content}
-
-    .panel-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
-
-    .calendar-panel,
-    .history-panel,
-    .form-panel,
-    .detail-panel{
-      border:1px solid var(--line);
-      border-radius:26px;
-      background:#fff;
-      padding:18px;
-      box-shadow:var(--shadow-soft);
-    }
-
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .toolbar.spread{justify-content:space-between}
-    .toolbar-group{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-
-    .field-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-    .field-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-    .field{display:grid;gap:8px;min-width:0}
-    .field label{font-size:13px;font-weight:700;color:#344054}
-    .field input,
-    .field select,
-    .field textarea{
-      width:100%;border:1px solid var(--line);outline:none;background:#fff;
-      border-radius:18px;padding:13px 14px;color:var(--text);
-      transition:.2s ease;
-    }
-    .field textarea{min-height:100px;resize:vertical}
-    .field input:focus,
-    .field select:focus,
-    .field textarea:focus{border-color:#b8c6d6;box-shadow:0 0 0 4px rgba(32,65,93,.08)}
-
-    .calendar-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
-    .pill-tab{
-      border:none;cursor:pointer;
-      padding:10px 14px;border-radius:999px;
-      background:var(--soft);color:var(--text);font-weight:700;
-    }
-    .pill-tab.active{background:var(--navy);color:#fff}
-
-    .calendar-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-    .calendar-title{font-size:20px;font-weight:800;letter-spacing:-.03em}
-    .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
-    .weekday{font-size:12px;font-weight:800;color:var(--muted);text-align:center;padding:8px 4px}
-    .day{
-      min-height:82px;
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:10px;
-      background:#fff;
-      position:relative;
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-    }
-    .day.muted{opacity:.38}
-    .day.today{box-shadow:inset 0 0 0 2px rgba(201,169,107,.6)}
-    .day-num{font-size:13px;font-weight:800;color:#344054}
-    .day-badge{
-      margin-top:auto;
-      font-size:11px;font-weight:800;
-      padding:6px 8px;border-radius:999px;width:max-content;
-    }
-    .day-badge.available{background:var(--ok-bg);color:var(--ok)}
-    .day-badge.occupied{background:var(--bad-bg);color:var(--bad)}
-    .day-badge.reserved{background:var(--warn-bg);color:var(--warn)}
-
-    .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}
-    .legend-item{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
-    .swatch{width:12px;height:12px;border-radius:999px}
-
-    .history-controls{display:grid;grid-template-columns:1.3fr .7fr;gap:10px;margin-bottom:14px}
-    .history-list{display:grid;gap:10px;max-height:560px;overflow:auto;padding-right:2px}
-    .history-item{
-      border:1px solid var(--line);
-      border-radius:22px;
-      padding:16px;
-      background:#fff;
-      display:grid;
-      gap:8px;
-    }
-    .history-item-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-
-    .empty{
-      padding:22px;border:1px dashed #ccd7e2;border-radius:22px;background:linear-gradient(180deg,#fbfdff 0%,#f6f9fc 100%);
-      color:var(--muted);text-align:center;
-    }
-
-    .mobile-tabbar{
-      display:none;
-      position:fixed;left:12px;right:12px;bottom:12px;z-index:40;
-      background:rgba(13,27,42,.95);
-      color:#fff;border-radius:26px;padding:10px;
-      box-shadow:0 20px 40px rgba(13,27,42,.24);
-      grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;
-      backdrop-filter:blur(16px);
-    }
-    .tab-btn{
-      border:none;background:transparent;color:rgba(255,255,255,.74);cursor:pointer;
-      display:grid;gap:4px;justify-items:center;padding:10px 6px;border-radius:18px;font-size:11px;font-weight:700;
-    }
-    .tab-btn.active{background:#fff;color:var(--navy)}
-    .tab-btn span:first-child{font-size:18px}
-
-    .hide-mobile{display:block}
-    .show-mobile{display:none}
-
-    @media (max-width: 1200px){
-      .units-grid,.reservations-grid,.cards-3{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .panel-grid{grid-template-columns:1fr}
-      .hero-grid{grid-template-columns:1fr}
-    }
-
-    @media (max-width: 980px){
-      .app{grid-template-columns:1fr}
-      .sidebar{display:none}
-      .main{padding-bottom:calc(var(--tabbar-h) + 24px)}
-      .mobile-tabbar{display:grid}
-      .topbar{padding:16px 18px}
-      .content{padding:18px}
-      .history-controls,.field-grid,.field-grid-3{grid-template-columns:1fr}
-      .topbar-actions{display:none}
-      .show-mobile{display:inline-flex}
-      .hide-mobile{display:none}
-    }
-
-    @media (max-width: 760px){
-      .hero{padding:22px;border-radius:28px}
-      .section{padding:18px;border-radius:26px}
-      .units-grid,.reservations-grid,.cards-3{grid-template-columns:1fr}
-      .stats-grid{grid-template-columns:1fr}
-      .calendar-grid{gap:6px}
-      .day{min-height:72px;padding:8px;border-radius:16px}
-      .unit-body,.res-card,.calendar-panel,.history-panel,.form-panel,.detail-panel{padding:16px}
-      .topbar-left h2{font-size:19px}
-      .hero h3{font-size:32px}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gestión Boutique | Alquiler Temporal</title>
+<meta name="theme-color" content="#0D1B2A">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+:root{
+  --bg:#aeb9d1;
+  --bg-deep:#8f9abb;
+  --surface:#f7f6fb;
+  --surface-2:#ffffff;
+  --surface-3:#efeefd;
+  --ink:#1f1e2f;
+  --muted:#6f7188;
+  --muted-2:#8c90a7;
+  --line:rgba(48,52,88,.08);
+  --line-strong:rgba(48,52,88,.14);
+  --primary:#272247;
+  --primary-2:#3c3568;
+  --accent:#c7c0ff;
+  --accent-2:#e8e5ff;
+  --soft-shadow:0 24px 60px rgba(41,40,75,.12);
+  --card-shadow:0 16px 34px rgba(39,34,71,.08);
+  --radius-xl:34px;
+  --radius-lg:26px;
+  --radius-md:20px;
+  --side:100%;
+  --tab:78px;
+  --ok:#4d6fcb;--okbg:#ecebff;
+  --warn:#8a63dc;--warnbg:#f1edff;
+  --bad:#c65d91;--badbg:#fceaf4;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:"Manrope",Inter,system-ui,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 8% 85%, rgba(251,246,255,.7), transparent 18%),
+    radial-gradient(circle at 94% 90%, rgba(254,244,255,.72), transparent 14%),
+    linear-gradient(180deg,var(--bg),#b5bfd5 56%, #a4aec9 100%);
+  min-height:100vh;
+}
+body:before,
+body:after{
+  content:"";
+  position:fixed;
+  inset:auto;
+  width:320px;
+  height:320px;
+  border-radius:50%;
+  filter:blur(38px);
+  pointer-events:none;
+  opacity:.35;
+  z-index:0;
+}
+body:before{left:-80px;bottom:50px;background:radial-gradient(circle,#f4efff,transparent 65%)}
+body:after{right:-90px;bottom:40px;background:radial-gradient(circle,#f6eefc,transparent 65%)}
+button,input,select,textarea{font:inherit}
+img{max-width:100%;display:block}
+.app{
+  position:relative;
+  z-index:1;
+  min-height:100vh;
+  width:min(1380px,calc(100% - 42px));
+  margin:18px auto;
+  background:rgba(248,247,252,.82);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.48);
+  border-radius:40px;
+  box-shadow:var(--soft-shadow);
+  overflow:hidden;
+}
+.sidebar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:18px 22px;
+  background:rgba(249,248,252,.84);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line);
+}
+.brand{padding:0;border:0;min-width:210px}
+.brandtop{display:flex;gap:12px;align-items:center}
+.mark{
+  width:38px;height:38px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(180deg,#ffffff,#e8e3ff);
+  box-shadow:inset 0 0 0 1px rgba(43,39,74,.09);
+  color:var(--primary);font-weight:800;font-size:13px;letter-spacing:.08em;
+}
+.brandtitle{font-weight:800;font-size:15px;letter-spacing:-.03em}
+.brandsub{font-size:12px;color:var(--muted)}
+.nav{display:flex;align-items:center;justify-content:center;gap:8px;flex:1;flex-wrap:wrap}
+.nav button,.tabbar button{border:0;cursor:pointer}
+.nav button{
+  background:transparent;color:var(--muted);padding:11px 16px;border-radius:999px;
+  text-align:left;display:flex;gap:10px;align-items:center;font-size:13px;font-weight:700;
+}
+.nav button span:last-child{display:none}
+.nav button.active{
+  background:rgba(39,34,71,.08);
+  color:var(--primary);
+  box-shadow:inset 0 0 0 1px rgba(39,34,71,.06);
+}
+.navfoot{
+  margin:0;
+  padding:11px 18px;
+  border-radius:999px;
+  background:var(--primary);
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.main{padding:18px 18px calc(18px + var(--tab))}
+.hero{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(180deg,#fbfaff 0%, #f2efff 100%);
+  border:1px solid rgba(74,69,115,.08);
+  border-radius:32px;
+  padding:60px 56px 48px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:28px;
+  box-shadow:var(--card-shadow);
+  margin-bottom:22px;
+}
+.hero:before{
+  content:"";
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:48%;
+  background:
+    radial-gradient(circle at 18% 88%, rgba(74,69,145,.68) 0 13%, transparent 14%),
+    radial-gradient(circle at 37% 84%, rgba(110,102,188,.6) 0 12%, transparent 13%),
+    radial-gradient(circle at 62% 86%, rgba(91,84,165,.62) 0 13%, transparent 14%),
+    radial-gradient(circle at 83% 82%, rgba(122,114,201,.56) 0 11%, transparent 12%),
+    radial-gradient(circle at 25% 100%, #2d2649 0 24%, transparent 25%),
+    radial-gradient(circle at 72% 102%, #3f3766 0 24%, transparent 25%),
+    linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0) 25%, rgba(92,79,148,.18) 68%, rgba(52,46,84,.42) 100%);
+  pointer-events:none;
+}
+.hero:after{
+  content:"";
+  position:absolute;
+  inset:auto auto 78px 13%;
+  width:180px;height:180px;border-radius:50%;
+  border:10px solid rgba(95,91,146,.52);
+  box-shadow:0 0 0 5px rgba(255,255,255,.38) inset;
+  background:linear-gradient(180deg,rgba(244,241,255,.9),rgba(206,201,240,.44));
+  opacity:.9;
+}
+.hero-copy{position:relative;z-index:1;max-width:700px;padding-top:8px}
+.eyebrow{letter-spacing:.12em;font-size:11px;font-weight:800;color:var(--muted-2);text-transform:uppercase}
+.hero h1{margin:10px 0 14px;font-size:64px;line-height:.96;letter-spacing:-.06em;font-weight:800;color:var(--primary)}
+.hero p{color:var(--muted);max-width:720px;line-height:1.7;margin:0;font-size:16px}
+.hero-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;position:relative;z-index:1}
+.hero-badges .hero-badge{
+  background:rgba(255,255,255,.72);
+  border:1px solid rgba(76,72,112,.08);
+  color:var(--primary);
+  padding:10px 14px;border-radius:999px;font-size:12px;font-weight:700;
+}
+.actions,.toolbar,.history-controls,.filterbar,.unit-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.actions{position:relative;z-index:1;align-content:flex-start;justify-content:flex-start;padding-top:12px}
+.btn{
+  border-radius:999px;
+  padding:13px 18px;
+  font-weight:800;
+  cursor:pointer;
+  border:0;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.dark{background:var(--primary);color:#fff;box-shadow:0 10px 22px rgba(39,34,71,.16)}
+.gold{background:var(--primary);color:#fff;box-shadow:0 10px 22px rgba(39,34,71,.16)}
+.soft{background:#fff;color:var(--primary);box-shadow:inset 0 0 0 1px rgba(39,34,71,.08)}
+.ghost{background:rgba(255,255,255,.72);color:var(--primary);box-shadow:inset 0 0 0 1px rgba(39,34,71,.08)}
+.light{background:#fff;color:var(--primary);border:1px solid var(--line)}
+.small{padding:10px 14px;font-size:14px}
+.grid{display:grid;gap:18px}
+.stats{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:22px}
+.stats .metric:first-child{grid-column:span 2}
+.card,
+.unit-card-collapsible,
+.unit-editor-card,
+.day,
+.item,
+.rescard,
+.history,
+.alert,
+.settings-section{
+  background:rgba(255,255,255,.82);
+  border:1px solid var(--line);
+  border-radius:28px;
+  box-shadow:var(--card-shadow);
+}
+.card{padding:24px}
+.metric{position:relative;overflow:hidden;padding:24px 24px 22px}
+.metric:after{
+  content:"";position:absolute;right:-10px;top:-16px;width:124px;height:124px;border-radius:50%;
+  background:radial-gradient(circle, rgba(231,227,255,.88), rgba(231,227,255,0) 70%);
+}
+.label{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.value{font-size:46px;font-weight:800;letter-spacing:-.06em;margin:8px 0 6px;color:var(--primary)}
+.sub{font-size:14px;color:var(--muted);line-height:1.65}
+.split{display:grid;grid-template-columns:1.12fr .88fr;gap:18px}
+.unitgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.unit-card-collapsible,.unit-editor-card{overflow:hidden}
+.unit-collapsible-head,.unit-editor-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px;cursor:pointer}
+.unit-collapsible-head:hover,.unit-editor-head:hover,.settings-head:hover{background:rgba(245,244,251,.9)}
+.unit-collapsible-title,.unit-editor-title{display:grid;gap:8px;min-width:0}
+.unit-collapsible-title strong,.unit-editor-title strong{font-size:24px;letter-spacing:-.04em;color:var(--primary)}
+.badge{border-radius:999px;padding:9px 12px;font-size:11px;font-weight:800;white-space:nowrap;letter-spacing:.06em;text-transform:uppercase}
+.available{background:var(--okbg);color:var(--ok)}
+.occupied{background:var(--badbg);color:var(--bad)}
+.reserved{background:var(--warnbg);color:var(--warn)}
+.darkbadge{background:var(--primary);color:#fff}
+.chevron{width:14px;height:14px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:.25s ease;flex:0 0 auto;margin-right:6px;margin-top:6px}
+.open .chevron{transform:rotate(225deg)}
+.collapse{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s ease}
+.collapse-inner{overflow:hidden}
+.open > .collapse{grid-template-rows:1fr}
+.unit-collapsible-body{padding:0 18px 18px;display:grid;gap:14px}
+.unit-next{padding:14px 16px;border-radius:18px;background:linear-gradient(180deg,#faf9ff,#f2efff);border:1px solid var(--line)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip,.count-pill,.meta-pill,.legend-item{
+  font-size:12px;font-weight:700;padding:8px 12px;border-radius:999px;
+  background:#f5f4fb;border:1px solid var(--line);color:#49506a;
+}
+.list{display:grid;gap:12px}
+.item,.rescard,.history,.alert{padding:18px}
+.restop{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:8px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.tablewrap{overflow:auto;border-radius:18px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:14px 12px;border-bottom:1px solid rgba(49,52,85,.08);font-size:14px;vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:800}
+.input,.select,.textarea{
+  width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.96);outline:none;color:var(--ink)
+}
+.textarea{min-height:108px;resize:vertical}
+.input:focus,.select:focus,.textarea:focus{border-color:#cfc8ff;box-shadow:0 0 0 4px rgba(199,192,255,.22)}
+.field{display:grid;gap:6px;min-width:150px}
+.field label,label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.calendargrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.dow{text-align:center;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.14em}
+.day{min-height:104px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.day.out{opacity:.42}.daynum{font-size:12px;font-weight:800;color:#5b6875}
+.bar{height:8px;border-radius:999px;background:#edf2f6;margin-top:auto}.bar.available{background:#dcefe5}.bar.occupied{background:#f1c7c7}.bar.reserved{background:#f3dfbc}
+.views{display:none}.views.active{display:block}
+.drawer{position:fixed;inset:0;display:none;z-index:50}.drawer.open{display:block}
+.back{position:absolute;inset:0;background:rgba(18,18,32,.42);backdrop-filter:blur(5px)}
+.drawerpanel{position:absolute;top:0;right:0;width:min(760px,100%);height:100%;overflow:auto;padding:22px;background:#faf9fe;border-left:1px solid var(--line)}
+.panelhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px}
+.panelhead h2,.panelhead h3{margin:0;font-size:34px;letter-spacing:-.05em;color:var(--primary)}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.full{grid-column:1/-1}
+.tabbar{position:fixed;left:0;right:0;bottom:0;height:var(--tab);background:rgba(33,29,60,.96);display:none;grid-template-columns:repeat(6,1fr);padding:10px 12px 16px;gap:8px;z-index:40}
+.tabbar button{background:transparent;color:rgba(255,255,255,.76);border-radius:16px;font-size:11px;font-weight:700}
+.tabbar button.active{background:#fff;color:var(--primary)}
+.empty{padding:18px;border:1px dashed var(--line-strong);border-radius:20px;background:#fff;color:var(--muted);text-align:center}
+.heatwrap{overflow:auto}.heatmap{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,14px);grid-auto-columns:14px;gap:4px;padding:6px 0}.heat{width:14px;height:14px;border-radius:4px}.h0{background:#eceef8}.h1{background:#d9dcf7}.h2{background:#a6b0f0}.h4{background:#41386f}
+.summary{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;line-height:1.55;background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px}
+.settings-grid{display:grid;gap:18px}
+.setting-list{display:grid;gap:10px}
+.toggle-row{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:#fff}
+.toggle-label{display:grid;gap:3px}
+.switch{position:relative;width:52px;height:30px;display:inline-block}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#d7dbee;border-radius:999px;transition:.2s}
+.slider:before{content:"";position:absolute;width:22px;height:22px;left:4px;top:4px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 4px 10px rgba(0,0,0,.12)}
+.switch input:checked + .slider{background:var(--primary)}
+.switch input:checked + .slider:before{transform:translateX(22px)}
+.unit-manager-grid{display:grid;gap:16px}
+.unit-editor-head .unit-toolbar{margin-left:auto}
+.save-feedback{background:#ecebff;color:#4d6fcb;border-color:#d7d3fb}
+.delete-btn{background:#fff;color:#a84040;border:1px solid #f0c7c7}
+.hidden{display:none !important}
+.unit-card-media{aspect-ratio:16/10;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#f4f7fa}
+.unit-card-media img{width:100%;height:100%;object-fit:cover}
+.search-row{display:flex;gap:12px;align-items:center;margin:0 0 16px;flex-wrap:wrap}
+.search-input-wrap{position:relative;flex:1 1 320px}
+.search-input-wrap .input{padding-left:42px}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;font-weight:700;pointer-events:none}
+.reservations-sections{display:grid;gap:18px}
+.section-title{margin:0 0 12px;font-size:20px;letter-spacing:-.03em;color:var(--primary)}
+.inline-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.actions-menu-wrap{position:relative;margin-left:auto}
+.menu-trigger{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--primary);font-size:20px;line-height:1;cursor:pointer}
+.context-menu{position:absolute;right:0;top:44px;min-width:140px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px rgba(13,27,42,.12);padding:6px;display:grid;gap:4px;z-index:25}
+.context-menu button{border:0;background:#fff;text-align:left;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:700;color:var(--text)}
+.context-menu button:hover{background:#f4f7fa}.context-menu button.delete{color:#a84040}
+.calendar-shell{display:grid;gap:16px}
+.calendar-legend{display:flex;gap:10px;flex-wrap:wrap}
+.legend-swatch{width:12px;height:12px;border-radius:999px}
+.day-reservations{display:grid;gap:5px;margin-top:auto}.day-chip{height:8px;border-radius:999px;opacity:.95}.day-chip.past{opacity:.38}
+.settings-accordion{display:grid;gap:14px}
+.settings-section{overflow:hidden}
+.settings-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px;cursor:pointer}
+.settings-body{padding:0 18px 18px}.settings-body .setting-list{margin-top:0}.settings-body .toggle-row{background:#fbfcfd}
+#view-dashboard > .split > .grid,
+#view-metricas > .grid,
+#view-configuracion .settings-grid{align-items:start}
+#view-dashboard .card h2,
+#view-metricas .card h2,
+#view-configuracion .card h2,
+#view-reservas .card h2,
+#view-calendario .card h2,
+#view-unidades .card h2{font-size:26px;line-height:1.05;color:var(--primary)}
+#upcomingCheckinsCard,#upcomingCheckoutsCard{min-height:calc(50% - 9px)}
+@media(max-width:1200px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats .metric:first-child{grid-column:auto}.split{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.hero h1{font-size:52px}}
+@media(max-width:920px){
+  .app{width:100%;margin:0;border-radius:0}
+  .sidebar{display:none}
+  .tabbar{display:grid}
+  .main{padding:16px;padding-bottom:calc(20px + var(--tab))}
+  .hero{padding:28px 20px 150px;grid-template-columns:1fr}
+  .hero h1{font-size:38px}
+  .unitgrid,.kpis,.stats,.formgrid,.split{grid-template-columns:1fr}
+  .drawerpanel{padding:16px}
+  .panelhead h2,.panelhead h3{font-size:28px}
+}
+</style>
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">D</div>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brandtop">
+        <div class="mark" id="brandAvatar">DB</div>
         <div>
-          <h1>Departamentos<br>Temporales</h1>
-          <p>Gestión boutique</p>
+          <div class="brandtitle" id="brandName">Departamentos Temporales</div>
+          <div class="brandsub" id="brandSubtitle">Gestión boutique</div>
         </div>
       </div>
+    </div>
+    <nav class="nav">
+      <button class="active" data-view="dashboard"><span>Inicio</span><span>01</span></button>
+      <button data-view="reservas"><span>Reservas</span><span>02</span></button>
+      <button data-view="calendario"><span>Calendario</span><span>03</span></button>
+      <button data-view="unidades"><span>Unidades</span><span>04</span></button>
+      <button data-view="metricas"><span>Métricas</span><span>05</span></button>
+      <button data-view="configuracion"><span>⚙ Configuración</span><span>06</span></button>
+    </nav>
+    <div class="navfoot">Persistencia activa en Firestore con respaldo local automático.</div>
+  </aside>
 
-      <nav class="nav-list" id="sideNav"></nav>
-
-      <div class="sidebar-card">
-        <strong>Herramienta premium</strong>
-        <p>Panel simple, reservas ordenadas, calendario visual y persistencia local en un solo archivo.</p>
+  <main class="main">
+    <section class="hero" id="heroSection">
+      <div class="hero-copy">
+        <div class="eyebrow">Panel editorial premium</div>
+        <h1 id="heroTitle">Gestión boutique con claridad total</h1>
+        <p id="heroText">Un sistema visual, suave y ordenado para reservas, ocupación, calendario y rendimiento de cada unidad.</p>
+        <div class="hero-badges" id="heroBadges"></div>
       </div>
-    </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <div class="topbar-left">
-          <h2 id="pageTitle">Dashboard</h2>
-          <p id="pageSubtitle">Vista general de tus unidades y movimientos próximos.</p>
-        </div>
-        <div class="topbar-actions">
-          <button class="btn secondary" id="exportBtn">Exportar JSON</button>
-          <label class="btn ghost" for="importInput">Importar JSON</label>
-          <input id="importInput" type="file" accept="application/json" hidden>
-          <button class="btn gold" id="newReservationTopBtn">Nueva reserva</button>
-        </div>
-      </header>
-
-      <div class="content">
-        <section id="view-dashboard" class="view">
-          <div class="hero">
-            <div class="hero-grid">
-              <div>
-                <h3>Tus Propiedades, Todo Bajo Control</h3>
-                <p>Administración clara de ocupación, huéspedes, entradas, salidas y condiciones pactadas. Diseño premium, carga rápida y sin complejidad operativa.</p>
-                <div class="hero-badges">
-                  <span class="soft-badge">3 unidades cargadas</span>
-                  <span class="soft-badge">Tarifa acordada privada</span>
-                  <span class="soft-badge">Persistencia local activa</span>
-                </div>
-              </div>
-              <div class="stats-grid" id="heroStats"></div>
-            </div>
-          </div>
-
-          <section class="section">
-            <div class="section-head">
-              <div>
-                <h4>Unidades</h4>
-                <p>Estado actual, amenities, ocupación y accesos rápidos.</p>
-              </div>
-              <button class="btn show-mobile" id="newReservationMobileBtn">Nueva reserva</button>
-            </div>
-            <div class="units-grid" id="unitsGrid"></div>
-          </section>
-
-          <section class="section">
-            <div class="section-head">
-              <div>
-                <h4>Reservas activas y próximas</h4>
-                <p>Visual similar a una grilla boutique para revisar ingresos, salidas y condiciones clave.</p>
-              </div>
-            </div>
-            <div class="reservations-grid" id="activeReservations"></div>
-          </section>
-        </section>
-
-        <section id="view-reservations" class="view" hidden>
-          <div class="cards-3">
-            <div class="form-panel" style="grid-column:span 2">
-              <div class="section-head">
-                <div>
-                  <h4 id="reservationFormTitle">Nueva reserva</h4>
-                  <p>Registrá huésped, fechas, modalidad, cochera, tarifa pactada y notas internas.</p>
-                </div>
-              </div>
-              <form id="reservationForm">
-                <input type="hidden" id="reservationId">
-                <div class="field-grid">
-                  <div class="field">
-                    <label for="reservationUnit">Unidad</label>
-                    <select id="reservationUnit" required></select>
-                  </div>
-                  <div class="field">
-                    <label for="guestType">Tipo de huésped</label>
-                    <select id="guestType" required>
-                      <option value="Particular">Particular</option>
-                      <option value="Empresa">Empresa</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label for="guestName">Nombre del huésped</label>
-                    <input id="guestName" required placeholder="Nombre y apellido o empresa">
-                  </div>
-                  <div class="field">
-                    <label for="guestContact">Contacto</label>
-                    <input id="guestContact" required placeholder="Teléfono, mail o referencia">
-                  </div>
-                  <div class="field">
-                    <label for="checkIn">Entrada</label>
-                    <input id="checkIn" type="date" required>
-                  </div>
-                  <div class="field">
-                    <label for="checkOut">Salida</label>
-                    <input id="checkOut" type="date" required>
-                  </div>
-                  <div class="field">
-                    <label for="stayType">Modalidad</label>
-                    <select id="stayType" required>
-                      <option value="Corta 1 a 7 días">Corta 1 a 7 días</option>
-                      <option value="Media 8 a 29 días">Media 8 a 29 días</option>
-                      <option value="Mensual recurrente">Mensual recurrente</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label for="agreedRate">Tarifa acordada</label>
-                    <input id="agreedRate" placeholder="Ej. $420.000 o valor privado">
-                  </div>
-                  <div class="field">
-                    <label for="reservationStatus">Estado</label>
-                    <select id="reservationStatus" required>
-                      <option value="reserved">Reservado</option>
-                      <option value="occupied">Ocupado</option>
-                      <option value="completed">Finalizado</option>
-                      <option value="cancelled">Cancelado</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label for="parkingIncluded">Cochera</label>
-                    <select id="parkingIncluded">
-                      <option value="No">No</option>
-                      <option value="Sí">Sí</option>
-                    </select>
-                  </div>
-                </div>
-                <div class="field" style="margin-top:14px">
-                  <label for="reservationNotes">Notas internas</label>
-                  <textarea id="reservationNotes" placeholder="Observaciones especiales, condiciones pactadas, horario de ingreso, limpieza, etc."></textarea>
-                </div>
-                <div class="toolbar" style="margin-top:16px">
-                  <button class="btn gold" type="submit">Guardar reserva</button>
-                  <button class="btn secondary" type="button" id="resetReservationForm">Limpiar</button>
-                </div>
-              </form>
-            </div>
-
-            <div class="detail-panel">
-              <div class="section-head">
-                <div>
-                  <h4>Resumen operativo</h4>
-                  <p>Datos rápidos del movimiento actual.</p>
-                </div>
-              </div>
-              <div id="reservationQuickStats" class="cards-3" style="grid-template-columns:1fr;gap:12px"></div>
-            </div>
-          </div>
-
-          <section class="section" style="margin-top:22px">
-            <div class="section-head">
-              <div>
-                <h4>Todas las reservas</h4>
-                <p>Edición directa de registros actuales e históricos.</p>
-              </div>
-            </div>
-            <div class="reservations-grid" id="allReservations"></div>
-          </section>
-        </section>
-
-        <section id="view-calendar" class="view" hidden>
-          <div class="panel-grid">
-            <div class="calendar-panel">
-              <div class="calendar-tabs" id="calendarTabs"></div>
-              <div class="calendar-head">
-                <div>
-                  <div class="calendar-title" id="calendarTitle"></div>
-                  <div class="muted" id="calendarSubtitle"></div>
-                </div>
-                <div class="toolbar-group">
-                  <button class="btn secondary small" id="prevMonthBtn">Mes anterior</button>
-                  <button class="btn secondary small" id="todayMonthBtn">Hoy</button>
-                  <button class="btn secondary small" id="nextMonthBtn">Mes siguiente</button>
-                </div>
-              </div>
-              <div class="calendar-grid" id="calendarGrid"></div>
-              <div class="legend">
-                <div class="legend-item"><span class="swatch" style="background:var(--ok-bg);border:1px solid rgba(31,157,101,.18)"></span> Disponible</div>
-                <div class="legend-item"><span class="swatch" style="background:var(--warn-bg);border:1px solid rgba(183,121,31,.18)"></span> Reservado</div>
-                <div class="legend-item"><span class="swatch" style="background:var(--bad-bg);border:1px solid rgba(194,65,65,.18)"></span> Ocupado</div>
-              </div>
-            </div>
-
-            <div class="detail-panel">
-              <div class="section-head">
-                <div>
-                  <h4>Detalle de unidad</h4>
-                  <p>Resumen del departamento seleccionado.</p>
-                </div>
-              </div>
-              <div id="calendarUnitSummary"></div>
-            </div>
-          </div>
-        </section>
-
-        <section id="view-history" class="view" hidden>
-          <div class="history-panel">
-            <div class="section-head">
-              <div>
-                <h4>Historial de huéspedes</h4>
-                <p>Buscador por nombre, fecha, contacto, notas o unidad.</p>
-              </div>
-            </div>
-            <div class="history-controls">
-              <div class="field">
-                <label for="historySearch">Buscar</label>
-                <input id="historySearch" placeholder="Nombre, fecha, contacto, tarifa o nota interna">
-              </div>
-              <div class="field">
-                <label for="historyUnitFilter">Unidad</label>
-                <select id="historyUnitFilter"></select>
-              </div>
-            </div>
-            <div class="history-list" id="historyList"></div>
-          </div>
-        </section>
-
-        <section id="view-units" class="view" hidden>
-          <div class="cards-3" id="unitsEditor"></div>
-        </section>
+      <div class="actions">
+        <button class="btn gold" id="newReservationBtn">Nueva reserva</button>
+        <button class="btn soft" id="editUnitsBtn">Ir a Unidades</button>
+        <button class="btn ghost" id="resetDemoBtn">Restaurar demo</button>
       </div>
-    </main>
-  </div>
+    </section>
 
-  <nav class="mobile-tabbar" id="mobileNav"></nav>
+    <section id="view-dashboard" class="views active">
+      <div class="grid stats" id="topStats"></div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyD-vaiTZyXzIWdFJ61A8ppXu2h2E4A1uQA",
-      authDomain: "departamentos-37c4e.firebaseapp.com",
-      projectId: "departamentos-37c4e",
-      storageBucket: "departamentos-37c4e.firebasestorage.app",
-      messagingSenderId: "477447574305",
-      appId: "1:477447574305:web:8eaeb10e11f99e9cbd2460"
-    };
-    const firebaseApp = initializeApp(firebaseConfig);
-    window.firebaseApp = firebaseApp;
-
-    const STORAGE_KEY = "departamentos_boutique_v2";
-    const viewsMeta = {
-      dashboard: { title: "Dashboard", subtitle: "Vista general de tus unidades y movimientos próximos.", icon: "⌂", label: "Inicio" },
-      reservations: { title: "Reservas", subtitle: "Alta, edición y control completo de estadías.", icon: "🗓", label: "Reservas" },
-      calendar: { title: "Calendario", subtitle: "Ocupación mensual por unidad, de un vistazo.", icon: "▦", label: "Calendario" },
-      history: { title: "Historial", subtitle: "Consulta rápida de huéspedes y reservas previas.", icon: "🕘", label: "Historial" },
-      units: { title: "Unidades", subtitle: "Edición de datos, amenities, fotos y observaciones.", icon: "🏢", label: "Unidades" }
-    };
-
-    const defaultState = {
-      units: [
-        {
-          id: "u1",
-          name: "Unidad 1",
-          title: "Stefenelli & Matheu",
-          subtitle: "Barrio Gama",
-          address: "Stefenelli & Matheu, Barrio Gama",
-          description: "Monoambiente totalmente equipado, balcón a la calle, cochera opcional.",
-          amenities: ["Monoambiente", "Totalmente equipado", "Balcón a la calle", "Cochera opcional"],
-          photos: ["https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80"],
-          notes: "Unidad orientada a estadías temporales con administración flexible.",
-          parkingOptional: true
-        },
-        {
-          id: "u2",
-          name: "Unidad 2",
-          title: "Roca 135, Piso 12-B",
-          subtitle: "A 1 cuadra del Monumento a San Martín",
-          address: "Roca 135, Piso 12-B",
-          description: "Monoambiente equipamiento full, balcón a la calle, cochera opcional.",
-          amenities: ["Monoambiente", "Equipamiento full", "Balcón a la calle", "Cochera opcional"],
-          photos: ["https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80"],
-          notes: "Unidad céntrica con salida rápida hacia puntos neurálgicos de la ciudad.",
-          parkingOptional: true
-        },
-        {
-          id: "u3",
-          name: "Unidad 3",
-          title: "Roca 135, Piso 13-B",
-          subtitle: "A 1 cuadra del Monumento a San Martín",
-          address: "Roca 135, Piso 13-B",
-          description: "Monoambiente equipamiento full, balcón a la calle, cochera opcional.",
-          amenities: ["Monoambiente", "Equipamiento full", "Balcón a la calle", "Cochera opcional"],
-          photos: ["https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1200&q=80"],
-          notes: "Ideal para estadías medias y mensuales recurrentes.",
-          parkingOptional: true
-        }
-      ],
-      reservations: [
-        {
-          id: uid(),
-          unitId: "u1",
-          guestName: "Marina López",
-          guestContact: "+54 9 299 555 0191",
-          guestType: "Particular",
-          checkIn: plusDays(1),
-          checkOut: plusDays(5),
-          stayType: "Corta 1 a 7 días",
-          parkingIncluded: "Sí",
-          agreedRate: "$210.000",
-          status: "reserved",
-          notes: "Ingreso coordinado por la tarde. Solicita cochera fija.",
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: uid(),
-          unitId: "u2",
-          guestName: "Consultora Vértice",
-          guestContact: "operaciones@vertice.com",
-          guestType: "Empresa",
-          checkIn: plusDays(-2),
-          checkOut: plusDays(10),
-          stayType: "Media 8 a 29 días",
-          parkingIncluded: "No",
-          agreedRate: "$640.000",
-          status: "occupied",
-          notes: "Factura A. Renovación posible por 15 días más.",
-          createdAt: new Date().toISOString()
-        }
-      ]
-    };
-
-    let state = loadState();
-    let currentView = "dashboard";
-    let calendarUnitId = state.units[0]?.id || "u1";
-    let calendarDate = new Date();
-
-    const $ = (sel) => document.querySelector(sel);
-    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
-
-    function uid(){
-      return "id_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
-    }
-    function plusDays(days){
-      const d = new Date();
-      d.setHours(0,0,0,0);
-      d.setDate(d.getDate()+days);
-      return d.toISOString().slice(0,10);
-    }
-    function loadState(){
-      try{
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if(!raw) return structuredClone(defaultState);
-        const parsed = JSON.parse(raw);
-        if(!parsed.units || !parsed.reservations) return structuredClone(defaultState);
-        return parsed;
-      }catch{
-        return structuredClone(defaultState);
-      }
-    }
-    function saveState(){
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-
-    function parseDate(value){
-      const d = new Date(value + "T00:00:00");
-      d.setHours(0,0,0,0);
-      return d;
-    }
-    function formatDate(dateStr){
-      if(!dateStr) return "-";
-      return new Intl.DateTimeFormat("es-AR", { day:"2-digit", month:"short", year:"numeric" }).format(parseDate(dateStr));
-    }
-    function formatRange(a,b){
-      return `${formatDate(a)} al ${formatDate(b)}`;
-    }
-    function daysBetween(a,b){
-      const ms = parseDate(b) - parseDate(a);
-      return Math.max(1, Math.round(ms / 86400000));
-    }
-    function sameDay(a,b){
-      return a.toISOString().slice(0,10) === b.toISOString().slice(0,10);
-    }
-    function isActiveReservation(r){
-      return r.status !== "completed" && r.status !== "cancelled";
-    }
-    function today(){
-      const d = new Date();
-      d.setHours(0,0,0,0);
-      return d;
-    }
-    function reservationIntersectsDate(reservation, date){
-      const checkIn = parseDate(reservation.checkIn);
-      const checkOut = parseDate(reservation.checkOut);
-      return date >= checkIn && date < checkOut;
-    }
-    function reservationIncludesToday(reservation){
-      return reservationIntersectsDate(reservation, today());
-    }
-    function getReservationsByUnit(unitId){
-      return state.reservations.filter(r => r.unitId === unitId);
-    }
-    function getUnit(unitId){
-      return state.units.find(u => u.id === unitId);
-    }
-    function getUnitStatus(unitId, date=today()){
-      const reservations = getReservationsByUnit(unitId).filter(isActiveReservation);
-      const hit = reservations.find(r => reservationIntersectsDate(r, date));
-      if(hit){
-        if(hit.status === "occupied") return "occupied";
-        return "reserved";
-      }
-      return "available";
-    }
-    function getStatusLabel(status){
-      return ({available:"Disponible", occupied:"Ocupado", reserved:"Reservado", completed:"Finalizado", cancelled:"Cancelado"})[status] || status;
-    }
-    function sanitize(text){
-      return String(text || "").replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    }
-    function sortReservations(list){
-      return [...list].sort((a,b) => parseDate(a.checkIn) - parseDate(b.checkIn));
-    }
-
-    function computeStats(){
-      const t = today();
-      const unitsFree = state.units.filter(u => getUnitStatus(u.id, t) === "available").length;
-      const upcomingEntries = state.reservations.filter(r => isActiveReservation(r) && parseDate(r.checkIn) >= t).sort((a,b)=>parseDate(a.checkIn)-parseDate(b.checkIn));
-      const upcomingExits = state.reservations.filter(r => isActiveReservation(r) && parseDate(r.checkOut) >= t).sort((a,b)=>parseDate(a.checkOut)-parseDate(b.checkOut));
-      const occupiedNow = state.reservations.filter(r => r.status === "occupied" && reservationIncludesToday(r)).length;
-      return {
-        unitsFree,
-        upcomingEntries,
-        upcomingExits,
-        occupiedNow
-      };
-    }
-
-    function renderNav(){
-      const entries = Object.entries(viewsMeta);
-      $("#sideNav").innerHTML = entries.map(([key,meta]) => `
-        <button class="nav-btn ${currentView===key?'active':''}" data-view="${key}">
-          <span class="nav-ico">${meta.icon}</span>
-          <span>${meta.label}</span>
-        </button>
-      `).join("");
-      $("#mobileNav").innerHTML = entries.slice(0,4).map(([key,meta]) => `
-        <button class="tab-btn ${currentView===key?'active':''}" data-view="${key}">
-          <span>${meta.icon}</span>
-          <span>${meta.label}</span>
-        </button>
-      `).join("") + `
-        <button class="tab-btn ${currentView==='units'?'active':''}" data-view="units">
-          <span>🏢</span>
-          <span>Unidades</span>
-        </button>`;
-
-      $$('[data-view]').forEach(btn => btn.addEventListener('click', () => setView(btn.dataset.view)));
-    }
-
-    function setView(view){
-      currentView = view;
-      Object.keys(viewsMeta).forEach(key => {
-        const el = document.getElementById(`view-${key}`);
-        if(el) el.hidden = key !== view;
-      });
-      $("#pageTitle").textContent = viewsMeta[view].title;
-      $("#pageSubtitle").textContent = viewsMeta[view].subtitle;
-      renderNav();
-    }
-
-    function renderHeroStats(){
-      const stats = computeStats();
-      $("#heroStats").innerHTML = `
-        <div class="stat-card"><span>Libres hoy</span><strong>${stats.unitsFree}</strong><small>${state.units.length} unidades cargadas</small></div>
-        <div class="stat-card"><span>Próximas entradas</span><strong>${stats.upcomingEntries.length}</strong><small>${stats.upcomingEntries[0] ? formatDate(stats.upcomingEntries[0].checkIn) : 'Sin ingresos próximos'}</small></div>
-        <div class="stat-card"><span>Próximas salidas</span><strong>${stats.upcomingExits.length}</strong><small>${stats.upcomingExits[0] ? formatDate(stats.upcomingExits[0].checkOut) : 'Sin salidas próximas'}</small></div>
-      `;
-    }
-
-    function renderUnitsGrid(){
-      $("#unitsGrid").innerHTML = state.units.map(unit => {
-        const status = getUnitStatus(unit.id);
-        const reservations = sortReservations(getReservationsByUnit(unit.id).filter(isActiveReservation));
-        const nextReservation = reservations.find(r => parseDate(r.checkOut) >= today());
-        return `
-          <article class="unit-card">
-            <div class="unit-visual"></div>
-            <div class="unit-body">
-              <div class="unit-top">
-                <div>
-                  <div class="unit-title">${sanitize(unit.name)} — ${sanitize(unit.title)}</div>
-                  <div class="unit-address">${sanitize(unit.subtitle)}<br>${sanitize(unit.address)}</div>
-                </div>
-                <span class="status ${status}">${getStatusLabel(status)}</span>
-              </div>
-              <div class="chips">${(unit.amenities || []).map(a => `<span class="chip">${sanitize(a)}</span>`).join("")}</div>
-              <div class="muted">${sanitize(unit.description || '')}</div>
-              <div class="muted">${nextReservation ? `Próximo movimiento: ${sanitize(nextReservation.guestName)} · ${formatRange(nextReservation.checkIn, nextReservation.checkOut)}` : 'Sin reservas activas ni próximas.'}</div>
-              <div class="unit-actions">
-                <button class="btn small" data-open-reservation-unit="${unit.id}">Nueva reserva</button>
-                <button class="btn secondary small" data-open-calendar-unit="${unit.id}">Ver calendario</button>
-                <button class="btn ghost small" data-open-unit-editor="${unit.id}">Editar unidad</button>
-              </div>
-            </div>
-          </article>
-        `;
-      }).join("");
-
-      $$('[data-open-reservation-unit]').forEach(btn => btn.addEventListener('click', () => {
-        resetReservationForm(btn.dataset.openReservationUnit);
-        setView('reservations');
-      }));
-      $$('[data-open-calendar-unit]').forEach(btn => btn.addEventListener('click', () => {
-        calendarUnitId = btn.dataset.openCalendarUnit;
-        setView('calendar');
-        renderCalendar();
-      }));
-      $$('[data-open-unit-editor]').forEach(btn => btn.addEventListener('click', () => {
-        setView('units');
-        setTimeout(() => document.getElementById(`unit-editor-${btn.dataset.openUnitEditor}`)?.scrollIntoView({behavior:'smooth', block:'start'}), 0);
-      }));
-    }
-
-    function renderActiveReservations(){
-      const list = sortReservations(state.reservations.filter(isActiveReservation).filter(r => parseDate(r.checkOut) >= today()));
-      const target = $("#activeReservations");
-      if(!list.length){
-        target.innerHTML = `<div class="empty" style="grid-column:1/-1">No hay reservas activas ni próximas.</div>`;
-        return;
-      }
-      target.innerHTML = list.map(r => reservationCard(r, true)).join("");
-      attachReservationCardActions();
-    }
-
-    function reservationCard(r, compact=false){
-      const unit = getUnit(r.unitId);
-      const duration = daysBetween(r.checkIn, r.checkOut);
-      return `
-        <article class="res-card">
-          <div class="res-top">
+      <div class="split">
+        <div class="card" id="dashboardUnitsCard">
+          <div class="panelhead">
             <div>
-              <div class="res-title">${sanitize(r.guestName)}</div>
-              <div class="muted">${sanitize(unit?.name || '')} · ${sanitize(unit?.title || '')}</div>
+              <div class="eyebrow">Unidades</div>
+              <h2>Panel principal</h2>
+              <div class="sub">Estado actual y acciones rápidas por propiedad.</div>
             </div>
-            <span class="status ${r.status==='occupied'?'occupied':r.status==='reserved'?'reserved':'available'}">${getStatusLabel(r.status)}</span>
           </div>
-          <div class="meta">
-            <div class="meta-line"><strong>Contacto:</strong> ${sanitize(r.guestContact)}</div>
-            <div class="meta-line"><strong>Tipo:</strong> ${sanitize(r.guestType)}</div>
-            <div class="meta-line"><strong>Estadía:</strong> ${sanitize(r.stayType)} · ${duration} ${duration===1?'día':'días'}</div>
-            <div class="meta-line"><strong>Fechas:</strong> ${formatRange(r.checkIn, r.checkOut)}</div>
-            <div class="meta-line"><strong>Cochera:</strong> ${sanitize(r.parkingIncluded)}</div>
-          </div>
-          <span class="private-tag">Tarifa acordada: ${sanitize(r.agreedRate || 'No especificada')}</span>
-          ${r.notes ? `<div class="muted">${sanitize(r.notes)}</div>` : ''}
-          <div class="toolbar">
-            <button class="btn secondary small" data-edit-reservation="${r.id}">Editar</button>
-            <button class="btn danger small" data-delete-reservation="${r.id}">Eliminar</button>
-          </div>
-        </article>
-      `;
-    }
-
-    function attachReservationCardActions(){
-      $$('[data-edit-reservation]').forEach(btn => btn.addEventListener('click', () => editReservation(btn.dataset.editReservation)));
-      $$('[data-delete-reservation]').forEach(btn => btn.addEventListener('click', () => deleteReservation(btn.dataset.deleteReservation)));
-    }
-
-    function renderReservationQuickStats(){
-      const stats = computeStats();
-      $("#reservationQuickStats").innerHTML = `
-        <div class="res-card"><div class="res-title">${stats.occupiedNow}</div><div class="muted">Unidades ocupadas hoy</div></div>
-        <div class="res-card"><div class="res-title">${stats.upcomingEntries.length}</div><div class="muted">Entradas programadas</div></div>
-        <div class="res-card"><div class="res-title">${stats.upcomingExits.length}</div><div class="muted">Salidas programadas</div></div>
-      `;
-    }
-
-    function renderAllReservations(){
-      const list = sortReservations(state.reservations);
-      const target = $("#allReservations");
-      if(!list.length){
-        target.innerHTML = `<div class="empty" style="grid-column:1/-1">Todavía no hay reservas cargadas.</div>`;
-        return;
-      }
-      target.innerHTML = list.map(r => reservationCard(r)).join("");
-      attachReservationCardActions();
-    }
-
-    function fillReservationUnitOptions(){
-      $("#reservationUnit").innerHTML = state.units.map(u => `<option value="${u.id}">${sanitize(u.name)} — ${sanitize(u.title)}</option>`).join("");
-      $("#historyUnitFilter").innerHTML = `<option value="all">Todas las unidades</option>` + state.units.map(u => `<option value="${u.id}">${sanitize(u.name)} — ${sanitize(u.title)}</option>`).join("");
-    }
-
-    function resetReservationForm(unitId = state.units[0]?.id || ''){
-      $("#reservationFormTitle").textContent = 'Nueva reserva';
-      $("#reservationId").value = '';
-      $("#reservationUnit").value = unitId;
-      $("#guestType").value = 'Particular';
-      $("#guestName").value = '';
-      $("#guestContact").value = '';
-      $("#checkIn").value = plusDays(0);
-      $("#checkOut").value = plusDays(2);
-      $("#stayType").value = 'Corta 1 a 7 días';
-      $("#parkingIncluded").value = 'No';
-      $("#agreedRate").value = '';
-      $("#reservationStatus").value = 'reserved';
-      $("#reservationNotes").value = '';
-    }
-
-    function editReservation(id){
-      const r = state.reservations.find(x => x.id === id);
-      if(!r) return;
-      setView('reservations');
-      $("#reservationFormTitle").textContent = 'Editar reserva';
-      $("#reservationId").value = r.id;
-      $("#reservationUnit").value = r.unitId;
-      $("#guestType").value = r.guestType;
-      $("#guestName").value = r.guestName;
-      $("#guestContact").value = r.guestContact;
-      $("#checkIn").value = r.checkIn;
-      $("#checkOut").value = r.checkOut;
-      $("#stayType").value = r.stayType;
-      $("#parkingIncluded").value = r.parkingIncluded;
-      $("#agreedRate").value = r.agreedRate;
-      $("#reservationStatus").value = r.status;
-      $("#reservationNotes").value = r.notes || '';
-      window.scrollTo({top:0, behavior:'smooth'});
-    }
-
-    function deleteReservation(id){
-      const r = state.reservations.find(x => x.id === id);
-      if(!r) return;
-      const ok = confirm(`Eliminar la reserva de ${r.guestName}?`);
-      if(!ok) return;
-      state.reservations = state.reservations.filter(x => x.id !== id);
-      saveState();
-      renderAll();
-    }
-
-    function handleReservationSubmit(e){
-      e.preventDefault();
-      const payload = {
-        id: $("#reservationId").value || uid(),
-        unitId: $("#reservationUnit").value,
-        guestType: $("#guestType").value,
-        guestName: $("#guestName").value.trim(),
-        guestContact: $("#guestContact").value.trim(),
-        checkIn: $("#checkIn").value,
-        checkOut: $("#checkOut").value,
-        stayType: $("#stayType").value,
-        parkingIncluded: $("#parkingIncluded").value,
-        agreedRate: $("#agreedRate").value.trim(),
-        status: $("#reservationStatus").value,
-        notes: $("#reservationNotes").value.trim(),
-        createdAt: new Date().toISOString()
-      };
-
-      if(parseDate(payload.checkOut) <= parseDate(payload.checkIn)){
-        alert('La fecha de salida debe ser posterior a la entrada.');
-        return;
-      }
-
-      const index = state.reservations.findIndex(r => r.id === payload.id);
-      if(index >= 0){
-        payload.createdAt = state.reservations[index].createdAt || payload.createdAt;
-        state.reservations[index] = payload;
-      } else {
-        state.reservations.push(payload);
-      }
-
-      saveState();
-      resetReservationForm(payload.unitId);
-      renderAll();
-      setView('reservations');
-    }
-
-    function renderCalendarTabs(){
-      $("#calendarTabs").innerHTML = state.units.map(u => `
-        <button class="pill-tab ${u.id===calendarUnitId?'active':''}" data-calendar-unit="${u.id}">${sanitize(u.name)}</button>
-      `).join("");
-      $$('[data-calendar-unit]').forEach(btn => btn.addEventListener('click', () => {
-        calendarUnitId = btn.dataset.calendarUnit;
-        renderCalendar();
-      }));
-    }
-
-    function getDateStatusForUnit(unitId, date){
-      const active = getReservationsByUnit(unitId).filter(isActiveReservation);
-      const hit = active.find(r => reservationIntersectsDate(r, date));
-      if(hit){
-        return hit.status === 'occupied' ? 'occupied' : 'reserved';
-      }
-      return 'available';
-    }
-
-    function renderCalendar(){
-      renderCalendarTabs();
-      const unit = getUnit(calendarUnitId);
-      if(!unit) return;
-
-      const year = calendarDate.getFullYear();
-      const month = calendarDate.getMonth();
-      const first = new Date(year, month, 1);
-      const last = new Date(year, month + 1, 0);
-      const startWeekDay = (first.getDay() + 6) % 7;
-      const daysInMonth = last.getDate();
-      const prevMonthDays = new Date(year, month, 0).getDate();
-      const weekdays = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-
-      $("#calendarTitle").textContent = new Intl.DateTimeFormat('es-AR', { month:'long', year:'numeric' }).format(first);
-      $("#calendarSubtitle").textContent = `${unit.name} · ${unit.title}`;
-
-      let html = weekdays.map(w => `<div class="weekday">${w}</div>`).join('');
-
-      for(let i = 0; i < startWeekDay; i++){
-        const d = new Date(year, month - 1, prevMonthDays - startWeekDay + i + 1);
-        html += dayCell(d, true);
-      }
-      for(let d = 1; d <= daysInMonth; d++){
-        html += dayCell(new Date(year, month, d), false);
-      }
-      const totalCells = startWeekDay + daysInMonth;
-      const tail = (7 - (totalCells % 7)) % 7;
-      for(let i = 1; i <= tail; i++){
-        html += dayCell(new Date(year, month + 1, i), true);
-      }
-      $("#calendarGrid").innerHTML = html;
-
-      const unitReservations = sortReservations(getReservationsByUnit(unit.id).filter(isActiveReservation));
-      $("#calendarUnitSummary").innerHTML = `
-        <div class="res-card">
-          <div class="res-title">${sanitize(unit.name)} — ${sanitize(unit.title)}</div>
-          <div class="muted">${sanitize(unit.address)}</div>
-          <div class="chips">${(unit.amenities || []).map(a => `<span class="chip">${sanitize(a)}</span>`).join('')}</div>
-          <div class="muted">${sanitize(unit.description || '')}</div>
+          <div class="unitgrid" id="unitGrid"></div>
         </div>
-        <div style="height:12px"></div>
-        ${unitReservations.length ? unitReservations.map(r => reservationCard(r)).join('') : '<div class="empty">No hay reservas cargadas para esta unidad.</div>'}
-      `;
-      attachReservationCardActions();
 
-      function dayCell(date, muted){
-        const status = getDateStatusForUnit(unit.id, date);
-        const isToday = sameDay(date, today());
-        return `
-          <div class="day ${muted ? 'muted' : ''} ${isToday ? 'today' : ''}">
-            <div class="day-num">${date.getDate()}</div>
-            <span class="day-badge ${status}">${getStatusLabel(status)}</span>
-          </div>
-        `;
-      }
-    }
-
-    function renderHistory(){
-      const q = $("#historySearch").value.trim().toLowerCase();
-      const unitFilter = $("#historyUnitFilter").value;
-      let list = sortReservations(state.reservations);
-      if(unitFilter !== 'all') list = list.filter(r => r.unitId === unitFilter);
-      if(q){
-        list = list.filter(r => {
-          const unit = getUnit(r.unitId);
-          const blob = [
-            r.guestName, r.guestContact, r.guestType, r.checkIn, r.checkOut, r.stayType,
-            r.agreedRate, r.notes, getStatusLabel(r.status), unit?.name, unit?.title, unit?.address
-          ].join(' ').toLowerCase();
-          return blob.includes(q);
-        });
-      }
-
-      const target = $("#historyList");
-      if(!list.length){
-        target.innerHTML = `<div class="empty">No se encontraron coincidencias.</div>`;
-        return;
-      }
-      target.innerHTML = list.map(r => {
-        const unit = getUnit(r.unitId);
-        return `
-          <article class="history-item">
-            <div class="history-item-top">
+        <div class="grid">
+          <div class="card" id="upcomingCheckoutsCard">
+            <div class="panelhead">
               <div>
-                <div class="res-title">${sanitize(r.guestName)}</div>
-                <div class="muted">${sanitize(unit?.name || '')} · ${sanitize(unit?.title || '')}</div>
+                <div class="eyebrow">Agenda</div>
+                <h2>Próximas salidas</h2>
+                <div class="sub">Reservas con checkout más cercano.</div>
               </div>
-              <span class="status ${r.status==='occupied'?'occupied':r.status==='reserved'?'reserved':'available'}">${getStatusLabel(r.status)}</span>
             </div>
-            <div class="meta">
-              <div><strong>Fechas:</strong> ${formatRange(r.checkIn, r.checkOut)}</div>
-              <div><strong>Contacto:</strong> ${sanitize(r.guestContact)}</div>
-              <div><strong>Tipo:</strong> ${sanitize(r.guestType)} · <strong>Modalidad:</strong> ${sanitize(r.stayType)}</div>
-              <div><strong>Cochera:</strong> ${sanitize(r.parkingIncluded)} · <strong>Tarifa acordada:</strong> ${sanitize(r.agreedRate || 'No especificada')}</div>
-              ${r.notes ? `<div><strong>Notas:</strong> ${sanitize(r.notes)}</div>` : ''}
+            <div class="list" id="upcomingCheckouts"></div>
+          </div>
+
+          <div class="card" id="upcomingCheckinsCard">
+            <div class="panelhead">
+              <div>
+                <div class="eyebrow">Agenda</div>
+                <h2>Próximas entradas</h2>
+                <div class="sub">Reservas con check-in más próximo.</div>
+              </div>
+            </div>
+            <div class="list" id="upcomingCheckins"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-reservas" class="views">
+      <div class="card">
+        <div class="panelhead">
+          <div>
+            <div class="eyebrow">Reservas</div>
+            <h2>Gestión de reservas activas e históricas</h2>
+          </div>
+          <div class="toolbar">
+            <select class="select" id="reservationsUnitFilter"></select>
+            <button class="btn dark" id="newReservationBtn2">Nueva reserva</button>
+          </div>
+        </div>
+        <div class="search-row" id="reservationsSearchRow">
+          <div class="search-input-wrap">
+            <span class="search-icon">⌕</span>
+            <input class="input" id="reservationsSearch" placeholder="Buscar reserva por nombre, fecha, unidad...">
+          </div>
+        </div>
+        <div class="reservations-sections">
+          <div id="activeReservationsBlock">
+            <h3 class="section-title">Reservas activas y futuras</h3>
+            <div class="grid" id="reservationsList"></div>
+          </div>
+          <div id="historyReservationsBlock">
+            <h3 class="section-title">Historial de huéspedes</h3>
+            <div class="grid" id="historyList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-calendario" class="views">
+      <div class="card">
+        <div class="panelhead">
+          <div>
+            <div class="eyebrow">Calendario</div>
+            <h2>Ocupación mensual por unidad</h2>
+          </div>
+          <div class="toolbar">
+            <select class="select" id="calendarUnitFilter"></select>
+            <button class="btn light small" id="prevMonthBtn">Mes anterior</button>
+            <button class="btn light small" id="currentMonthBtn">Hoy</button>
+            <button class="btn light small" id="nextMonthBtn">Mes siguiente</button>
+          </div>
+        </div>
+        <div class="calendar-shell"><div class="calendar-legend" id="calendarLegend"></div><div class="grid" id="calendarViews"></div></div>
+      </div>
+    </section>
+
+    <section id="view-unidades" class="views">
+      <div class="card">
+        <div class="panelhead">
+          <div>
+            <div class="eyebrow">Unidades</div>
+            <h2>Gestión visual de unidades</h2>
+            <div class="sub">Edición individual, tarjetas expandibles y alta de nuevas unidades.</div>
+          </div>
+          <div class="toolbar">
+            <span class="count-pill" id="unitsCountPill">0 unidades activas</span>
+            <button class="btn dark" id="addUnitBtn">Agregar nueva unidad</button>
+          </div>
+        </div>
+        <div class="unit-manager-grid" id="unitsEditor"></div>
+      </div>
+    </section>
+
+    <section id="view-metricas" class="views">
+      <div class="card">
+        <div class="panelhead">
+          <div>
+            <div class="eyebrow">Analítica</div>
+            <h2>Métricas y rendimiento del negocio</h2>
+          </div>
+          <div class="toolbar">
+            <button class="btn light small" id="copySummaryBtn">Exportar resumen</button>
+            <button class="btn dark small" id="printMetricsBtn">Imprimir vista</button>
+          </div>
+        </div>
+
+        <div class="filterbar">
+          <div class="field"><label>Rango</label><select class="select" id="metricsRangePreset"><option value="month">Este mes</option><option value="quarter">Este trimestre</option><option value="year" selected>Este año</option><option value="custom">Rango personalizado</option></select></div>
+          <div class="field"><label>Desde</label><input class="input" id="metricsStart" type="date"></div>
+          <div class="field"><label>Hasta</label><input class="input" id="metricsEnd" type="date"></div>
+          <div class="field"><label>Serie ingresos</label><select class="select" id="metricsIncomeSeries"></select></div>
+          <div class="field"><label>Vista trimestral</label><select class="select" id="metricsQuarterYear"></select></div>
+          <div class="field"><label>Aplicar</label><button class="btn dark" id="applyMetricsRange">Actualizar métricas</button></div>
+        </div>
+      </div>
+
+      <div class="grid kpis" id="metricsExecutiveCards" style="margin-top:18px"></div>
+
+      <div class="grid" style="margin-top:18px">
+        <div class="card">
+          <div class="panelhead">
+            <div>
+              <div class="eyebrow">Rendimiento por unidad</div>
+              <h2>Comparativa operativa</h2>
             </div>
             <div class="toolbar">
-              <button class="btn secondary small" data-edit-reservation="${r.id}">Editar</button>
-              <button class="btn danger small" data-delete-reservation="${r.id}">Eliminar</button>
-            </div>
-          </article>
-        `;
-      }).join('');
-      attachReservationCardActions();
-    }
-
-    function renderUnitsEditor(){
-      const target = $("#unitsEditor");
-      target.innerHTML = state.units.map(unit => `
-        <article class="form-panel" id="unit-editor-${unit.id}">
-          <div class="section-head">
-            <div>
-              <h4>${sanitize(unit.name)} — ${sanitize(unit.title)}</h4>
-              <p>Edición completa de descripción, amenities, fotos y observaciones.</p>
+              <span class="badge darkbadge" id="mostBookedBadge"></span>
+              <span class="badge darkbadge" id="mostProfitableBadge"></span>
             </div>
           </div>
-          <form data-unit-form="${unit.id}">
-            <div class="field-grid">
-              <div class="field">
-                <label>Nombre corto</label>
-                <input name="name" value="${sanitize(unit.name)}">
-              </div>
-              <div class="field">
-                <label>Título principal</label>
-                <input name="title" value="${sanitize(unit.title)}">
-              </div>
-              <div class="field">
-                <label>Subtítulo</label>
-                <input name="subtitle" value="${sanitize(unit.subtitle || '')}">
-              </div>
-              <div class="field">
-                <label>Dirección</label>
-                <input name="address" value="${sanitize(unit.address || '')}">
-              </div>
-            </div>
-            <div class="field" style="margin-top:14px">
-              <label>Descripción</label>
-              <textarea name="description">${sanitize(unit.description || '')}</textarea>
-            </div>
-            <div class="field-grid" style="margin-top:14px">
-              <div class="field">
-                <label>Amenities separados por coma</label>
-                <textarea name="amenities">${sanitize((unit.amenities || []).join(', '))}</textarea>
-              </div>
-              <div class="field">
-                <label>Fotos por URL separadas por coma</label>
-                <textarea name="photos">${sanitize((unit.photos || []).join(', '))}</textarea>
-              </div>
-            </div>
-            <div class="field" style="margin-top:14px">
-              <label>Observaciones internas</label>
-              <textarea name="notes">${sanitize(unit.notes || '')}</textarea>
-            </div>
-            <div class="toolbar" style="margin-top:16px">
-              <button class="btn gold" type="submit">Guardar unidad</button>
-            </div>
-          </form>
-        </article>
-      `).join('');
+          <canvas id="unitPerformanceChart"></canvas>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>Unidad</th><th>Reservas totales</th><th>Días ocupados</th><th>% Ocupación</th><th>Ingresos totales</th></tr></thead>
+              <tbody id="unitSummaryTable"></tbody>
+            </table>
+          </div>
+        </div>
 
-      $$('[data-unit-form]').forEach(form => form.addEventListener('submit', e => {
-        e.preventDefault();
-        const id = form.getAttribute('data-unit-form');
-        const unit = getUnit(id);
-        if(!unit) return;
-        const fd = new FormData(form);
-        unit.name = String(fd.get('name') || '').trim();
-        unit.title = String(fd.get('title') || '').trim();
-        unit.subtitle = String(fd.get('subtitle') || '').trim();
-        unit.address = String(fd.get('address') || '').trim();
-        unit.description = String(fd.get('description') || '').trim();
-        unit.amenities = String(fd.get('amenities') || '').split(',').map(x => x.trim()).filter(Boolean);
-        unit.photos = String(fd.get('photos') || '').split(',').map(x => x.trim()).filter(Boolean);
-        unit.notes = String(fd.get('notes') || '').trim();
-        saveState();
-        renderAll();
-      }));
+        <div class="split">
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Análisis temporal</div><h2>Ingresos mensuales</h2></div></div>
+            <canvas id="incomeTrendChart"></canvas>
+          </div>
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Análisis temporal</div><h2>Ocupación por mes</h2></div></div>
+            <canvas id="occupancyMonthChart"></canvas>
+          </div>
+        </div>
+
+        <div class="grid kpis" id="temporalHighlights"></div>
+
+        <div class="card">
+          <div class="panelhead"><div><div class="eyebrow">Vista trimestral</div><h2>Comparación Q1, Q2, Q3 y Q4</h2></div></div>
+          <canvas id="quarterChart"></canvas>
+        </div>
+
+        <div class="split">
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Huéspedes</div><h2>Distribución por tipo</h2></div></div>
+            <canvas id="guestTypeChart"></canvas>
+          </div>
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Estadías</div><h2>Distribución por modalidad</h2></div></div>
+            <canvas id="stayModeChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead"><div><div class="eyebrow">Relación con clientes</div><h2>Recurrentes vs nuevos</h2></div></div>
+          <div class="grid kpis" id="guestHighlights"></div>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>Huésped o empresa</th><th>Reservas</th><th>Tipo</th><th>Total histórico</th></tr></thead>
+              <tbody id="guestRankingTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead"><div><div class="eyebrow">Mapa de calor anual</div><h2>Intensidad diaria de ocupación</h2></div></div>
+          <div class="heatwrap"><div class="heatmap" id="heatmapGrid"></div></div>
+        </div>
+
+        <div class="split">
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Cochera</div><h2>Métricas de cochera</h2></div></div>
+            <div class="tablewrap">
+              <table>
+                <thead><tr><th>Unidad</th><th>% con cochera</th><th>Reservas con cochera</th><th>Impacto estimado</th></tr></thead>
+                <tbody id="garageTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Proyección y alertas</div><h2>Próximo mes y focos operativos</h2></div></div>
+            <div class="grid kpis" id="projectionCards"></div>
+            <div class="list" id="alertsList" style="margin-top:16px"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead"><div><div class="eyebrow">Resumen exportable</div><h2>Informe de métricas</h2></div></div>
+          <div class="summary" id="metricsSummaryBox"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-configuracion" class="views">
+      <div class="settings-grid">
+        <div class="card">
+          <div class="panelhead">
+            <div>
+              <div class="eyebrow">Configuración</div>
+              <h2>Identidad del panel</h2>
+              <div class="sub">Nombre del negocio, subtítulo y avatar del sidebar.</div>
+            </div>
+          </div>
+          <div class="formgrid">
+            <div><label>Nombre del negocio</label><input class="input" id="cfgBusinessName"></div>
+            <div><label>Subtítulo</label><input class="input" id="cfgBusinessSubtitle"></div>
+            <div><label>Avatar o letra</label><input class="input" id="cfgBusinessAvatar" maxlength="4"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead">
+            <div>
+              <div class="eyebrow">Hero</div>
+              <h2>Textos del hero</h2>
+              <div class="sub">Título, subtítulo y badges editables.</div>
+            </div>
+          </div>
+          <div class="formgrid">
+            <div class="full"><label>Título principal</label><input class="input" id="cfgHeroTitle"></div>
+            <div class="full"><label>Subtítulo descriptivo</label><textarea class="textarea" id="cfgHeroSubtitle"></textarea></div>
+            <div><label>Badge 1</label><input class="input" id="cfgHeroBadge1"></div>
+            <div><label>Badge 2</label><input class="input" id="cfgHeroBadge2"></div>
+            <div class="full"><label>Badge 3</label><input class="input" id="cfgHeroBadge3"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead">
+            <div>
+              <div class="eyebrow">Visibilidad</div>
+              <h2>Control por pestaña</h2>
+              <div class="sub">Expandí cada pestaña y elegí qué elementos mostrar u ocultar.</div>
+            </div>
+          </div>
+          <div class="settings-accordion" id="visibilitySettings"></div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead">
+            <div>
+              <div class="eyebrow">Persistencia</div>
+              <h2>Guardar configuración</h2>
+              <div class="sub">Se guarda en Firestore en panelData/principal y deja respaldo local automático.</div>
+            </div>
+            <button class="btn dark" id="saveConfigBtn">Guardar configuración</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar">
+  <button class="active" data-view="dashboard">Inicio</button>
+  <button data-view="reservas">Reservas</button>
+  <button data-view="calendario">Calendario</button>
+  <button data-view="unidades">Unidades</button>
+  <button data-view="metricas">Métricas</button>
+  <button data-view="configuracion">Ajustes</button>
+</nav>
+
+<div class="drawer" id="reservationDrawer">
+  <div class="back" onclick="closeLayer('reservationDrawer')"></div>
+  <div class="drawerpanel">
+    <div class="panelhead">
+      <div><div class="eyebrow">Reserva</div><h3 id="reservationTitle">Nueva reserva</h3></div>
+      <button class="btn light small" onclick="closeLayer('reservationDrawer')">Cerrar</button>
+    </div>
+    <form id="reservationForm" class="formgrid"></form>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig={
+  apiKey:'AIzaSyD-vaiTZyXzIWdFJ61A8ppXu2h2E4A1uQA',
+  authDomain:'departamentos-37c4e.firebaseapp.com',
+  projectId:'departamentos-37c4e',
+  storageBucket:'departamentos-37c4e.firebasestorage.app',
+  messagingSenderId:'477447574305',
+  appId:'1:477447574305:web:8eaeb10e11f99e9cbd2460'
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+const KEY='gestion_boutique_alquileres_v7';
+const FIRESTORE_COLLECTION='panelData';
+const FIRESTORE_DOC_ID='principal';
+const defaultTabVisibility={
+  dashboard:{heroBanner:true,heroBadges:true,topStats:true,unitsSection:true,upcomingCheckouts:true,upcomingCheckins:true},
+  reservas:{searchBar:true,unitFilter:true,newReservationBtn:true,historicalList:true},
+  calendario:{unitSelector:true,colorLegend:true,monthNavigation:true},
+  unidades:{addUnitBtn:true,photoFields:true,amenitiesFields:true},
+  metricas:{filters:true,executiveCards:true}
+};
+const defaultSettings={
+  identity:{businessName:'Departamentos Temporales',businessSubtitle:'Gestión boutique',businessAvatar:'DB'},
+  hero:{title:'Gestión boutique con claridad total',subtitle:'Un sistema visual, suave y ordenado para reservas, ocupación, calendario y rendimiento de cada unidad.',badges:['Vista limpia','Control operativo','Métricas integradas']},
+  tabVisibility:defaultTabVisibility
+};
+const unitColors=['#4A7CFF','#2BAA66','#F08A24','#B15CFF','#E0579A','#168AAD'];
+const seed={
+  units:[
+    {id:'u1',name:'Unidad 1',address:'Stefenelli & Matheu',subtitle:'Barrio Gama',description:'Monoambiente totalmente equipado, balcón a la calle, cochera opcional.',amenities:['Monoambiente','Totalmente equipado','Balcón a la calle','Cochera opcional'],notes:'Ideal para estadías urbanas breves y corporativas.',photos:['https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80']},
+    {id:'u2',name:'Unidad 2',address:'Roca 135, Piso 12-B',subtitle:'A 1 cuadra del Monumento a San Martín',description:'Monoambiente equipamiento full, balcón a la calle, cochera opcional.',amenities:['Monoambiente','Equipamiento full','Balcón a la calle','Cochera opcional'],notes:'Muy demandada para viajes de trabajo y estadías cortas.',photos:['https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80']},
+    {id:'u3',name:'Unidad 3',address:'Roca 135, Piso 13-B',subtitle:'A 1 cuadra del Monumento a San Martín',description:'Monoambiente equipamiento full, balcón a la calle, cochera opcional.',amenities:['Monoambiente','Equipamiento full','Balcón a la calle','Cochera opcional'],notes:'Perfil premium con buena tracción para estadías mensuales.',photos:['https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=1200&q=80']}
+  ],
+  reservations:[
+    {id:crypto.randomUUID(),unitId:'u1',guestName:'María Gómez',contact:'maria.gomez@email.com',guestType:'particular',startDate:'2026-01-08',endDate:'2026-01-13',stayMode:'corta',parking:true,agreedRate:185000,status:'ocupado',notes:'Ingreso tardío coordinado.'},
+    {id:crypto.randomUUID(),unitId:'u2',guestName:'Estudio Delta SRL',contact:'compras@deltasrl.com',guestType:'empresa',startDate:'2026-02-03',endDate:'2026-02-24',stayMode:'media',parking:true,agreedRate:690000,status:'ocupado',notes:'Factura A.'},
+    {id:crypto.randomUUID(),unitId:'u3',guestName:'Luciano Pérez',contact:'+54 9 341 555 9898',guestType:'particular',startDate:'2026-02-10',endDate:'2026-03-12',stayMode:'mensual',parking:false,agreedRate:980000,status:'ocupado',notes:'Renovable según disponibilidad.'},
+    {id:crypto.randomUUID(),unitId:'u1',guestName:'Daniel Ibáñez',contact:'daniibanez@email.com',guestType:'particular',startDate:'2026-04-21',endDate:'2026-04-27',stayMode:'corta',parking:true,agreedRate:225000,status:'reservado',notes:'Confirmó seña.'},
+    {id:crypto.randomUUID(),unitId:'u3',guestName:'AgroNova SA',contact:'rrhh@agronova.com',guestType:'empresa',startDate:'2026-05-04',endDate:'2026-05-30',stayMode:'mensual',parking:true,agreedRate:1120000,status:'reservado',notes:'Posible extensión.'},
+    {id:crypto.randomUUID(),unitId:'u2',guestName:'Carolina Suárez',contact:'carosuarez@email.com',guestType:'particular',startDate:'2026-06-08',endDate:'2026-06-14',stayMode:'corta',parking:false,agreedRate:248000,status:'reservado',notes:'Llega por evento.'},
+    {id:crypto.randomUUID(),unitId:'u1',guestName:'Inés Barrios',contact:'inesb@email.com',guestType:'particular',startDate:'2025-12-14',endDate:'2025-12-20',stayMode:'corta',parking:true,agreedRate:210000,status:'ocupado',notes:'Ingreso autónomo.'}
+  ],
+  settings:defaultSettings
+};
+
+let state=loadLocal();
+const ui={view:'dashboard',month:new Date(new Date().getFullYear(),new Date().getMonth(),1),editId:null,range:preset('year'),dashboardOpen:{},unitEditorOpen:{},savedUnit:null,savedConfig:false,settingsOpen:{dashboard:true,reservas:false,calendario:false,unidades:false,metricas:false},openReservationMenu:null};
+const charts={};
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function withDefaults(data){
+  const out=clone(seed);
+  if(data.units) out.units=data.units;
+  if(data.reservations) out.reservations=data.reservations;
+  out.settings={...defaultSettings,...(data.settings||{})};
+  out.settings.identity={...defaultSettings.identity,...((data.settings||{}).identity||{})};
+  out.settings.hero={...defaultSettings.hero,...((data.settings||{}).hero||{})};
+  out.settings.tabVisibility=clone(defaultTabVisibility);
+  const savedTabs=((data.settings||{}).tabVisibility)||{};
+  Object.keys(defaultTabVisibility).forEach(tab=>{out.settings.tabVisibility[tab]={...defaultTabVisibility[tab],...(savedTabs[tab]||{})};});
+  if((data.settings||{}).dashboardVisibility){
+    const old=data.settings.dashboardVisibility;
+    out.settings.tabVisibility.dashboard.heroBanner=old.hero ?? out.settings.tabVisibility.dashboard.heroBanner;
+    out.settings.tabVisibility.dashboard.heroBadges=old.heroBadges ?? out.settings.tabVisibility.dashboard.heroBadges;
+    out.settings.tabVisibility.dashboard.topStats=(old.freeToday||old.occupiedNow||old.nextIn||old.nextOut) ?? out.settings.tabVisibility.dashboard.topStats;
+    out.settings.tabVisibility.dashboard.unitsSection=old.unitsSection ?? out.settings.tabVisibility.dashboard.unitsSection;
+    out.settings.tabVisibility.dashboard.upcomingCheckouts=old.upcomingCheckouts ?? out.settings.tabVisibility.dashboard.upcomingCheckouts;
+    out.settings.tabVisibility.dashboard.upcomingCheckins=old.upcomingCheckins ?? out.settings.tabVisibility.dashboard.upcomingCheckins;
+  }
+  return out;
+}
+function loadLocal(){try{const raw=localStorage.getItem(KEY);if(raw)return withDefaults(JSON.parse(raw))}catch(e){} localStorage.setItem(KEY,JSON.stringify(seed)); return clone(seed)}
+function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
+async function loadFromFirestore(){
+  try{
+    const ref=doc(db,FIRESTORE_COLLECTION,FIRESTORE_DOC_ID);
+    const snap=await getDoc(ref);
+    if(snap.exists()){
+      const data=withDefaults(snap.data());
+      localStorage.setItem(KEY,JSON.stringify(data));
+      return data;
     }
+    await setDoc(ref,JSON.parse(JSON.stringify(seed)));
+    localStorage.setItem(KEY,JSON.stringify(seed));
+    return clone(seed);
+  }catch(error){
+    console.error('Error cargando desde Firestore:',error);
+    return loadLocal();
+  }
+}
+let saveTimer=null;
+async function saveToFirestore(){
+  try{
+    const ref=doc(db,FIRESTORE_COLLECTION,FIRESTORE_DOC_ID);
+    await setDoc(ref,JSON.parse(JSON.stringify(state)));
+  }catch(error){
+    console.error('Error guardando en Firestore:',error);
+  }
+}
+function save(){
+  saveLocal();
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{saveToFirestore();},180);
+}
+const parse=v=>{const[a,b,c]=v.split('-').map(Number);return new Date(a,b-1,c)};
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const sod=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
+const add=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const days=(a,b)=>Math.max(1,Math.round((sod(b)-sod(a))/86400000)+1);
+const money=v=>new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(Number(v||0));
+const pc=v=>`${Number(v||0).toFixed(1)}%`;
+const fmt=v=>parse(v).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+const short=v=>parse(v).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'});
+const unit=id=>state.units.find(u=>u.id===id);
+const vis=(tab,key)=>state.settings.tabVisibility?.[tab]?.[key]!==false;
+const colorForUnit=id=>unitColors[Math.max(0,state.units.findIndex(u=>u.id===id))%unitColors.length];
+function reservationSearchText(r){const u=unit(r.unitId); return [r.guestName,u?.name||'',u?.address||'',r.startDate,r.endDate,r.stayMode,r.contact,r.notes].join(' ').toLowerCase()}
+function reservationMatches(r,q,uf){return (uf==='all'||r.unitId===uf) && (!q || reservationSearchText(r).includes(q));}
+function isHistoricalReservation(r){return parse(r.endDate)<sod(new Date())}
+function overlap(a1,a2,b1,b2){const s=a1>b1?a1:b1,e=a2<b2?a2:b2;return Math.max(0,Math.round((sod(e)-sod(s))/86400000)+1)}
+function derived(r){const t=sod(new Date()),s=parse(r.startDate),e=parse(r.endDate); if(t>=s&&t<=e) return 'ocupado'; if(t<s) return 'reservado'; return 'disponible'}
+function unitStatus(id){const rs=state.reservations.filter(r=>r.unitId===id); if(rs.some(r=>derived(r)==='ocupado')) return 'ocupado'; if(rs.some(r=>derived(r)==='reservado')) return 'reservado'; return 'disponible'}
+function occ(id,d){const r=state.reservations.find(x=>x.unitId===id&&parse(d)>=parse(x.startDate)&&parse(d)<=parse(x.endDate)); return r?derived(r):'disponible'}
+function preset(p){const n=new Date(); if(p==='month') return {start:new Date(n.getFullYear(),n.getMonth(),1),end:new Date(n.getFullYear(),n.getMonth()+1,0)}; if(p==='quarter'){const m=Math.floor(n.getMonth()/3)*3; return {start:new Date(n.getFullYear(),m,1),end:new Date(n.getFullYear(),m+3,0)}} return {start:new Date(n.getFullYear(),0,1),end:new Date(n.getFullYear(),11,31)}}
+function overlapping(s,e){return state.reservations.filter(r=>overlap(parse(r.startDate),parse(r.endDate),s,e)>0)}
+function revIn(r,s,e){const td=days(parse(r.startDate),parse(r.endDate)),od=overlap(parse(r.startDate),parse(r.endDate),s,e); return td?Number(r.agreedRate||0)*od/td:0}
+function nextMovementForUnit(id){
+  const today=sod(new Date());
+  const current=state.reservations.filter(r=>r.unitId===id && parse(r.endDate)>=today).sort((a,b)=>parse(a.startDate)-parse(b.startDate));
+  if(!current.length) return 'Sin movimientos próximos.';
+  const r=current[0];
+  if(parse(r.startDate)<=today && parse(r.endDate)>=today) return `Ocupada hasta ${fmt(r.endDate)} por ${r.guestName}.`;
+  return `Próxima entrada: ${fmt(r.startDate)} · ${r.guestName}.`;
+}
 
-    function bindControls(){
-      $("#reservationForm").addEventListener('submit', handleReservationSubmit);
-      $("#resetReservationForm").addEventListener('click', () => resetReservationForm());
-      $("#prevMonthBtn").addEventListener('click', () => { calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth()-1, 1); renderCalendar(); });
-      $("#nextMonthBtn").addEventListener('click', () => { calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth()+1, 1); renderCalendar(); });
-      $("#todayMonthBtn").addEventListener('click', () => { calendarDate = new Date(); renderCalendar(); });
-      $("#historySearch").addEventListener('input', renderHistory);
-      $("#historyUnitFilter").addEventListener('change', renderHistory);
-      $("#newReservationTopBtn").addEventListener('click', () => { resetReservationForm(); setView('reservations'); });
-      $("#newReservationMobileBtn").addEventListener('click', () => { resetReservationForm(); setView('reservations'); });
+function fillOptions(){
+  const currentReservations=$('#reservationsUnitFilter')?.value || 'all';
+  const currentCalendar=$('#calendarUnitFilter')?.value || 'all';
+  const currentSeries=$('#metricsIncomeSeries')?.value || 'total';
+  ['#reservationsUnitFilter','#calendarUnitFilter'].forEach(sel=>$(sel).innerHTML='<option value="all">Todas las unidades</option>');
+  $('#metricsIncomeSeries').innerHTML='<option value="total">Total combinado</option>';
+  state.units.forEach(u=>{
+    $('#reservationsUnitFilter').insertAdjacentHTML('beforeend',`<option value="${u.id}">${u.name}</option>`);
+    $('#calendarUnitFilter').insertAdjacentHTML('beforeend',`<option value="${u.id}">${u.name}</option>`);
+    $('#metricsIncomeSeries').insertAdjacentHTML('beforeend',`<option value="${u.id}">${u.name}</option>`);
+  });
+  $('#reservationsUnitFilter').value=state.units.some(u=>u.id===currentReservations)?currentReservations:'all';
+  $('#calendarUnitFilter').value=state.units.some(u=>u.id===currentCalendar)?currentCalendar:'all';
+  $('#metricsIncomeSeries').value=(currentSeries==='total' || state.units.some(u=>u.id===currentSeries))?currentSeries:'total';
+  const years=[...new Set(state.reservations.flatMap(r=>[parse(r.startDate).getFullYear(),parse(r.endDate).getFullYear()]))].sort((a,b)=>b-a);
+  $('#metricsQuarterYear').innerHTML='';
+  years.forEach(y=>$('#metricsQuarterYear').insertAdjacentHTML('beforeend',`<option value="${y}">${y}</option>`));
+  if(!years.includes(new Date().getFullYear())) $('#metricsQuarterYear').insertAdjacentHTML('afterbegin',`<option value="${new Date().getFullYear()}">${new Date().getFullYear()}</option>`);
+  $('#metricsQuarterYear').value=String(new Date().getFullYear());
+  $('#metricsStart').value=iso(ui.range.start);
+  $('#metricsEnd').value=iso(ui.range.end);
+}
 
-      $("#exportBtn").addEventListener('click', () => {
-        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `departamentos-backup-${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-      });
+function renderBrand(){
+  $('#brandName').textContent=state.settings.identity.businessName;
+  $('#brandSubtitle').textContent=state.settings.identity.businessSubtitle;
+  $('#brandAvatar').textContent=(state.settings.identity.businessAvatar || 'DB').slice(0,4);
+}
+function renderHero(){
+  $('#heroSection').classList.toggle('hidden', !vis('dashboard','heroBanner'));
+  $('#heroTitle').textContent=state.settings.hero.title;
+  $('#heroText').textContent=state.settings.hero.subtitle;
+  const badges=(state.settings.hero.badges||[]).filter(Boolean);
+  $('#heroBadges').innerHTML=badges.map(b=>`<span class="hero-badge">${b}</span>`).join('');
+  $('#heroBadges').classList.toggle('hidden', !vis('dashboard','heroBadges'));
+}
+function renderTop(){
+  const t=iso(new Date());
+  const free=state.units.filter(u=>occ(u.id,t)==='disponible').length;
+  const occNow=state.units.filter(u=>occ(u.id,t)==='ocupado').length;
+  const outs=[...state.reservations].filter(r=>parse(r.endDate)>=sod(new Date())).sort((a,b)=>parse(a.endDate)-parse(b.endDate))[0];
+  const ins=[...state.reservations].filter(r=>parse(r.startDate)>=sod(new Date())).sort((a,b)=>parse(a.startDate)-parse(b.startDate))[0];
+  const cards=[['Unidades libres hoy',free,`Sobre ${state.units.length} unidades disponibles.`],['Unidades ocupadas hoy',occNow,'Ocupación activa al día de hoy.'],['Próxima salida',outs?short(outs.endDate):'—',outs?`${outs.guestName} · ${unit(outs.unitId).name}`:'Sin salidas próximas'],['Próxima entrada',ins?short(ins.startDate):'—',ins?`${ins.guestName} · ${unit(ins.unitId).name}`:'Sin entradas próximas']];
+  $('#topStats').innerHTML=cards.map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('');
+  $('#topStats').classList.toggle('hidden', !vis('dashboard','topStats'));
+}
 
-      $("#importInput").addEventListener('change', async (e) => {
-        const file = e.target.files?.[0];
-        if(!file) return;
-        const text = await file.text();
-        try{
-          const parsed = JSON.parse(text);
-          if(!parsed.units || !parsed.reservations) throw new Error('Formato inválido');
-          state = parsed;
-          saveState();
-          renderAll();
-        }catch{
-          alert('El archivo no tiene un formato válido.');
-        } finally {
-          e.target.value = '';
-        }
-      });
+function renderUnits(){
+  $('#dashboardUnitsCard').classList.toggle('hidden', !vis('dashboard','unitsSection'));
+  $('#unitGrid').innerHTML=state.units.map(u=>{
+    const open=!!ui.dashboardOpen[u.id];
+    return `<article class="unit-card-collapsible ${open?'open':''}">
+      <div class="unit-collapsible-head" onclick="toggleDashboardUnit('${u.id}')">
+        <div class="unit-collapsible-title">
+          <div class="unit-card-media"><img src="${u.photos[0]||''}" alt="${u.name}"></div>
+          <strong>${u.name}</strong>
+          <div class="sub">${u.address}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="badge ${unitStatus(u.id)}">${unitStatus(u.id)}</span>
+          <span class="chevron"></span>
+        </div>
+      </div>
+      <div class="collapse">
+        <div class="collapse-inner">
+          <div class="unit-collapsible-body">
+            <div class="sub">${u.description||'Sin descripción.'}</div>
+            <div class="chips">${(u.amenities||[]).map(a=>`<span class="chip">${a}</span>`).join('') || '<span class="chip">Sin amenities</span>'}</div>
+            <div class="unit-next">${nextMovementForUnit(u.id)}</div>
+            <div class="toolbar">
+              <button class="btn dark small" onclick="event.stopPropagation(); openReservation('${u.id}')">Agregar reserva</button>
+              <button class="btn light small" onclick="event.stopPropagation(); switchView('unidades')">Editar unidad</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+function renderUpcoming(){
+  $('#upcomingCheckoutsCard').classList.toggle('hidden', !vis('dashboard','upcomingCheckouts'));
+  $('#upcomingCheckinsCard').classList.toggle('hidden', !vis('dashboard','upcomingCheckins'));
+  const t=sod(new Date());
+  const outs=[...state.reservations].filter(r=>parse(r.endDate)>=t).sort((a,b)=>parse(a.endDate)-parse(b.endDate)).slice(0,5);
+  const ins=[...state.reservations].filter(r=>parse(r.startDate)>=t).sort((a,b)=>parse(a.startDate)-parse(b.startDate)).slice(0,5);
+  const build=arr=>arr.length?arr.map(r=>`<div class="item"><strong>${r.guestName}</strong><div class="sub">${unit(r.unitId).name} · ${fmt(r.startDate)} al ${fmt(r.endDate)}</div><div class="sub">Tarifa acordada: ${money(r.agreedRate)} · ${r.parking?'Con cochera':'Sin cochera'}</div></div>`).join(''):'<div class="empty">Sin movimientos próximos.</div>';
+  $('#upcomingCheckouts').innerHTML=build(outs);
+  $('#upcomingCheckins').innerHTML=build(ins);
+}
+function buildReservationCard(r){
+  const u=unit(r.unitId);
+  const menuOpen=ui.openReservationMenu===r.id;
+  return `<article class="rescard"><div class="restop"><div><strong>${r.guestName}</strong><div class="sub">${u.name} · ${u.address}</div><div class="sub">${fmt(r.startDate)} al ${fmt(r.endDate)} · ${days(parse(r.startDate),parse(r.endDate))} días</div><div class="inline-meta"><span class="meta-pill">${r.contact}</span><span class="meta-pill">${r.guestType}</span><span class="meta-pill">${r.stayMode}</span><span class="meta-pill">${r.parking?'Con cochera':'Sin cochera'}</span></div></div><div style="display:flex;align-items:flex-start;gap:10px"><span class="badge ${derived(r)}">${derived(r)}</span><div class="actions-menu-wrap"><button class="menu-trigger" type="button" onclick="toggleReservationMenu(event,'${r.id}')">⋮</button>${menuOpen?`<div class="context-menu" data-menu-id="${r.id}"><button type="button" onclick="editReservation('${r.id}')">Editar</button><button type="button" class="delete" onclick="deleteReservation('${r.id}')">Eliminar</button></div>`:''}</div></div></div><div class="sub">Tarifa acordada: <strong>${money(r.agreedRate)}</strong></div><div class="sub">Notas internas: ${r.notes||'Sin notas.'}</div></article>`;
+}
+function renderReservations(){
+  const f=$('#reservationsUnitFilter').value||'all';
+  const q=($('#reservationsSearch')?.value||'').trim().toLowerCase();
+  const filtered=[...state.reservations].filter(r=>reservationMatches(r,q,f)).sort((a,b)=>parse(a.startDate)-parse(b.startDate));
+  const active=filtered.filter(r=>!isHistoricalReservation(r));
+  const history=filtered.filter(r=>isHistoricalReservation(r)).sort((a,b)=>parse(b.startDate)-parse(a.startDate));
+  $('#reservationsSearchRow').classList.toggle('hidden', !vis('reservas','searchBar'));
+  $('#reservationsUnitFilter').classList.toggle('hidden', !vis('reservas','unitFilter'));
+  $('#newReservationBtn2').classList.toggle('hidden', !vis('reservas','newReservationBtn'));
+  $('#historyReservationsBlock').classList.toggle('hidden', !vis('reservas','historicalList'));
+  $('#reservationsList').innerHTML=active.length?active.map(buildReservationCard).join(''):'<div class="empty">No hay reservas activas o futuras para ese filtro.</div>';
+  $('#historyList').innerHTML=history.length?history.map(buildReservationCard).join(''):'<div class="empty">No hay reservas históricas para ese filtro.</div>';
+}
+function renderCalendar(){
+  const sel=$('#calendarUnitFilter').value||'all', ms=new Date(ui.month.getFullYear(),ui.month.getMonth(),1);
+  $('#calendarUnitFilter').classList.toggle('hidden', !vis('calendario','unitSelector'));
+  ['#prevMonthBtn','#currentMonthBtn','#nextMonthBtn'].forEach(id=>$(id).classList.toggle('hidden', !vis('calendario','monthNavigation')));
+  $('#calendarLegend').classList.toggle('hidden', !vis('calendario','colorLegend'));
+  $('#calendarLegend').innerHTML=state.units.map(u=>`<div class="legend-item"><span class="legend-swatch" style="background:${colorForUnit(u.id)}"></span>${u.name}</div>`).join('');
+  const buildMonth=(units,title,subtitle)=>{
+    const first=new Date(ms); first.setDate(first.getDate()-((first.getDay()+6)%7));
+    let cells='';
+    for(let i=0;i<42;i++){
+      const c=add(first,i), d=iso(c), im=c.getMonth()===ms.getMonth();
+      const blocks=units.flatMap(u=>state.reservations.filter(r=>r.unitId===u.id && parse(d)>=parse(r.startDate) && parse(d)<=parse(r.endDate)).map(r=>`<span class="day-chip ${parse(r.endDate)<sod(new Date())?'past':''}" style="background:${colorForUnit(u.id)}" title="${u.name} · ${r.guestName}"></span>`)).join('');
+      cells+=`<div class="day ${im?'':'out'}"><div class="daynum">${c.getDate()}</div><div class="day-reservations">${blocks}</div></div>`;
     }
+    return `<section class="card"><div class="panelhead"><div><h3>${title}</h3><div class="sub">${subtitle}</div></div><span class="badge darkbadge">${ms.toLocaleDateString('es-AR',{month:'long',year:'numeric'})}</span></div><div class="calendargrid">${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>`<div class="dow">${x}</div>`).join('')}${cells}</div></section>`;
+  };
+  if(sel==='all'){
+    $('#calendarViews').innerHTML=buildMonth(state.units,'Todas las unidades','Reservas pasadas y futuras superpuestas por color.');
+  } else {
+    const u=state.units.find(x=>x.id===sel);
+    $('#calendarViews').innerHTML=u?buildMonth([u],u.name,u.address):'';
+  }
+}
 
-    function renderAll(){
-      fillReservationUnitOptions();
-      renderHeroStats();
-      renderUnitsGrid();
-      renderActiveReservations();
-      renderReservationQuickStats();
-      renderAllReservations();
-      renderCalendar();
-      renderHistory();
-      renderUnitsEditor();
-      renderNav();
-    }
+function renderUnitsEditor(){
+  $('#unitsCountPill').textContent=`${state.units.length} unidades activas`;
+  $('#addUnitBtn').classList.toggle('hidden', !vis('unidades','addUnitBtn'));
+  $('#unitsEditor').innerHTML=state.units.map(u=>{
+    const open=ui.unitEditorOpen[u.id] ?? true;
+    const saved=ui.savedUnit===u.id;
+    return `<article class="unit-editor-card ${open?'open':''}">
+      <div class="unit-editor-head" onclick="toggleUnitEditor('${u.id}')">
+        <div class="unit-editor-title">
+          <strong>${u.name || 'Nueva unidad'}</strong>
+          <div class="sub">${u.address || 'Sin dirección cargada'}</div>
+        </div>
+        <div class="unit-toolbar" onclick="event.stopPropagation()">
+          <button class="btn small ${saved?'save-feedback':'dark'}" onclick="saveUnit('${u.id}')">${saved?'Guardado ✓':'Guardar cambios'}</button>
+          <button class="btn small delete-btn" onclick="deleteUnit('${u.id}')">Eliminar unidad</button>
+          <span class="chevron"></span>
+        </div>
+      </div>
+      <div class="collapse">
+        <div class="collapse-inner">
+          <div style="padding:0 18px 18px">
+            <div class="formgrid">
+              <div><label>Nombre</label><input class="input" id="u-name-${u.id}" value="${escapeHtml(u.name||'')}"></div>
+              <div><label>Dirección</label><input class="input" id="u-address-${u.id}" value="${escapeHtml(u.address||'')}"></div>
+              <div><label>Subtítulo</label><input class="input" id="u-subtitle-${u.id}" value="${escapeHtml(u.subtitle||'')}"></div>
+              <div class="unit-photo-field ${vis('unidades','photoFields')?'':'hidden'}"><label>Foto principal URL</label><input class="input" id="u-photo-${u.id}" value="${escapeHtml((u.photos&&u.photos[0])||'')}"></div>
+              <div class="full"><label>Descripción</label><textarea class="textarea" id="u-description-${u.id}">${escapeHtml(u.description||'')}</textarea></div>
+              <div class="full unit-amenities-field ${vis('unidades','amenitiesFields')?'':'hidden'}"><label>Amenities separados por coma</label><input class="input" id="u-amenities-${u.id}" value="${escapeHtml((u.amenities||[]).join(', '))}"></div>
+              <div class="full"><label>Observaciones</label><textarea class="textarea" id="u-notes-${u.id}">${escapeHtml(u.notes||'')}</textarea></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
 
-    bindControls();
+function renderConfig(){
+  const s=state.settings;
+  $('#cfgBusinessName').value=s.identity.businessName;
+  $('#cfgBusinessSubtitle').value=s.identity.businessSubtitle;
+  $('#cfgBusinessAvatar').value=s.identity.businessAvatar;
+  $('#cfgHeroTitle').value=s.hero.title;
+  $('#cfgHeroSubtitle').value=s.hero.subtitle;
+  $('#cfgHeroBadge1').value=s.hero.badges[0] || '';
+  $('#cfgHeroBadge2').value=s.hero.badges[1] || '';
+  $('#cfgHeroBadge3').value=s.hero.badges[2] || '';
+  const configMap={
+    dashboard:{title:'Inicio',items:[['heroBanner','Hero banner','Bloque superior principal.'],['heroBadges','Badges del hero','Pills del hero.'],['topStats','Estadísticas superiores','Tarjetas resumen del inicio.'],['unitsSection','Sección de unidades','Panel principal de unidades.'],['upcomingCheckouts','Próximas salidas','Bloque lateral de agenda.'],['upcomingCheckins','Próximas entradas','Bloque lateral de agenda.']]},
+    reservas:{title:'Reservas',items:[['searchBar','Buscador','Barra de búsqueda general.'],['unitFilter','Filtro por unidad','Selector de unidad.'],['newReservationBtn','Botón nueva reserva','Acceso rápido para crear.'],['historicalList','Listado histórico','Historial de huéspedes debajo de activas.']]},
+    calendario:{title:'Calendario',items:[['unitSelector','Selector de unidad','Filtro por unidad o todas.'],['colorLegend','Leyenda de colores','Referencias por unidad.'],['monthNavigation','Navegación de meses','Botones anterior, hoy y siguiente.']]},
+    unidades:{title:'Unidades',items:[['addUnitBtn','Botón agregar unidad','Alta rápida de unidades.'],['photoFields','Campos de fotos','Inputs de URL de fotos.'],['amenitiesFields','Campos de amenities','Edición de amenities.']]},
+    metricas:{title:'Métricas',items:[['filters','Filtros superiores','Rango, serie y vista trimestral.'],['executiveCards','Tarjetas ejecutivas','KPIs superiores de métricas.']]}
+  };
+  $('#visibilitySettings').innerHTML=Object.entries(configMap).map(([tab,conf])=>{
+    const open=!!ui.settingsOpen[tab];
+    return `<section class="settings-section ${open?'open':''}"><div class="settings-head" onclick="toggleSettingsSection('${tab}')"><div><strong>${conf.title}</strong><div class="sub">Configuración de visibilidad de la pestaña ${conf.title.toLowerCase()}.</div></div><span class="chevron"></span></div><div class="collapse"><div class="collapse-inner"><div class="settings-body"><div class="setting-list">${conf.items.map(([key,title,desc])=>`<div class="toggle-row"><div class="toggle-label"><strong>${title}</strong><div class="sub">${desc}</div></div><label class="switch"><input type="checkbox" data-tab="${tab}" data-vis-key="${key}" ${vis(tab,key)?'checked':''}><span class="slider"></span></label></div>`).join('')}</div></div></div></div></section>`;
+  }).join('');
+}
+
+function mdata(s,e){
+  const ov=overlapping(s,e), totalDays=(Math.round((sod(e)-sod(s))/86400000)+1)*state.units.length, occDays=ov.reduce((n,r)=>n+overlap(parse(r.startDate),parse(r.endDate),s,e),0), rangeRev=ov.reduce((n,r)=>n+revIn(r,s,e),0), avg=ov.length?rangeRev/ov.length:0, pm=preset('month'), pq=preset('quarter'), py=preset('year');
+  const monthRev=overlapping(pm.start,pm.end).reduce((n,r)=>n+revIn(r,pm.start,pm.end),0), quarterRev=overlapping(pq.start,pq.end).reduce((n,r)=>n+revIn(r,pq.start,pq.end),0), yearRev=overlapping(py.start,py.end).reduce((n,r)=>n+revIn(r,py.start,py.end),0);
+  const per=state.units.map(u=>{const rs=ov.filter(r=>r.unitId===u.id), d=rs.reduce((n,r)=>n+overlap(parse(r.startDate),parse(r.endDate),s,e),0), rv=rs.reduce((n,r)=>n+revIn(r,s,e),0), wd=Math.round((sod(e)-sod(s))/86400000)+1; return {u,res:rs.length,days:d,pct:wd?d/wd*100:0,rev:rv}});
+  const mostBook=[...per].sort((a,b)=>b.res-a.res||b.days-a.days)[0], mostRev=[...per].sort((a,b)=>b.rev-a.rev)[0];
+  const months=[], base=new Date(new Date().getFullYear(),new Date().getMonth()-11,1);
+  for(let i=0;i<12;i++){
+    const a=new Date(base.getFullYear(),base.getMonth()+i,1), b=new Date(base.getFullYear(),base.getMonth()+i+1,0), rs=overlapping(a,b), total=rs.reduce((n,r)=>n+revIn(r,a,b),0), od=rs.reduce((n,r)=>n+overlap(parse(r.startDate),parse(r.endDate),a,b),0), by={};
+    state.units.forEach(u=>by[u.id]=rs.filter(r=>r.unitId===u.id).reduce((n,r)=>n+revIn(r,a,b),0));
+    months.push({label:a.toLocaleDateString('es-AR',{month:'short',year:'2-digit'}),total,occPct:od/((((sod(b)-sod(a))/86400000)+1)*state.units.length)*100,by});
+  }
+  const best=[...months].sort((a,b)=>b.total-a.total)[0], high=[...months].sort((a,b)=>b.occPct-a.occPct)[0], low=[...months].sort((a,b)=>a.total-b.total)[0];
+  const type={particular:ov.filter(r=>r.guestType==='particular').length,empresa:ov.filter(r=>r.guestType==='empresa').length}, stay={corta:ov.filter(r=>r.stayMode==='corta').length,media:ov.filter(r=>r.stayMode==='media').length,mensual:ov.filter(r=>r.stayMode==='mensual').length};
+  const guests={}; state.reservations.forEach(r=>{const k=r.guestName.toLowerCase(); if(!guests[k]) guests[k]={name:r.guestName,type:r.guestType,count:0,total:0}; guests[k].count++; guests[k].total+=Number(r.agreedRate||0)});
+  const ranking=Object.values(guests).sort((a,b)=>b.total-a.total), recurrent=ranking.filter(g=>g.count>1).length, fresh=ranking.filter(g=>g.count===1).length;
+  const yy=Number($('#metricsQuarterYear').value||new Date().getFullYear());
+  const quarters=[1,2,3,4].map(k=>{const a=new Date(yy,(k-1)*3,1),b=new Date(yy,(k-1)*3+3,0),rs=overlapping(a,b),rv=rs.reduce((n,r)=>n+revIn(r,a,b),0),od=rs.reduce((n,r)=>n+overlap(parse(r.startDate),parse(r.endDate),a,b),0); return {q:'Q'+k,rv,pct:od/((((sod(b)-sod(a))/86400000)+1)*state.units.length)*100}});
+  const heat=[]; for(let d=new Date(yy,0,1);d<=new Date(yy,11,31);d=add(d,1)){const z=iso(d), os=state.units.filter(u=>occ(u.id,z)!=='disponible').length, inc=state.reservations.filter(r=>parse(z)>=parse(r.startDate)&&parse(z)<=parse(r.endDate)).reduce((n,r)=>n+Number(r.agreedRate||0)/days(parse(r.startDate),parse(r.endDate)),0); heat.push({z,row:(d.getDay()+6)%7,lev:Math.min(4,os===0?0:os===1?1:os===2?2:4),inc})}
+  const garage=state.units.map(u=>{const rs=state.reservations.filter(r=>r.unitId===u.id), wp=rs.filter(r=>r.parking).length; return {u,pctg:rs.length?wp/rs.length*100:0,wp,impact:wp>0?'Mejora la ocupación':'Sin efecto claro'}});
+  const proj=months.slice(-3).reduce((n,m)=>n+m.total,0)/Math.max(1,months.slice(-3).length), alerts=[];
+  state.units.forEach(u=>{const fr=state.reservations.filter(r=>r.unitId===u.id&&parse(r.startDate)>=sod(new Date())).sort((a,b)=>parse(a.startDate)-parse(b.startDate)); if(!fr.length) alerts.push(`La ${u.name} no tiene reservas futuras cargadas.`); else {const gap=Math.round((sod(parse(fr[0].startDate))-sod(new Date()))/86400000); if(gap>7) alerts.push(`La ${u.name} tiene ${gap} días sin reservas por delante.`)}});
+  return {monthRev,quarterRev,yearRev,occPct:totalDays?occDays/totalDays*100:0,avg,per,mostBook,mostRev,months,best,high,low,type,stay,ranking,recurrent,fresh,quarters,heat,garage,proj,alerts,rangeRev};
+}
+function setChart(key,id,cfg){if(charts[key])charts[key].destroy(); charts[key]=new Chart(document.getElementById(id),cfg)}
+function renderMetrics(){
+  const d=mdata(ui.range.start,ui.range.end);
+  $('#metricsExecutiveCards').classList.toggle('hidden', !vis('metricas','executiveCards'));
+  document.querySelector('#view-metricas .filterbar').classList.toggle('hidden', !vis('metricas','filters'));
+  $('#metricsExecutiveCards').innerHTML=[['Total recaudado en el mes actual',money(d.monthRev),'Mes calendario actual'],['Total recaudado en el trimestre actual',money(d.quarterRev),'Trimestre calendario actual'],['Total recaudado en el año actual',money(d.yearRev),'Año calendario actual'],['Tasa de ocupación global',pc(d.occPct),'Días ocupados vs disponibles'],['Ingreso promedio por reserva',money(d.avg),'Promedio del rango seleccionado']].map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="value" style="font-size:28px">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('');
+  $('#mostBookedBadge').textContent=`Unidad más reservada: ${d.mostBook?.u?.name||'—'}`;
+  $('#mostProfitableBadge').textContent=`Unidad más rentable: ${d.mostRev?.u?.name||'—'}`;
+  setChart('u','unitPerformanceChart',{type:'bar',data:{labels:d.per.map(x=>x.u.name),datasets:[{label:'Reservas',data:d.per.map(x=>x.res),backgroundColor:'#0D1B2A'},{label:'Días ocupados',data:d.per.map(x=>x.days),backgroundColor:'#6e89a0'},{label:'Ingresos / 1000',data:d.per.map(x=>Math.round(x.rev/1000)),backgroundColor:'#c7a36b'}]},options:{plugins:{legend:{position:'bottom'}}}});
+  $('#unitSummaryTable').innerHTML=d.per.map(x=>`<tr><td>${x.u.name}</td><td>${x.res}</td><td>${x.days}</td><td>${pc(x.pct)}</td><td>${money(x.rev)}</td></tr>`).join('');
+  const sk=$('#metricsIncomeSeries').value||'total';
+  setChart('i','incomeTrendChart',{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:sk==='total'?'Ingresos totales':`Ingresos ${unit(sk).name}`,data:d.months.map(m=>sk==='total'?Math.round(m.total):Math.round(m.by[sk]||0)),borderColor:'#0D1B2A',backgroundColor:'rgba(13,27,42,.1)',tension:.35,fill:true}]},options:{plugins:{legend:{position:'bottom'}}}});
+  setChart('o','occupancyMonthChart',{type:'bar',data:{labels:d.months.map(m=>m.label),datasets:[{label:'% ocupación',data:d.months.map(m=>Number(m.occPct.toFixed(1))),backgroundColor:'#20425a'}]},options:{plugins:{legend:{position:'bottom'}}}});
+  $('#temporalHighlights').innerHTML=[['Mes más rentable',d.best?.label||'—',d.best?money(d.best.total):'Sin datos'],['Mes con mayor ocupación',d.high?.label||'—',d.high?pc(d.high.occPct):'Sin datos'],['Mes más flojo',d.low?.label||'—',d.low?money(d.low.total):'Sin datos']].map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="value" style="font-size:26px">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('');
+  setChart('q','quarterChart',{type:'bar',data:{labels:d.quarters.map(x=>x.q),datasets:[{label:'Ingresos / 1000',data:d.quarters.map(x=>Math.round(x.rv/1000)),backgroundColor:'#c7a36b'},{label:'% ocupación',data:d.quarters.map(x=>Number(x.pct.toFixed(1))),backgroundColor:'#0D1B2A'}]},options:{plugins:{legend:{position:'bottom'}}}});
+  setChart('gt','guestTypeChart',{type:'doughnut',data:{labels:['Particulares','Empresas'],datasets:[{data:[d.type.particular,d.type.empresa],backgroundColor:['#20425a','#c7a36b']}]},options:{plugins:{legend:{position:'bottom'}}}});
+  setChart('st','stayModeChart',{type:'doughnut',data:{labels:['Corta','Media','Mensual recurrente'],datasets:[{data:[d.stay.corta,d.stay.media,d.stay.mensual],backgroundColor:['#0D1B2A','#6e89a0','#c7a36b']}]},options:{plugins:{legend:{position:'bottom'}}}});
+  $('#guestHighlights').innerHTML=[['Huéspedes recurrentes',d.recurrent,'Con más de una reserva histórica'],['Huéspedes nuevos',d.fresh,'Con una sola reserva registrada'],['Top gastador',d.ranking[0]?.name||'—',d.ranking[0]?money(d.ranking[0].total):'Sin datos']].map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="value" style="font-size:24px">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('');
+  $('#guestRankingTable').innerHTML=d.ranking.slice(0,5).map(g=>`<tr><td>${g.name}</td><td>${g.count}</td><td>${g.type}</td><td>${money(g.total)}</td></tr>`).join('');
+  $('#heatmapGrid').innerHTML=d.heat.map(h=>`<div class="heat h${h.lev}" style="grid-row:${h.row+1}" title="${fmt(h.z)} · ${money(h.inc)}"></div>`).join('');
+  $('#garageTable').innerHTML=d.garage.map(g=>`<tr><td>${g.u.name}</td><td>${pc(g.pctg)}</td><td>${g.wp}</td><td>${g.impact}</td></tr>`).join('');
+  $('#projectionCards').innerHTML=[['Ingreso esperado mes siguiente',money(d.proj),'Promedio simple de los últimos 3 meses'],['Rango filtrado',`${fmt(iso(ui.range.start))} a ${fmt(iso(ui.range.end))}`,'Filtro activo'],['Ingreso del rango activo',money(d.rangeRev),'Facturación estimada']].map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="value" style="font-size:22px">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('');
+  $('#alertsList').innerHTML=d.alerts.length?d.alerts.map(a=>`<div class="alert">${a}</div>`).join(''):'<div class="empty">Sin alertas activas.</div>';
+  $('#metricsSummaryBox').textContent=['Resumen ejecutivo',`- Recaudación mes actual: ${money(d.monthRev)}`,`- Recaudación trimestre actual: ${money(d.quarterRev)}`,`- Recaudación año actual: ${money(d.yearRev)}`,`- Tasa de ocupación global: ${pc(d.occPct)}`,`- Ingreso promedio por reserva: ${money(d.avg)}`,'',`- Unidad más reservada: ${d.mostBook?.u?.name||'—'}`,`- Unidad más rentable: ${d.mostRev?.u?.name||'—'}`,`- Mes más rentable: ${d.best?.label||'—'}`,`- Mes con mayor ocupación: ${d.high?.label||'—'}`,`- Mes más flojo: ${d.low?.label||'—'}`,'',`- Ingreso esperado mes siguiente: ${money(d.proj)}`,'','Alertas',...d.alerts.map(a=>`- ${a}`)].join('\n');
+}
+
+function form(id){
+  const r=id?state.reservations.find(x=>x.id===id):null; ui.editId=id||null; $('#reservationTitle').textContent=r?'Editar reserva':'Nueva reserva'; const t=iso(new Date());
+  $('#reservationForm').innerHTML=`<div><label>Unidad</label><select class="select" name="unitId">${state.units.map(u=>`<option value="${u.id}" ${r?.unitId===u.id?'selected':''}>${u.name}</option>`).join('')}</select></div><div><label>Nombre del huésped</label><input class="input" name="guestName" value="${escapeHtml(r?.guestName||'')}" required></div><div><label>Contacto</label><input class="input" name="contact" value="${escapeHtml(r?.contact||'')}" required></div><div><label>Tipo</label><select class="select" name="guestType"><option value="particular" ${r?.guestType==='particular'?'selected':''}>Particular</option><option value="empresa" ${r?.guestType==='empresa'?'selected':''}>Empresa</option></select></div><div><label>Fecha de entrada</label><input class="input" type="date" name="startDate" value="${r?.startDate||t}" required></div><div><label>Fecha de salida</label><input class="input" type="date" name="endDate" value="${r?.endDate||t}" required></div><div><label>Modalidad</label><select class="select" name="stayMode"><option value="corta" ${r?.stayMode==='corta'?'selected':''}>Corta</option><option value="media" ${r?.stayMode==='media'?'selected':''}>Media</option><option value="mensual" ${r?.stayMode==='mensual'?'selected':''}>Mensual recurrente</option></select></div><div><label>Tarifa acordada</label><input class="input" type="number" name="agreedRate" value="${r?.agreedRate||''}" required></div><div><label>Cochera</label><select class="select" name="parking"><option value="true" ${r?.parking?'selected':''}>Sí</option><option value="false" ${r&&!r.parking?'selected':''}>No</option></select></div><div><label>Estado</label><select class="select" name="status"><option value="reservado" ${r?.status==='reservado'?'selected':''}>Reservado</option><option value="ocupado" ${r?.status==='ocupado'?'selected':''}>Ocupado</option></select></div><div class="full"><label>Notas internas</label><textarea class="textarea" name="notes">${escapeHtml(r?.notes||'')}</textarea></div><div class="full toolbar"><button class="btn dark" type="submit">${r?'Guardar cambios':'Crear reserva'}</button><button class="btn light" type="button" onclick="closeLayer('reservationDrawer')">Cancelar</button></div>`;
+}
+
+function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;')}
+function renderAll(){fillOptions(); renderBrand(); renderHero(); renderTop(); renderUnits(); renderUpcoming(); renderReservations(); renderCalendar(); renderUnitsEditor(); renderConfig(); renderMetrics()}
+function switchView(v){
+  ui.view=v; $$('.views').forEach(x=>x.classList.remove('active')); $('#view-'+v).classList.add('active');
+  $$('.nav button,.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  const t={dashboard:['Gestión boutique con claridad total','Visualizá unidades, reservas próximas y estado general de la operación.'],reservas:['Reservas y huéspedes','Gestioná cada estadía con tarifa privada, modalidad, cochera y notas internas.'],calendario:['Calendario mensual de ocupación','Revisá disponibilidad, ocupación y reservas futuras por unidad.'],unidades:['Unidades y datos base','Administrá tus unidades con tarjetas expandibles y guardado individual.'],metricas:['Analítica premium del negocio','Ingresos, ocupación, huéspedes, cochera, alertas y proyecciones desde un solo lugar.'],configuracion:['Configuración general del panel','Identidad, visibilidad del dashboard y textos editables del hero.']};
+  $('#heroTitle').textContent=state.settings.hero.title;
+  $('#heroText').textContent= state.settings.hero.subtitle;
+  if(v==='configuracion'){ $('#heroTitle').textContent=t[v][0]; $('#heroText').textContent=t[v][1]; }
+  if(v==='metricas') renderMetrics();
+}
+window.closeLayer=id=>$('#'+id).classList.remove('open');
+window.openReservation=id=>{form(); $('#reservationDrawer').classList.add('open'); setTimeout(()=>$('#reservationForm select[name="unitId"]').value=id,0)};
+window.editReservation=id=>{form(id); $('#reservationDrawer').classList.add('open')};
+window.deleteReservation=id=>{const r=state.reservations.find(x=>x.id===id); if(r&&confirm(`Eliminar la reserva de ${r.guestName}?`)){state.reservations=state.reservations.filter(x=>x.id!==id); ui.openReservationMenu=null; save(); renderAll()}};
+window.toggleReservationMenu=(event,id)=>{event.stopPropagation(); ui.openReservationMenu=ui.openReservationMenu===id?null:id; renderReservations()};
+window.toggleDashboardUnit=id=>{ui.dashboardOpen[id]=!ui.dashboardOpen[id]; renderUnits()};
+window.toggleSettingsSection=tab=>{ui.settingsOpen[tab]=!ui.settingsOpen[tab]; renderConfig()};
+window.toggleUnitEditor=id=>{ui.unitEditorOpen[id]=!(ui.unitEditorOpen[id] ?? true); renderUnitsEditor()};
+window.saveUnit=id=>{
+  const u=state.units.find(x=>x.id===id); if(!u) return;
+  const photoField=$('#u-photo-'+id);
+  const amenitiesField=$('#u-amenities-'+id);
+  u.name=$('#u-name-'+id).value.trim() || 'Nueva unidad';
+  u.address=$('#u-address-'+id).value.trim();
+  u.subtitle=$('#u-subtitle-'+id).value.trim();
+  u.description=$('#u-description-'+id).value.trim();
+  if(amenitiesField) u.amenities=amenitiesField.value.split(',').map(x=>x.trim()).filter(Boolean);
+  u.notes=$('#u-notes-'+id).value.trim();
+  if(photoField) u.photos=[photoField.value.trim()].filter(Boolean);
+  save();
+  ui.savedUnit=id;
+  renderAll();
+  setTimeout(()=>{ui.savedUnit=null; renderUnitsEditor()},1400);
+};
+window.deleteUnit=id=>{
+  const u=state.units.find(x=>x.id===id); if(!u) return;
+  const hasRes=state.reservations.some(r=>r.unitId===id);
+  const msg=hasRes?`Eliminar ${u.name} también borrará sus reservas asociadas. Continuar?`:`Eliminar ${u.name}?`;
+  if(confirm(msg)){
+    state.units=state.units.filter(x=>x.id!==id);
+    state.reservations=state.reservations.filter(r=>r.unitId!==id);
+    save();
     renderAll();
-    resetReservationForm();
-    setView('dashboard');
-  </script>
+  }
+};
+
+$$('.nav button,.tabbar button').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
+$('#reservationsSearch').addEventListener('input',renderReservations);
+$('#reservationsUnitFilter').addEventListener('change',renderReservations);
+$('#calendarUnitFilter').addEventListener('change',renderCalendar);
+$('#newReservationBtn').addEventListener('click',()=>{form(); $('#reservationDrawer').classList.add('open')});
+$('#newReservationBtn2').addEventListener('click',()=>{form(); $('#reservationDrawer').classList.add('open')});
+$('#editUnitsBtn').addEventListener('click',()=>switchView('unidades'));
+$('#resetDemoBtn').addEventListener('click',()=>{if(confirm('Restaurar demo eliminará los datos actuales guardados en este navegador.')){localStorage.setItem(KEY,JSON.stringify(seed)); location.reload()}});
+$('#prevMonthBtn').addEventListener('click',()=>{ui.month=new Date(ui.month.getFullYear(),ui.month.getMonth()-1,1); renderCalendar()});
+$('#nextMonthBtn').addEventListener('click',()=>{ui.month=new Date(ui.month.getFullYear(),ui.month.getMonth()+1,1); renderCalendar()});
+$('#currentMonthBtn').addEventListener('click',()=>{ui.month=new Date(new Date().getFullYear(),new Date().getMonth(),1); renderCalendar()});
+$('#addUnitBtn').addEventListener('click',()=>{
+  const id='u'+Math.random().toString(36).slice(2,8);
+  state.units.push({id,name:'',address:'',subtitle:'',description:'',amenities:[],notes:'',photos:[]});
+  ui.unitEditorOpen[id]=true;
+  save();
+  renderAll();
+  switchView('unidades');
+});
+$('#metricsRangePreset').addEventListener('change',e=>{if(e.target.value!=='custom'){ui.range=preset(e.target.value); $('#metricsStart').value=iso(ui.range.start); $('#metricsEnd').value=iso(ui.range.end); renderMetrics()}});
+$('#metricsIncomeSeries').addEventListener('change',renderMetrics);
+$('#metricsQuarterYear').addEventListener('change',renderMetrics);
+$('#applyMetricsRange').addEventListener('click',()=>{const s=$('#metricsStart').value,e=$('#metricsEnd').value; if(!s||!e) return alert('Definí fecha inicial y final.'); ui.range={start:parse(s),end:parse(e)}; $('#metricsRangePreset').value='custom'; renderMetrics()});
+$('#copySummaryBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('#metricsSummaryBox').textContent); alert('Resumen copiado al portapapeles.')}catch(e){alert('No se pudo copiar automáticamente.')}});
+$('#printMetricsBtn').addEventListener('click',()=>{switchView('metricas'); setTimeout(()=>print(),150)});
+$('#saveConfigBtn').addEventListener('click',()=>{
+  const tabs=clone(defaultTabVisibility);
+  $$('[data-vis-key]').forEach(inp=>{tabs[inp.dataset.tab][inp.dataset.visKey]=inp.checked});
+  state.settings.identity.businessName=$('#cfgBusinessName').value.trim() || defaultSettings.identity.businessName;
+  state.settings.identity.businessSubtitle=$('#cfgBusinessSubtitle').value.trim() || defaultSettings.identity.businessSubtitle;
+  state.settings.identity.businessAvatar=($('#cfgBusinessAvatar').value.trim() || defaultSettings.identity.businessAvatar).slice(0,4);
+  state.settings.hero.title=$('#cfgHeroTitle').value.trim() || defaultSettings.hero.title;
+  state.settings.hero.subtitle=$('#cfgHeroSubtitle').value.trim() || defaultSettings.hero.subtitle;
+  state.settings.hero.badges=[$('#cfgHeroBadge1').value.trim(),$('#cfgHeroBadge2').value.trim(),$('#cfgHeroBadge3').value.trim()].filter(Boolean);
+  state.settings.tabVisibility=tabs;
+  save();
+  const btn=$('#saveConfigBtn'); const old=btn.textContent; btn.textContent='Guardado ✓'; btn.classList.add('save-feedback');
+  renderAll();
+  setTimeout(()=>{btn.textContent=old; btn.classList.remove('save-feedback')},1400);
+});
+$('#reservationForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const fd=new FormData(e.target), p={id:ui.editId||crypto.randomUUID(),unitId:fd.get('unitId'),guestName:String(fd.get('guestName')).trim(),contact:String(fd.get('contact')).trim(),guestType:fd.get('guestType'),startDate:fd.get('startDate'),endDate:fd.get('endDate'),stayMode:fd.get('stayMode'),agreedRate:Number(fd.get('agreedRate')||0),parking:fd.get('parking')==='true',status:fd.get('status'),notes:String(fd.get('notes')).trim()};
+  if(parse(p.endDate)<parse(p.startDate)) return alert('La fecha de salida no puede ser anterior a la fecha de entrada.');
+  const i=state.reservations.findIndex(x=>x.id===p.id); if(i>=0) state.reservations[i]=p; else state.reservations.push(p);
+  save(); closeLayer('reservationDrawer'); renderAll();
+});
+
+document.addEventListener('click',e=>{if(!e.target.closest('.actions-menu-wrap')){if(ui.openReservationMenu!==null){ui.openReservationMenu=null; renderReservations();}}});
+
+async function boot(){
+  state=await loadFromFirestore();
+  renderAll();
+}
+
+boot();
+</script>
 </body>
 </html>
