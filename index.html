@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestión Boutique | Alquiler Temporal</title>
+<title>Admin Departamentos</title>
 <meta name="theme-color" content="#0D1B2A">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -67,7 +67,7 @@ img{max-width:100%;display:block}
   position:relative;
   z-index:1;
   min-height:100vh;
-  width:min(1380px,calc(100% - 42px));
+  width:min(1580px,calc(100% - 32px));
   margin:18px auto;
   background:rgba(248,247,252,.82);
   backdrop-filter:blur(12px);
@@ -121,7 +121,7 @@ img{max-width:100%;display:block}
   font-weight:700;
   white-space:nowrap;
 }
-.main{padding:18px 18px calc(18px + var(--tab))}
+.main{padding:22px 24px calc(22px + var(--tab))}
 .hero{
   position:relative;
   overflow:hidden;
@@ -189,8 +189,7 @@ img{max-width:100%;display:block}
 .light{background:#fff;color:var(--primary);border:1px solid var(--line)}
 .small{padding:10px 14px;font-size:14px}
 .grid{display:grid;gap:18px}
-.stats{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:22px}
-.stats .metric:first-child{grid-column:span 2}
+.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:22px}
 .card,
 .unit-card-collapsible,
 .unit-editor-card,
@@ -214,10 +213,10 @@ img{max-width:100%;display:block}
 .label{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
 .value{font-size:46px;font-weight:800;letter-spacing:-.06em;margin:8px 0 6px;color:var(--primary)}
 .sub{font-size:14px;color:var(--muted);line-height:1.65}
-.split{display:grid;grid-template-columns:1.12fr .88fr;gap:18px}
-.unitgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.split{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.9fr);gap:20px}
+.unitgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .unit-card-collapsible,.unit-editor-card{overflow:hidden}
-.unit-collapsible-head,.unit-editor-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:18px;cursor:pointer}
+.unit-collapsible-head,.unit-editor-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:18px;cursor:pointer}
 .unit-collapsible-head:hover,.unit-editor-head:hover,.settings-head:hover{background:rgba(245,244,251,.9)}
 .unit-collapsible-title,.unit-editor-title{display:grid;gap:8px;min-width:0}
 .unit-collapsible-title strong,.unit-editor-title strong{font-size:24px;letter-spacing:-.04em;color:var(--primary)}
@@ -253,9 +252,10 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
 .input:focus,.select:focus,.textarea:focus{border-color:#cfc8ff;box-shadow:0 0 0 4px rgba(199,192,255,.22)}
 .field{display:grid;gap:6px;min-width:150px}
 .field label,label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
-.calendargrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px}
+.calendar-scroll{overflow:auto;padding-bottom:4px}
+.calendargrid{display:grid;grid-template-columns:repeat(7,minmax(112px,1fr));gap:10px;min-width:784px}
 .dow{text-align:center;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.14em}
-.day{min-height:104px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.day{min-height:122px;padding:10px;display:flex;flex-direction:column;gap:8px}
 .day.out{opacity:.42}.daynum{font-size:12px;font-weight:800;color:#5b6875}
 .bar{height:8px;border-radius:999px;background:#edf2f6;margin-top:auto}.bar.available{background:#dcefe5}.bar.occupied{background:#f1c7c7}.bar.reserved{background:#f3dfbc}
 .views{display:none}.views.active{display:block}
@@ -285,7 +285,7 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
 .unit-editor-head .unit-toolbar{margin-left:auto}
 .save-feedback{background:#ecebff;color:#4d6fcb;border-color:#d7d3fb}
 .delete-btn{background:#fff;color:#a84040;border:1px solid #f0c7c7}
-.hidden{display:none !important}
+.hidden{display:none !important}.day-reservations .hidden{display:none !important}
 .unit-card-media{aspect-ratio:16/10;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#f4f7fa}
 .unit-card-media img{width:100%;height:100%;object-fit:cover}
 .search-row{display:flex;gap:12px;align-items:center;margin:0 0 16px;flex-wrap:wrap}
@@ -303,7 +303,7 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
 .calendar-shell{display:grid;gap:16px}
 .calendar-legend{display:flex;gap:10px;flex-wrap:wrap}
 .legend-swatch{width:12px;height:12px;border-radius:999px}
-.day-reservations{display:grid;gap:5px;margin-top:auto}.day-chip{height:8px;border-radius:999px;opacity:.95}.day-chip.past{opacity:.38}
+.day-reservations{display:grid;gap:6px;margin-top:auto}.day-chip{display:flex;align-items:center;justify-content:center;min-height:22px;padding:0 8px;border-radius:999px;opacity:.96;color:#fff;font-size:10px;font-weight:800;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}.day-chip span{overflow:hidden;text-overflow:ellipsis}.day-chip.past{opacity:.5}
 .settings-accordion{display:grid;gap:14px}
 .settings-section{overflow:hidden}
 .settings-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px;cursor:pointer}
@@ -319,17 +319,65 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
 #view-unidades .card h2{font-size:26px;line-height:1.05;color:var(--primary)}
 #upcomingCheckinsCard,#upcomingCheckoutsCard{min-height:calc(50% - 9px)}
 @media(max-width:1200px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats .metric:first-child{grid-column:auto}.split{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.hero h1{font-size:52px}}
+@media(max-width:1360px){
+  .app{width:min(100%,calc(100% - 20px));margin:10px auto}
+  .unitgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .split{grid-template-columns:1fr}
+}
+@media(max-width:1100px){
+  .main{padding:18px 18px calc(18px + var(--tab))}
+  .hero{padding:42px 28px 36px;grid-template-columns:1fr}
+  .hero h1{font-size:46px}
+  .unitgrid,.stats,.formgrid{grid-template-columns:1fr}
+  .drawerpanel{padding:18px}
+}
 @media(max-width:920px){
   .app{width:100%;margin:0;border-radius:0}
   .sidebar{display:none}
   .tabbar{display:grid}
-  .main{padding:16px;padding-bottom:calc(20px + var(--tab))}
-  .hero{padding:28px 20px 150px;grid-template-columns:1fr}
-  .hero h1{font-size:38px}
+  .main{padding:14px;padding-bottom:calc(24px + var(--tab))}
+  .hero{padding:24px 18px 138px;grid-template-columns:1fr;border-radius:26px}
+  .hero h1{font-size:34px;line-height:.98}
+  .hero p{max-width:none;font-size:14px}
+  .actions{width:100%;display:grid;grid-template-columns:1fr;gap:10px}
+  .actions .btn{width:100%;justify-content:center}
+  .card,.unit-card-collapsible,.unit-editor-card,.settings-section{border-radius:24px}
+  .panelhead{gap:14px;margin-bottom:16px}
+  .panelhead h2,.panelhead h3{font-size:24px;line-height:1.02}
+  .sub{font-size:13px;line-height:1.55}
   .unitgrid,.kpis,.stats,.formgrid,.split{grid-template-columns:1fr}
+  .stats .metric,.stats .metric:first-child{grid-column:auto}
+  .metric{padding:20px}
+  .value{font-size:38px}
+  .search-row,.toolbar,.filterbar,.history-controls{align-items:stretch}
+  .toolbar .select,.toolbar .btn,.filterbar .field,.field{width:100%}
+  .calendar-scroll{margin:0 -6px;padding:0 6px 6px}
+  .calendargrid{min-width:720px;gap:8px}
+  .day{min-height:132px;padding:8px}
+  .dow{font-size:10px}
+  .daynum{font-size:14px}
+  .day-chip{min-height:24px;font-size:10px;padding:0 7px}
   .drawerpanel{padding:16px}
-  .panelhead h2,.panelhead h3{font-size:28px}
+  .unit-collapsible-head{padding:16px;display:grid;grid-template-columns:1fr;gap:14px}
+  .unit-editor-head{padding:16px;display:grid;grid-template-columns:1fr;gap:12px}
+  .unit-toolbar{display:grid;grid-template-columns:1fr 1fr auto;width:100%;align-items:center}
+  .unit-toolbar .btn{width:100%;padding-inline:12px}
+  .menu-trigger{width:42px;height:42px}
 }
+@media(max-width:560px){
+  .tabbar{height:86px;padding:10px 8px 18px;gap:6px}
+  .tabbar button{font-size:10px;padding:0 4px}
+  .hero{padding-bottom:132px}
+  .hero h1{font-size:30px}
+  .panelhead h2,.panelhead h3{font-size:22px}
+  .calendargrid{min-width:680px}
+  .day{min-height:126px}
+  .unit-toolbar{grid-template-columns:1fr}
+  .unit-toolbar .chevron{justify-self:end;margin-right:2px}
+}
+
 </style>
 </head>
 <body>
@@ -922,6 +970,7 @@ function renderReservations(){
 }
 function renderCalendar(){
   const sel=$('#calendarUnitFilter').value||'all', ms=new Date(ui.month.getFullYear(),ui.month.getMonth(),1);
+  const isSingle=sel!=='all';
   $('#calendarUnitFilter').classList.toggle('hidden', !vis('calendario','unitSelector'));
   ['#prevMonthBtn','#currentMonthBtn','#nextMonthBtn'].forEach(id=>$(id).classList.toggle('hidden', !vis('calendario','monthNavigation')));
   $('#calendarLegend').classList.toggle('hidden', !vis('calendario','colorLegend'));
@@ -931,13 +980,24 @@ function renderCalendar(){
     let cells='';
     for(let i=0;i<42;i++){
       const c=add(first,i), d=iso(c), im=c.getMonth()===ms.getMonth();
-      const blocks=units.flatMap(u=>state.reservations.filter(r=>r.unitId===u.id && parse(d)>=parse(r.startDate) && parse(d)<=parse(r.endDate)).map(r=>`<span class="day-chip ${parse(r.endDate)<sod(new Date())?'past':''}" style="background:${colorForUnit(u.id)}" title="${u.name} · ${r.guestName}"></span>`)).join('');
-      cells+=`<div class="day ${im?'':'out'}"><div class="daynum">${c.getDate()}</div><div class="day-reservations">${blocks}</div></div>`;
+      const entries=units.flatMap(u=>state.reservations
+        .filter(r=>r.unitId===u.id && parse(d)>=parse(r.startDate) && parse(d)<=parse(r.endDate))
+        .map(r=>({u,r}))
+      );
+      const blocks=entries.length
+        ? entries.slice(0,3).map(({u,r})=>{
+            const shortUnit=(u.name||'Unidad').replace('Unidad ','U');
+            const guest=(r.guestName||'Reserva').split(' ')[0];
+            const label=isSingle ? guest.slice(0,12) : shortUnit;
+            return `<span class="day-chip ${parse(r.endDate)<sod(new Date())?'past':''}" style="background:${colorForUnit(u.id)}" title="${u.name} · ${r.guestName}"><span>${label}</span></span>`;
+          }).join('') + (entries.length>3 ? `<span class="day-chip" style="background:var(--primary-2)" title="${entries.length} reservas"><span>+${entries.length-3}</span></span>` : '')
+        : '';
+      cells+=`<div class="day ${im?'':'out'}"><div class="daynum">${c.getDate()}</div><div class="day-reservations">${blocks || `<span class="day-chip hidden"></span>`}</div></div>`;
     }
-    return `<section class="card"><div class="panelhead"><div><h3>${title}</h3><div class="sub">${subtitle}</div></div><span class="badge darkbadge">${ms.toLocaleDateString('es-AR',{month:'long',year:'numeric'})}</span></div><div class="calendargrid">${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>`<div class="dow">${x}</div>`).join('')}${cells}</div></section>`;
+    return `<section class="card"><div class="panelhead"><div><h3>${title}</h3><div class="sub">${subtitle}</div></div><span class="badge darkbadge">${ms.toLocaleDateString('es-AR',{month:'long',year:'numeric'})}</span></div><div class="calendar-scroll"><div class="calendargrid">${['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'].map(x=>`<div class="dow">${x}</div>`).join('')}${cells}</div></div></section>`;
   };
   if(sel==='all'){
-    $('#calendarViews').innerHTML=buildMonth(state.units,'Todas las unidades','Reservas pasadas y futuras superpuestas por color.');
+    $('#calendarViews').innerHTML=buildMonth(state.units,'Todas las unidades','Reservas pasadas y futuras visibles por unidad y día.');
   } else {
     const u=state.units.find(x=>x.id===sel);
     $('#calendarViews').innerHTML=u?buildMonth([u],u.name,u.address):'';
