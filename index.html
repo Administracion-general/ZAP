@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestión Boutique | Alquiler Temporal</title>
+<title>Admin - Alquieres</title>
 <meta name="theme-color" content="#0D1B2A">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -325,6 +325,12 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
 #view-calendario .card h2,
 #view-unidades .card h2{font-size:26px;line-height:1.05;color:var(--primary)}
 #upcomingCheckinsCard,#upcomingCheckoutsCard{min-height:calc(50% - 9px)}
+.metrics-chart-box{position:relative;width:100%;height:320px;min-height:320px}
+.metrics-chart-box.compact{height:260px;min-height:260px}
+#view-metricas canvas{display:block;width:100% !important;max-width:100%}
+#view-metricas .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+#view-metricas table{min-width:560px}
+#view-metricas .card{overflow:hidden}
 @media(max-width:1200px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats .metric:first-child{grid-column:auto}.split{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.hero h1{font-size:52px}}
 @media(max-width:1360px){
   .app{width:min(100%,calc(100% - 20px));margin:10px auto}
@@ -372,6 +378,12 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
   .unit-toolbar{display:grid;grid-template-columns:1fr 1fr auto;width:100%;align-items:center}
   .unit-toolbar .btn{width:100%;padding-inline:12px}
   .menu-trigger{width:42px;height:42px}
+  .metrics-chart-box{height:240px;min-height:240px}
+  .metrics-chart-box.compact{height:220px;min-height:220px}
+  #view-metricas .panelhead{margin-bottom:12px}
+  #view-metricas .card{padding:18px}
+  #view-metricas .tablewrap{margin:0 -4px;padding-bottom:4px}
+  #view-metricas th,#view-metricas td{padding:12px 10px;font-size:13px}
 }
 @media(max-width:560px){
   .tabbar{height:86px;padding:10px 8px 18px;gap:6px}
@@ -385,6 +397,10 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
   .day-chip{min-height:16px;font-size:7px;padding:0 4px}
   .unit-toolbar{grid-template-columns:1fr}
   .unit-toolbar .chevron{justify-self:end;margin-right:2px}
+  .metrics-chart-box{height:220px;min-height:220px}
+  .metrics-chart-box.compact{height:200px;min-height:200px}
+  #view-metricas .card{padding:16px}
+  #view-metricas th,#view-metricas td{padding:10px 8px;font-size:12px}
 }
 
 </style>
@@ -570,7 +586,7 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
               <span class="badge darkbadge" id="mostProfitableBadge"></span>
             </div>
           </div>
-          <canvas id="unitPerformanceChart"></canvas>
+          <div class="metrics-chart-box"><canvas id="unitPerformanceChart"></canvas></div>
           <div class="tablewrap">
             <table>
               <thead><tr><th>Unidad</th><th>Reservas totales</th><th>Días ocupados</th><th>% Ocupación</th><th>Ingresos totales</th></tr></thead>
@@ -582,11 +598,11 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
         <div class="split">
           <div class="card">
             <div class="panelhead"><div><div class="eyebrow">Análisis temporal</div><h2>Ingresos mensuales</h2></div></div>
-            <canvas id="incomeTrendChart"></canvas>
+            <div class="metrics-chart-box"><canvas id="incomeTrendChart"></canvas></div>
           </div>
           <div class="card">
             <div class="panelhead"><div><div class="eyebrow">Análisis temporal</div><h2>Ocupación por mes</h2></div></div>
-            <canvas id="occupancyMonthChart"></canvas>
+            <div class="metrics-chart-box compact"><canvas id="occupancyMonthChart"></canvas></div>
           </div>
         </div>
 
@@ -594,17 +610,17 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
 
         <div class="card">
           <div class="panelhead"><div><div class="eyebrow">Vista trimestral</div><h2>Comparación Q1, Q2, Q3 y Q4</h2></div></div>
-          <canvas id="quarterChart"></canvas>
+          <div class="metrics-chart-box"><canvas id="quarterChart"></canvas></div>
         </div>
 
         <div class="split">
           <div class="card">
             <div class="panelhead"><div><div class="eyebrow">Huéspedes</div><h2>Distribución por tipo</h2></div></div>
-            <canvas id="guestTypeChart"></canvas>
+            <div class="metrics-chart-box compact"><canvas id="guestTypeChart"></canvas></div>
           </div>
           <div class="card">
             <div class="panelhead"><div><div class="eyebrow">Estadías</div><h2>Distribución por modalidad</h2></div></div>
-            <canvas id="stayModeChart"></canvas>
+            <div class="metrics-chart-box compact"><canvas id="stayModeChart"></canvas></div>
           </div>
         </div>
 
@@ -1103,7 +1119,36 @@ function mdata(s,e){
   state.units.forEach(u=>{const fr=state.reservations.filter(r=>r.unitId===u.id&&parse(r.startDate)>=sod(new Date())).sort((a,b)=>parse(a.startDate)-parse(b.startDate)); if(!fr.length) alerts.push(`La ${u.name} no tiene reservas futuras cargadas.`); else {const gap=Math.round((sod(parse(fr[0].startDate))-sod(new Date()))/86400000); if(gap>7) alerts.push(`La ${u.name} tiene ${gap} días sin reservas por delante.`)}});
   return {monthRev,quarterRev,yearRev,occPct:totalDays?occDays/totalDays*100:0,avg,per,mostBook,mostRev,months,best,high,low,type,stay,ranking,recurrent,fresh,quarters,heat,garage,proj,alerts,rangeRev};
 }
-function setChart(key,id,cfg){if(charts[key])charts[key].destroy(); charts[key]=new Chart(document.getElementById(id),cfg)}
+function setChart(key,id,cfg){
+  if(charts[key]) charts[key].destroy();
+  const isMobile=window.innerWidth<=920;
+  const base={
+    responsive:true,
+    maintainAspectRatio:false,
+    animation:false,
+    layout:{padding:{top:4,right:isMobile?6:10,bottom:4,left:isMobile?2:6}},
+    plugins:{
+      legend:{
+        position:'bottom',
+        align:'start',
+        labels:{boxWidth:isMobile?12:18,boxHeight:isMobile?12:18,padding:isMobile?10:16,font:{size:isMobile?10:12}}
+      },
+      tooltip:{enabled:true}
+    },
+    scales:{
+      x:{ticks:{font:{size:isMobile?10:12},maxRotation:isMobile?0:30,minRotation:0,autoSkip:true},grid:{display:!isMobile}},
+      y:{ticks:{font:{size:isMobile?10:12}},grid:{color:'rgba(48,52,88,.12)'}}
+    }
+  };
+  const options={...(base||{}),...((cfg&&cfg.options)||{})};
+  options.plugins={...(base.plugins||{}),...((cfg.options&&cfg.options.plugins)||{})};
+  options.plugins.legend={...(base.plugins.legend||{}),...((cfg.options&&cfg.options.plugins&&cfg.options.plugins.legend)||{})};
+  options.plugins.legend.labels={...(base.plugins.legend.labels||{}),...((cfg.options&&cfg.options.plugins&&cfg.options.plugins.legend&&cfg.options.plugins.legend.labels)||{})};
+  options.scales={...(base.scales||{}),...((cfg.options&&cfg.options.scales)||{})};
+  if(options.scales.x) options.scales.x={...(base.scales.x||{}),...(options.scales.x||{}),ticks:{...(base.scales.x.ticks||{}),...((options.scales.x&&options.scales.x.ticks)||{})},grid:{...(base.scales.x.grid||{}),...((options.scales.x&&options.scales.x.grid)||{})}};
+  if(options.scales.y) options.scales.y={...(base.scales.y||{}),...(options.scales.y||{}),ticks:{...(base.scales.y.ticks||{}),...((options.scales.y&&options.scales.y.ticks)||{})},grid:{...(base.scales.y.grid||{}),...((options.scales.y&&options.scales.y.grid)||{})}};
+  charts[key]=new Chart(document.getElementById(id),{...cfg,options});
+}
 function renderMetrics(){
   const d=mdata(ui.range.start,ui.range.end);
   $('#metricsExecutiveCards').classList.toggle('hidden', !vis('metricas','executiveCards'));
@@ -1189,7 +1234,7 @@ $('#newReservationBtn').addEventListener('click',()=>{form(); $('#reservationDra
 $('#newReservationBtn2').addEventListener('click',()=>{form(); $('#reservationDrawer').classList.add('open')});
 $('#editUnitsBtn').addEventListener('click',()=>switchView('unidades'));
 const resetDemoBtn=$('#resetDemoBtn'); if(resetDemoBtn){resetDemoBtn.addEventListener('click',()=>{if(confirm('Restaurar demo eliminará los datos actuales guardados en este navegador.')){localStorage.setItem(KEY,JSON.stringify(seed)); location.reload()}});}
-window.addEventListener('resize',()=>{if(ui.view==='calendario') renderCalendar()});
+window.addEventListener('resize',()=>{if(ui.view==='calendario') renderCalendar(); if(ui.view==='metricas') renderMetrics();});
 $('#prevMonthBtn').addEventListener('click',()=>{ui.month=new Date(ui.month.getFullYear(),ui.month.getMonth()-1,1); renderCalendar()});
 $('#nextMonthBtn').addEventListener('click',()=>{ui.month=new Date(ui.month.getFullYear(),ui.month.getMonth()+1,1); renderCalendar()});
 $('#currentMonthBtn').addEventListener('click',()=>{ui.month=new Date(new Date().getFullYear(),new Date().getMonth(),1); renderCalendar()});
