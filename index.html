@@ -913,7 +913,9 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
             <div><label>Badge 1</label><input class="input" id="cfgClientBadge1"></div>
             <div><label>Badge 2</label><input class="input" id="cfgClientBadge2"></div>
             <div class="full"><label>Badge 3</label><input class="input" id="cfgClientBadge3"></div>
+            <div><label>Número de WhatsApp</label><input class="input" id="cfgWhatsappPhone" placeholder="5493411234567"></div>
             <div><label>Clave del titular</label><input class="input" id="cfgAdminPin"></div>
+            <div class="full"><label>Mensaje ticket para WhatsApp</label><textarea class="textarea" id="cfgWhatsappTemplate" placeholder="Usá variables como {guestName}, {unitName}, {startDate}, {endDate}, {nights}, {total}, {depositAmount}, {paymentMethod}, {contact}, {notes}"></textarea></div>
             <div><label>Acceso cliente sugerido</label><input class="input" id="cfgClientUrl" readonly></div>
             <div class="full"><label>Acceso titular sugerido</label><input class="input" id="cfgAdminUrl" readonly></div>
           </div>
@@ -998,7 +1000,9 @@ const defaultSettings={
     subtitle:'Seleccioná la unidad, cargá las fechas y dejá registrado el abono para confirmar tu estadía.',
     badge1:'Reserva simple',
     badge2:'Abono registrado',
-    badge3:'Confirmación conectada'
+    badge3:'Confirmación conectada',
+    whatsappPhone:'',
+    whatsappTemplate:'Hola. Quiero confirmar esta reserva.\n\nNombre: {guestName}\nContacto: {contact}\nUnidad: {unitName}\nDirección: {unitAddress}\nFechas: {startDate} al {endDate}\nEstadía: {nights} noches\nTotal estimado: {total}\nMonto abonado: {depositAmount}\nMétodo de pago: {paymentMethod}\nNotas: {notes}'
   },
   access:{adminPin:'2468'},
   tabVisibility:defaultTabVisibility
@@ -1321,6 +1325,8 @@ function renderConfig(){
   $('#cfgClientBadge1').value=s.clientSite.badge1 || defaultSettings.clientSite.badge1;
   $('#cfgClientBadge2').value=s.clientSite.badge2 || defaultSettings.clientSite.badge2;
   $('#cfgClientBadge3').value=s.clientSite.badge3 || defaultSettings.clientSite.badge3;
+  $('#cfgWhatsappPhone').value=s.clientSite.whatsappPhone || defaultSettings.clientSite.whatsappPhone;
+  $('#cfgWhatsappTemplate').value=s.clientSite.whatsappTemplate || defaultSettings.clientSite.whatsappTemplate;
   $('#cfgAdminPin').value=s.access.adminPin || defaultSettings.access.adminPin;
   const base=location.origin + location.pathname.replace(/[^/]*$/, '');
   $('#cfgClientUrl').value=base + 'cliente_reservas_departamentos.html';
@@ -1494,7 +1500,7 @@ function renderClientSummary(){
     <div><label>Monto abonado</label><input class="input" type="number" name="depositAmount" value="${Math.round(total*0.3)}" required></div>
     <div><label>Método de pago</label><select class="select" name="paymentMethod"><option value="Transferencia">Transferencia</option><option value="Efectivo">Efectivo</option><option value="Mercado Pago">Mercado Pago</option></select></div>
     <div class="full"><label>Notas</label><textarea class="textarea" name="notes" placeholder="Horario de llegada, observaciones, etc."></textarea></div>
-    <div class="full toolbar"><button class="btn dark" type="submit">Confirmar reserva</button></div>
+    <div class="full toolbar"><button class="btn dark" type="submit">Confirmar y seguir por WhatsApp</button></div>
   </form>`;
   $('#clientBookingForm').addEventListener('submit',submitClientBooking);
 }
@@ -1503,12 +1509,39 @@ function renderClientApp(){
   renderClientUnits();
   renderClientSummary();
 }
+function normalizeWhatsappNumber(value){
+  return String(value||'').replace(/\D/g,'');
+}
+function buildWhatsappTicket(reservation,u,nights,total){
+  const template=String(state.settings.clientSite.whatsappTemplate || defaultSettings.clientSite.whatsappTemplate || '').replace(/\r/g,'');
+  const values={
+    guestName:reservation.guestName || '',
+    contact:reservation.contact || '',
+    unitName:u?.name || '',
+    unitAddress:u?.address || '',
+    startDate:fmt(reservation.startDate),
+    endDate:fmt(reservation.endDate),
+    nights:String(nights||0),
+    total:money(total),
+    depositAmount:money(reservation.depositAmount || 0),
+    paymentMethod:reservation.paymentMethod || '',
+    notes:reservation.notes || 'Sin notas'
+  };
+  return template.replace(/\{(guestName|contact|unitName|unitAddress|startDate|endDate|nights|total|depositAmount|paymentMethod|notes)\}/g,(_,key)=>values[key]||'');
+}
+function openReservationWhatsapp(reservation,u,nights,total){
+  const phone=normalizeWhatsappNumber(state.settings.clientSite.whatsappPhone || defaultSettings.clientSite.whatsappPhone);
+  if(!phone) return;
+  const message=buildWhatsappTicket(reservation,u,nights,total);
+  const url=`https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  window.location.href=url;
+}
 function selectClientUnit(id){
   clientUi.selectedUnitId=id;
   renderClientSummary();
 }
 window.selectClientUnit=selectClientUnit;
-function submitClientBooking(e){
+async function submitClientBooking(e){
   e.preventDefault();
   const u=getClientSelectedUnit();
   const startDate=$('#clientStartDate').value;
@@ -1538,10 +1571,11 @@ function submitClientBooking(e){
     createdAt:new Date().toISOString()
   };
   state.reservations.push(reservation);
-  save();
+  saveLocal();
+  await saveToFirestore();
   clientUi.selectedUnitId=null;
   renderAll();
-  alert('Reserva cargada correctamente. El titular ya la puede ver en su panel.');
+  openReservationWhatsapp(reservation,u,nights,total);
 }
 function showPortalMode(){
   $('#modeGateway').classList.toggle('hidden', APP_MODE!=='portal');
@@ -1663,6 +1697,8 @@ $('#saveConfigBtn').addEventListener('click',()=>{
   state.settings.clientSite.badge1=$('#cfgClientBadge1').value.trim();
   state.settings.clientSite.badge2=$('#cfgClientBadge2').value.trim();
   state.settings.clientSite.badge3=$('#cfgClientBadge3').value.trim();
+  state.settings.clientSite.whatsappPhone=$('#cfgWhatsappPhone').value.trim();
+  state.settings.clientSite.whatsappTemplate=$('#cfgWhatsappTemplate').value.trim() || defaultSettings.clientSite.whatsappTemplate;
   state.settings.access.adminPin=$('#cfgAdminPin').value.trim() || defaultSettings.access.adminPin;
   state.settings.tabVisibility=tabs;
   save();
