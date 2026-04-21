@@ -499,11 +499,14 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
   .client-filters .btn{width:100%}
 }
 
-.page-loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--bg),#b5bfd5 56%, #a4aec9 100%);z-index:9999;transition:opacity .35s ease,visibility .35s ease}
+.page-loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;background:
+  radial-gradient(circle at 50% 50%, rgba(255,255,255,.10), transparent 26%),
+  linear-gradient(180deg,var(--bg),#b5bfd5 56%, #a4aec9 100%);
+  z-index:9999;transition:opacity .45s ease,visibility .45s ease}
 .page-loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
-.loader-box{display:grid;justify-items:center;gap:14px;padding:24px 28px;border-radius:28px;background:rgba(248,247,252,.84);border:1px solid rgba(255,255,255,.48);box-shadow:var(--soft-shadow)}
-.loader-spinner{width:46px;height:46px;border-radius:50%;border:4px solid rgba(39,34,71,.12);border-top-color:var(--primary);animation:spin 1s linear infinite}
-.loader-text{font-size:14px;font-weight:700;color:var(--primary)}
+.loader-box{display:grid;justify-items:center;gap:14px}
+.loader-spinner{width:58px;height:58px;border-radius:50%;border:5px solid rgba(255,255,255,.22);border-top-color:var(--primary);border-right-color:rgba(39,34,71,.45);animation:spin .9s linear infinite;filter:drop-shadow(0 10px 24px rgba(39,34,71,.16))}
+.loader-text{font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--primary);text-shadow:0 2px 10px rgba(255,255,255,.28)}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:1100px){
@@ -934,7 +937,7 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
                   <div><label>Badge 1</label><input class="input" id="cfgClientBadge1"></div>
                   <div><label>Badge 2</label><input class="input" id="cfgClientBadge2"></div>
                   <div class="full"><label>Badge 3</label><input class="input" id="cfgClientBadge3"></div>
-                  <div><label>Número de WhatsApp</label><input class="input" id="cfgWhatsappPhone" placeholder="5493411234567"></div>
+                  <div><label>Número de WhatsApp</label><input class="input" id="cfgWhatsappPhone" inputmode="numeric" autocomplete="off"></div>
                   <div><label>Clave del titular</label><input class="input" id="cfgAdminPin"></div>
                   <div class="full"><label>Mensaje ticket para WhatsApp</label><textarea class="textarea" id="cfgWhatsappTemplate" placeholder="Usá variables como {guestName}, {unitName}, {startDate}, {endDate}, {nights}, {total}, {depositAmount}, {paymentMethod}, {contact}, {notes}"></textarea></div>
                   <div><label>Acceso cliente sugerido</label><input class="input" id="cfgClientUrl" readonly></div>
@@ -1353,7 +1356,7 @@ function renderConfig(){
   $('#cfgClientBadge1').value=s.clientSite.badge1 || defaultSettings.clientSite.badge1;
   $('#cfgClientBadge2').value=s.clientSite.badge2 || defaultSettings.clientSite.badge2;
   $('#cfgClientBadge3').value=s.clientSite.badge3 || defaultSettings.clientSite.badge3;
-  $('#cfgWhatsappPhone').value=s.clientSite.whatsappPhone || defaultSettings.clientSite.whatsappPhone;
+  $('#cfgWhatsappPhone').value=(s.clientSite.whatsappPhone ?? '');
   $('#cfgWhatsappTemplate').value=s.clientSite.whatsappTemplate || defaultSettings.clientSite.whatsappTemplate;
   $('#cfgAdminPin').value=s.access.adminPin || defaultSettings.access.adminPin;
   const base=location.origin + location.pathname.replace(/[^/]*$/, '');
@@ -1780,7 +1783,7 @@ $('#metricsQuarterYear').addEventListener('change',renderMetrics);
 $('#applyMetricsRange').addEventListener('click',()=>{const s=$('#metricsStart').value,e=$('#metricsEnd').value; if(!s||!e) return alert('Definí fecha inicial y final.'); ui.range={start:parse(s),end:parse(e)}; $('#metricsRangePreset').value='custom'; renderMetrics()});
 $('#copySummaryBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('#metricsSummaryBox').textContent); alert('Resumen copiado al portapapeles.')}catch(e){alert('No se pudo copiar automáticamente.')}});
 $('#printMetricsBtn').addEventListener('click',()=>{switchView('metricas'); setTimeout(()=>print(),150)});
-$('#saveConfigBtn').addEventListener('click',()=>{
+$('#saveConfigBtn').addEventListener('click',async()=>{
   const tabs=clone(defaultTabVisibility);
   $$('[data-vis-key]').forEach(inp=>{tabs[inp.dataset.tab][inp.dataset.visKey]=inp.checked});
   state.settings.identity.businessName=$('#cfgBusinessName').value.trim() || defaultSettings.identity.businessName;
@@ -1799,10 +1802,25 @@ $('#saveConfigBtn').addEventListener('click',()=>{
   state.settings.clientSite.whatsappTemplate=$('#cfgWhatsappTemplate').value.trim() || defaultSettings.clientSite.whatsappTemplate;
   state.settings.access.adminPin=$('#cfgAdminPin').value.trim() || defaultSettings.access.adminPin;
   state.settings.tabVisibility=tabs;
-  save();
-  const btn=$('#saveConfigBtn'); const old=btn.textContent; btn.textContent='Guardado ✓'; btn.classList.add('save-feedback');
-  renderAll();
-  setTimeout(()=>{btn.textContent=old; btn.classList.remove('save-feedback')},1400);
+  const btn=$('#saveConfigBtn');
+  const old=btn.textContent;
+  btn.disabled=true;
+  btn.textContent='Guardando...';
+  btn.classList.add('save-feedback');
+  saveLocal();
+  try{
+    await saveToFirestore();
+    renderAll();
+    btn.textContent='Guardado ✓';
+  }catch(error){
+    console.error('Error guardando configuración:',error);
+    btn.textContent='No se pudo guardar';
+  }
+  setTimeout(()=>{
+    btn.disabled=false;
+    btn.textContent=old;
+    btn.classList.remove('save-feedback');
+  },1600);
 });
 $('#reservationForm').addEventListener('submit',e=>{
   e.preventDefault();
