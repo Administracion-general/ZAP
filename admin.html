@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Admin Departamentos</title>
 <meta name="description" content="Gestión profesional de propiedades, reservas, calendario, unidades y métricas.">
 <meta name="theme-color" content="#0D1B2A">
@@ -27,6 +27,8 @@
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
 :root{
+  --safe-top: env(safe-area-inset-top,0px);
+  --safe-bottom: env(safe-area-inset-bottom,0px);
   --bg:#aeb9d1;
   --bg-deep:#8f9abb;
   --surface:#f7f6fb;
@@ -53,9 +55,10 @@
   --bad:#c65d91;--badbg:#fceaf4;
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;max-width:100%;overflow-x:hidden}
+html{scroll-behavior:smooth;max-width:100%;overflow-x:hidden;min-height:100%}
 body{
   margin:0;
+  min-height:100%;
   font-family:"Manrope",Inter,system-ui,sans-serif;
   color:var(--ink);
   background:
@@ -423,9 +426,11 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
 
 
 .gateway-shell,.login-shell,.client-shell{
-  min-height:100vh;
+  min-height:calc(100vh - var(--safe-top) - var(--safe-bottom));
   width:min(1280px,calc(100% - 32px));
   margin:18px auto;
+  padding-top:var(--safe-top);
+  padding-bottom:var(--safe-bottom);
   position:relative;
   z-index:1;
 }
@@ -448,7 +453,7 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
 .login-shell{display:grid;place-items:center;padding:28px 0}
 .login-card{padding:28px;width:min(480px,100%)}
 .login-card .formgrid{grid-template-columns:1fr}
-.client-shell{display:grid;gap:18px;padding-bottom:24px}
+.client-shell{display:grid;gap:18px;padding-bottom:calc(24px + var(--safe-bottom))}
 .client-topbar{
   display:flex;justify-content:space-between;align-items:center;gap:16px;
   padding:18px 22px;background:rgba(249,248,252,.84);backdrop-filter:blur(18px);
@@ -476,7 +481,7 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
 .client-summary-card{padding:22px}
 .client-summary-card.active-focus{box-shadow:0 22px 60px rgba(39,34,71,.14);border-color:rgba(60,53,104,.16)}
 .client-summary-card.pinned-mobile{order:-1}
-.client-booking-card{padding:24px}
+.client-booking-card{padding:22px}
 .client-booking-card .formgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .client-meta{display:flex;gap:8px;flex-wrap:wrap}
 .client-linkbox{padding:14px 16px;border-radius:18px;background:#fff;border:1px solid var(--line)}
@@ -484,6 +489,15 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
 .status-ok{background:#ecebff;color:#4d6fcb}
 .status-off{background:#fceaf4;color:#c65d91}
 .admin-config-extra{margin-top:18px}
+.app.hidden,.tabbar.hidden{display:none !important}
+.client-units-grid .empty{grid-column:1/-1}
+@media(max-width:920px){
+  .client-booking-card,.client-summary-card{padding:18px}
+  .client-unit-card{padding:16px;gap:12px}
+  .client-unit-card h3{font-size:22px}
+  .client-price{font-size:24px}
+  .client-filters .btn{width:100%}
+}
 
 .page-loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,var(--bg),#b5bfd5 56%, #a4aec9 100%);z-index:9999;transition:opacity .35s ease,visibility .35s ease}
 .page-loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
@@ -498,7 +512,7 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
   .gateway-actions{grid-template-columns:1fr}
 }
 @media(max-width:920px){
-  .gateway-shell,.login-shell,.client-shell{width:100%;margin:0;padding:14px}
+  .gateway-shell,.login-shell,.client-shell{width:100%;margin:0;padding:calc(14px + var(--safe-top)) 14px calc(14px + var(--safe-bottom))}
   .client-topbar{padding:16px;border-radius:24px}
   .client-hero{padding:18px;border-radius:22px}
   .client-hero h1{font-size:28px}
@@ -1467,7 +1481,12 @@ function renderClientUnits(){
   const startDate=$('#clientStartDate').value;
   const endDate=$('#clientEndDate').value;
   const guests=Number($('#clientGuestsCount').value||1);
-  const units=state.units.map(u=>{
+  const unitsSource=(Array.isArray(state.units) && state.units.length)?state.units:seed.units;
+  if(!unitsSource.length){
+    $('#clientUnitsGrid').innerHTML='<div class="empty">No hay unidades cargadas todavía.</div>';
+    return;
+  }
+  const cards=unitsSource.map(u=>{
     const available=unitIsAvailable(u.id,startDate,endDate);
     const nights=calcStayNights(startDate,endDate);
     const total=nights * Number(u.baseRate||0);
@@ -1488,6 +1507,7 @@ function renderClientUnits(){
       <button class="btn ${available?'dark':'light'}" type="button" ${available?'':'disabled'} onclick="selectClientUnit('${u.id}')">${available?'Reservar esta unidad':'Sin disponibilidad'}</button>
     </article>`;
   }).join('');
+  $('#clientUnitsGrid').innerHTML=cards;
 }
 function renderClientSummary(){
   const u=getClientSelectedUnit();
@@ -1634,19 +1654,32 @@ function setAdminNavigationVisible(visible){
   if(sidebar) sidebar.classList.toggle('hidden', !visible);
 }
 
+
+function applyModeChrome(mode){
+  const adminApp=document.querySelector('.app');
+  const mobileTab=document.querySelector('.tabbar');
+  if(mode==='admin'){
+    if(adminApp) adminApp.classList.remove('hidden');
+    if(mobileTab) mobileTab.classList.remove('hidden');
+  }else{
+    if(adminApp) adminApp.classList.add('hidden');
+    if(mobileTab) mobileTab.classList.add('hidden');
+  }
+}
+
 function showPortalMode(){
   setAdminNavigationVisible(false);
+  applyModeChrome('portal');
   $('#modeGateway').classList.toggle('hidden', APP_MODE!=='portal');
   $('#adminLogin').classList.add('hidden');
   $('#clientApp').classList.add('hidden');
-  document.querySelector('.app').classList.add('hidden');
 }
 function showClientMode(){
   setAdminNavigationVisible(false);
+  applyModeChrome('cliente');
   $('#modeGateway').classList.add('hidden');
   $('#adminLogin').classList.add('hidden');
   $('#clientApp').classList.remove('hidden');
-  document.querySelector('.app').classList.add('hidden');
   if(!$('#clientStartDate').value){
     const today=iso(new Date());
     $('#clientStartDate').value=today;
@@ -1660,11 +1693,11 @@ function showAdminMode(){
   $('#clientApp').classList.add('hidden');
   const ok=sessionStorage.getItem('departamentos_admin_auth')==='1';
   if(ok){
+    applyModeChrome('admin');
     $('#adminLogin').classList.add('hidden');
-    document.querySelector('.app').classList.remove('hidden');
     renderAll();
   }else{
-    document.querySelector('.app').classList.add('hidden');
+    applyModeChrome('portal');
     $('#adminLogin').classList.remove('hidden');
   }
 }
@@ -1782,7 +1815,7 @@ $('#reservationForm').addEventListener('submit',e=>{
 });
 
 document.addEventListener('click',e=>{if(!e.target.closest('.actions-menu-wrap')){if(ui.openReservationMenu!==null){ui.openReservationMenu=null; renderReservations();}}});
-$('#clientRefreshBtn').addEventListener('click',()=>{clientUi.selectedUnitId=null; renderClientApp();});
+$('#clientRefreshBtn').addEventListener('click',()=>{clientUi.selectedUnitId=null; renderClientApp(); const grid=$('#clientUnitsGrid'); if(grid) grid.scrollIntoView({behavior:'smooth',block:'start'});});
 $('#clientStartDate').addEventListener('change',()=>{clientUi.selectedUnitId=null; renderClientApp();});
 $('#clientEndDate').addEventListener('change',()=>{clientUi.selectedUnitId=null; renderClientApp();});
 $('#clientGuestsCount').addEventListener('input',renderClientUnits);
