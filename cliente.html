@@ -1565,26 +1565,9 @@ function openReservationWhatsapp(reservation,u,nights,total){
   const phone=normalizeWhatsappNumber(state.settings.clientSite.whatsappPhone || defaultSettings.clientSite.whatsappPhone);
   const message=buildWhatsappTicket(reservation,u,nights,total);
   if(!phone) return false;
-  const url=`https://api.whatsapp.com/send/?phone=${phone}&text=${encodeURIComponent(message)}&type=phone_number&app_absent=0`;
-  try{
-    window.location.href=url;
-    return true;
-  }catch(error){}
-  try{
-    window.location.assign(url);
-    return true;
-  }catch(error){}
-  try{
-    const link=document.createElement('a');
-    link.href=url;
-    link.rel='noopener';
-    link.style.display='none';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    return true;
-  }catch(error){}
-  return false;
+  const url=`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+  window.location.href=url;
+  return true;
 }
 function focusClientSummary(){
   const card=$('#clientSummaryCard');
@@ -1631,20 +1614,23 @@ async function submitClientBooking(e){
     depositAmount:Number(fd.get('depositAmount')||0),
     createdAt:new Date().toISOString()
   };
+  let saveOk=true;
   try{
     state.reservations.push(reservation);
     saveLocal();
     await saveToFirestore();
+  }catch(error){
+    saveOk=false;
+    console.error('Error guardando la reserva:',error);
+  }finally{
     clientUi.selectedUnitId=null;
     renderAll();
     const redirected=openReservationWhatsapp(reservation,u,nights,total);
     if(!redirected){
       alert('Cargá el número de WhatsApp en el panel admin para continuar por WhatsApp.');
+    }else if(!saveOk){
+      setTimeout(()=>alert('La reserva no se pudo guardar en la base, pero ya te redirigimos a WhatsApp.'),200);
     }
-  }catch(error){
-    console.error('Error guardando la reserva:',error);
-    alert('No se pudo guardar la reserva. Intentá nuevamente.');
-  }finally{
     if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent='Confirmar y seguir por WhatsApp'; }
   }
 }
