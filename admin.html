@@ -547,7 +547,7 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
       
     </div>
     <div class="gateway-actions">
-      <a class="gateway-link" id="gatewayClientLink" href="clientes.html">
+      <a class="gateway-link" id="gatewayClientLink" href="index_clientes_mejorado.html">
         <strong>Panel cliente</strong></a>
       <a class="gateway-link" id="gatewayAdminLink" href="admin.html">
         <strong>Panel titular</strong></a>
@@ -571,7 +571,7 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
       </div>
       <div class="full toolbar">
         <button class="btn dark" type="submit">Entrar al panel</button>
-        <a class="btn light" id="backToClientLink" href="clientes.html" style="text-decoration:none;display:inline-flex;align-items:center">Ir a reservas</a>
+        <a class="btn light" id="backToClientLink" href="?app=cliente" style="text-decoration:none;display:inline-flex;align-items:center">Ir a reservas</a>
       </div>
       <div class="sub hidden" id="adminLoginError">Clave incorrecta.</div>
     </form>
@@ -1110,17 +1110,19 @@ async function loadFromFirestore(){
 }
 let saveTimer=null;
 async function saveToFirestore(){
-  try{
-    const ref=doc(db,FIRESTORE_COLLECTION,FIRESTORE_DOC_ID);
-    await setDoc(ref,JSON.parse(JSON.stringify(state)));
-  }catch(error){
-    console.error('Error guardando en Firestore:',error);
-  }
+  const ref=doc(db,FIRESTORE_COLLECTION,FIRESTORE_DOC_ID);
+  await setDoc(ref,JSON.parse(JSON.stringify(state)));
 }
 function save(){
   saveLocal();
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>{saveToFirestore();},180);
+  saveTimer=setTimeout(async()=>{
+    try{
+      await saveToFirestore();
+    }catch(error){
+      console.error('Error en guardado diferido a Firestore:',error);
+    }
+  },180);
 }
 const parse=v=>{const[a,b,c]=v.split('-').map(Number);return new Date(a,b-1,c)};
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -1342,23 +1344,6 @@ function renderUnitsEditor(){
   }).join('');
 }
 
-function getAppBase(){
-  const url = new URL(location.href);
-  url.search = '';
-  url.hash = '';
-  const path = url.pathname || '/';
-  if(/\.html?$/i.test(path)){
-    url.pathname = path.replace(/[^/]*$/, '');
-  }else if(!path.endsWith('/')){
-    url.pathname = path + '/';
-  }
-  return url.href;
-}
-
-function fileUrl(name){
-  return new URL(name, getAppBase()).href;
-}
-
 function renderConfig(){
   const s=state.settings;
   $('#cfgBusinessName').value=s.identity.businessName;
@@ -1382,9 +1367,9 @@ function renderConfig(){
   $('#cfgWhatsappPhone').value=(s.clientSite.whatsappPhone ?? '');
   $('#cfgWhatsappTemplate').value=s.clientSite.whatsappTemplate || defaultSettings.clientSite.whatsappTemplate;
   $('#cfgAdminPin').value=s.access.adminPin || defaultSettings.access.adminPin;
-  const base=getAppBase();
-  $('#cfgClientUrl').value=fileUrl('clientes.html');
-  $('#cfgAdminUrl').value=fileUrl('admin.html');
+  const base=location.origin + location.pathname.replace(/[^/]*$/, '');
+  $('#cfgClientUrl').value=base + 'index_clientes_mejorado.html';
+  $('#cfgAdminUrl').value=base + 'admin.html';
   const configMap={
     dashboard:{title:'Inicio',items:[['heroBanner','Hero banner','Bloque superior principal.'],['heroBadges','Badges del hero','Pills del hero.'],['topStats','Estadísticas superiores','Tarjetas resumen del inicio.'],['unitsSection','Sección de unidades','Panel principal de unidades.'],['upcomingCheckouts','Próximas salidas','Bloque lateral de agenda.'],['upcomingCheckins','Próximas entradas','Bloque lateral de agenda.']]},
     reservas:{title:'Reservas',items:[['searchBar','Buscador','Barra de búsqueda general.'],['unitFilter','Filtro por unidad','Selector de unidad.'],['newReservationBtn','Botón nueva reserva','Acceso rápido para crear.'],['historicalList','Listado histórico','Historial de huéspedes debajo de activas.']]},
@@ -1663,7 +1648,7 @@ async function submitClientBooking(e){
     renderAll();
     const redirected=openReservationWhatsapp(reservation,u,nights,total,pendingWindow);
     if(!redirected){
-      alert('Cargá el número de WhatsApp en el panel admin para continuar por WhatsApp.');
+      alert('El propietario aún no configuró el número de WhatsApp. Comunicate directamente para confirmar tu reserva.');
     }
   }catch(error){
     if(pendingWindow && !pendingWindow.closed) pendingWindow.close();
@@ -1838,27 +1823,50 @@ $('#saveConfigBtn').addEventListener('click',async()=>{
   state.settings.clientSite.whatsappTemplate=$('#cfgWhatsappTemplate').value.trim() || defaultSettings.clientSite.whatsappTemplate;
   state.settings.access.adminPin=$('#cfgAdminPin').value.trim() || defaultSettings.access.adminPin;
   state.settings.tabVisibility=tabs;
+
   const btn=$('#saveConfigBtn');
   const old=btn.textContent;
+  const timeoutMs=12000;
+  let timeoutId=null;
+  let finished=false;
+
+  const finish=(mode,message)=>{
+    if(finished) return;
+    finished=true;
+    clearTimeout(timeoutId);
+    btn.disabled=false;
+    btn.textContent=old;
+    btn.classList.remove('save-feedback');
+    setConfigSaveStatus(mode,message);
+  };
+
   btn.disabled=true;
   btn.textContent='Guardando...';
   btn.classList.add('save-feedback');
   setConfigSaveStatus('saving','Guardando local y nube...');
   saveLocal();
-  let cloudOk=true;
+  renderAll();
+
+  timeoutId=setTimeout(()=>{
+    finish('error','Firestore tardó demasiado. Se guardó localmente, pero la nube no confirmó.');
+  },timeoutMs);
+
   try{
     await saveToFirestore();
+    finish('saved','Guardado correctamente en Firestore.');
   }catch(error){
-    cloudOk=false;
     console.error('Error guardando configuración:',error);
+    const message=String(error?.message || '');
+    let uiMessage='No se pudo guardar en Firestore. Se conservaron los cambios locales.';
+    if(/permission|insufficient|denied/i.test(message)){
+      uiMessage='Firestore rechazó la escritura por permisos. Revisá las reglas.';
+    }else if(/offline|network|unavailable|failed-precondition/i.test(message)){
+      uiMessage='No hubo respuesta de red o Firestore está inaccesible. Se guardó localmente.';
+    }
+    finish('error',uiMessage);
   }
-  renderAll();
-  btn.disabled=false;
-  btn.textContent=old;
-  btn.classList.remove('save-feedback');
-  setConfigSaveStatus(cloudOk?'saved':'error', cloudOk ? 'Guardado correctamente' : 'Guardado local, nube pendiente');
 });
-$('#reservationForm').addEventListener('submit',e=>{
+$('#reservationForm')$('#reservationForm').addEventListener('submit',e=>{
   e.preventDefault();
   const fd=new FormData(e.target);
   const existing=state.reservations.find(x=>x.id===ui.editId) || {};
