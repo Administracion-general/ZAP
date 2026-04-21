@@ -507,6 +507,11 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
 .loader-box{display:grid;justify-items:center;gap:14px}
 .loader-spinner{width:58px;height:58px;border-radius:50%;border:5px solid rgba(255,255,255,.22);border-top-color:var(--primary);border-right-color:rgba(39,34,71,.45);animation:spin .9s linear infinite;filter:drop-shadow(0 10px 24px rgba(39,34,71,.16))}
 .loader-text{font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--primary);text-shadow:0 2px 10px rgba(255,255,255,.28)}
+.save-status{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.04em;background:#fff;border:1px solid var(--line);color:var(--muted)}
+.save-status.pending{background:#fff7e8;border-color:#f1d9a5;color:#8a5a00}
+.save-status.saving{background:#eef3ff;border-color:#d6defd;color:#3d5ca8}
+.save-status.saved{background:#edf8f1;border-color:#cde8d5;color:#22663a}
+.save-status.error{background:#fff0f0;border-color:#f2c8c8;color:#9f2f2f}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 @media(max-width:1100px){
@@ -956,6 +961,7 @@ th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--mute
               <div class="sub">Se guarda en Firestore en panelData/principal y deja respaldo local automático.</div>
             </div>
             <button class="btn dark" id="saveConfigBtn">Guardar configuración</button>
+            <span class="save-status" id="configSaveStatus">Sin cambios</span>
           </div>
         </div>
       </div>
@@ -1764,6 +1770,8 @@ $('#calendarUnitFilter').addEventListener('change',renderCalendar);
 $('#newReservationBtn').addEventListener('click',()=>{form(); $('#reservationDrawer').classList.add('open')});
 $('#newReservationBtn2').addEventListener('click',()=>{form(); $('#reservationDrawer').classList.add('open')});
 $('#editUnitsBtn').addEventListener('click',()=>switchView('unidades'));
+document.addEventListener('input',e=>{if(e.target.closest('#view-configuracion')) markConfigPending();});
+document.addEventListener('change',e=>{if(e.target.closest('#view-configuracion')) markConfigPending();});
 const resetDemoBtn=$('#resetDemoBtn'); if(resetDemoBtn){resetDemoBtn.addEventListener('click',()=>{if(confirm('Restaurar demo eliminará los datos actuales guardados en este navegador.')){localStorage.setItem(KEY,JSON.stringify(seed)); location.reload()}});}
 window.addEventListener('resize',()=>{if(ui.view==='calendario') renderCalendar(); if(ui.view==='metricas') renderMetrics();});
 $('#prevMonthBtn').addEventListener('click',()=>{ui.month=new Date(ui.month.getFullYear(),ui.month.getMonth()-1,1); renderCalendar()});
@@ -1836,19 +1844,37 @@ $('#adminLoginForm').addEventListener('submit',e=>{
 
 
 function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
-async function finishBoot(){
-  const minDelay=3000;
-  await wait(minDelay);
+function getLoaderSessionKey(){return `departamentos_loader_seen_${APP_MODE}`;}
+function shouldAnimateLoader(){
+  try{
+    const alreadySeen=sessionStorage.getItem(getLoaderSessionKey())==='1';
+    const nav=performance.getEntriesByType('navigation')[0];
+    const isReload=nav?.type==='reload';
+    return !alreadySeen && !isReload;
+  }catch(error){
+    return true;
+  }
+}
+async function finishBoot(showAnimatedLoader){
   const loader=$('#pageLoader');
-  if(loader) loader.classList.add('hidden');
+  if(!loader) return;
+  const minDelay=showAnimatedLoader ? 3000 : 120;
+  await wait(minDelay);
+  loader.classList.add('hidden');
+  try{sessionStorage.setItem(getLoaderSessionKey(),'1');}catch(error){}
 }
 
 async function boot(){
+  const animatedLoader=shouldAnimateLoader();
+  const loader=$('#pageLoader');
+  if(!animatedLoader && loader) loader.style.transition='opacity .2s ease,visibility .2s ease';
+  const forcedHide=setTimeout(()=>{const l=$('#pageLoader'); if(l) l.classList.add('hidden');}, 6500);
   state=await loadFromFirestore();
   if(APP_MODE==='portal') showPortalMode();
   else if(APP_MODE==='cliente') showClientMode();
   else showAdminMode();
-  await finishBoot();
+  await finishBoot(animatedLoader);
+  clearTimeout(forcedHide);
 }
 
 boot();
