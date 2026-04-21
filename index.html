@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Admin Departamentos</title>
+<meta name="description" content="Gestión profesional de propiedades, reservas, calendario, unidades y métricas.">
+<meta name="theme-color" content="#0D1B2A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Admin Departamentos">
+<link rel="manifest" href="site.webmanifest">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Admin Departamentos">
+<meta property="og:description" content="Gestión profesional de propiedades, reservas, calendario, unidades y métricas.">
+<meta property="og:image" content="preview-whatsapp.png">
+<meta property="og:site_name" content="Admin Departamentos">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Admin Departamentos">
+<meta name="twitter:description" content="Gestión profesional de propiedades, reservas, calendario, unidades y métricas.">
+<meta name="twitter:image" content="preview-whatsapp.png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap");
+:root{
+  --safe-top: env(safe-area-inset-top,0px);
+  --safe-bottom: env(safe-area-inset-bottom,0px);
+  --bg:#aeb9d1;
+  --bg-deep:#8f9abb;
+  --surface:#f7f6fb;
+  --surface-2:#ffffff;
+  --surface-3:#efeefd;
+  --ink:#1f1e2f;
+  --muted:#6f7188;
+  --muted-2:#8c90a7;
+  --line:rgba(48,52,88,.08);
+  --line-strong:rgba(48,52,88,.14);
+  --primary:#272247;
+  --primary-2:#3c3568;
+  --accent:#c7c0ff;
+  --accent-2:#e8e5ff;
+  --soft-shadow:0 24px 60px rgba(41,40,75,.12);
+  --card-shadow:0 16px 34px rgba(39,34,71,.08);
+  --radius-xl:34px;
+  --radius-lg:26px;
+  --radius-md:20px;
+  --side:100%;
+  --tab:78px;
+  --ok:#4d6fcb;--okbg:#ecebff;
+  --warn:#8a63dc;--warnbg:#f1edff;
+  --bad:#c65d91;--badbg:#fceaf4;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;max-width:100%;overflow-x:hidden;min-height:100%}
+body{
+  margin:0;
+  min-height:100%;
+  font-family:"Manrope",Inter,system-ui,sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 8% 85%, rgba(251,246,255,.7), transparent 18%),
+    radial-gradient(circle at 94% 90%, rgba(254,244,255,.72), transparent 14%),
+    linear-gradient(180deg,var(--bg),#b5bfd5 56%, #a4aec9 100%);
+  min-height:100vh;
+  max-width:100%;
+  overflow-x:hidden;
+}
+body:before,
+body:after{
+  content:"";
+  position:fixed;
+  inset:auto;
+  width:320px;
+  height:320px;
+  border-radius:50%;
+  filter:blur(38px);
+  pointer-events:none;
+  opacity:.35;
+  z-index:0;
+}
+body:before{left:-80px;bottom:50px;background:radial-gradient(circle,#f4efff,transparent 65%)}
+body:after{right:-90px;bottom:40px;background:radial-gradient(circle,#f6eefc,transparent 65%)}
+button,input,select,textarea{font:inherit}
+img{max-width:100%;display:block}
+.app{
+  position:relative;
+  z-index:1;
+  min-height:100vh;
+  width:min(1580px,calc(100% - 32px));
+  margin:18px auto;
+  background:rgba(248,247,252,.82);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.48);
+  border-radius:40px;
+  box-shadow:var(--soft-shadow);
+  overflow:hidden;
+}
+.sidebar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:18px 22px;
+  background:rgba(249,248,252,.84);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line);
+}
+.brand{padding:0;border:0;min-width:210px}
+.brandtop{display:flex;gap:12px;align-items:center}
+.mark{
+  width:38px;height:38px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(180deg,#ffffff,#e8e3ff);
+  box-shadow:inset 0 0 0 1px rgba(43,39,74,.09);
+  color:var(--primary);font-weight:800;font-size:13px;letter-spacing:.08em;
+}
+.brandtitle{font-weight:800;font-size:15px;letter-spacing:-.03em}
+.brandsub{font-size:12px;color:var(--muted)}
+.nav{display:flex;align-items:center;justify-content:center;gap:8px;flex:1;flex-wrap:wrap}
+.nav button,.tabbar button{border:0;cursor:pointer}
+.nav button{
+  background:transparent;color:var(--muted);padding:11px 16px;border-radius:999px;
+  text-align:left;display:flex;gap:10px;align-items:center;font-size:13px;font-weight:700;
+}
+.nav button span:last-child{display:none}
+.nav button.active{
+  background:rgba(39,34,71,.08);
+  color:var(--primary);
+  box-shadow:inset 0 0 0 1px rgba(39,34,71,.06);
+}
+.navfoot{
+  margin:0;
+  padding:11px 18px;
+  border-radius:999px;
+  background:var(--primary);
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.main{padding:22px 24px calc(22px + var(--tab))}
+.hero{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(180deg,#fbfaff 0%, #f2efff 100%);
+  border:1px solid rgba(74,69,115,.08);
+  border-radius:32px;
+  padding:54px 56px 42px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:28px;
+  box-shadow:var(--card-shadow);
+  margin-bottom:22px;
+}
+.hero:before{
+  content:"";
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:48%;
+  background:
+    radial-gradient(circle at 18% 88%, rgba(74,69,145,.68) 0 13%, transparent 14%),
+    radial-gradient(circle at 37% 84%, rgba(110,102,188,.6) 0 12%, transparent 13%),
+    radial-gradient(circle at 62% 86%, rgba(91,84,165,.62) 0 13%, transparent 14%),
+    radial-gradient(circle at 83% 82%, rgba(122,114,201,.56) 0 11%, transparent 12%),
+    radial-gradient(circle at 25% 100%, #2d2649 0 24%, transparent 25%),
+    radial-gradient(circle at 72% 102%, #3f3766 0 24%, transparent 25%),
+    linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,0) 25%, rgba(92,79,148,.18) 68%, rgba(52,46,84,.42) 100%);
+  pointer-events:none;
+}
+.hero:after{
+  content:"";
+  position:absolute;
+  inset:auto auto 78px 13%;
+  width:180px;height:180px;border-radius:50%;
+  border:10px solid rgba(95,91,146,.52);
+  box-shadow:0 0 0 5px rgba(255,255,255,.38) inset;
+  background:linear-gradient(180deg,rgba(244,241,255,.9),rgba(206,201,240,.44));
+  opacity:.9;
+}
+.hero-copy{position:relative;z-index:1;max-width:700px;padding-top:8px}
+.eyebrow{letter-spacing:.12em;font-size:11px;font-weight:800;color:var(--muted-2);text-transform:uppercase}
+.hero h1{margin:10px 0 14px;font-size:64px;line-height:.96;letter-spacing:-.06em;font-weight:800;color:var(--primary)}
+.hero p{color:var(--muted);max-width:720px;line-height:1.7;margin:0;font-size:16px}
+.hero-badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;position:relative;z-index:1}
+.hero-badges .hero-badge{
+  background:rgba(255,255,255,.72);
+  border:1px solid rgba(76,72,112,.08);
+  color:var(--primary);
+  padding:10px 14px;border-radius:999px;font-size:12px;font-weight:700;
+}
+.actions,.toolbar,.history-controls,.filterbar,.unit-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.actions{position:relative;z-index:1;align-content:flex-start;justify-content:flex-start;padding-top:12px}
+.btn{
+  border-radius:999px;
+  padding:13px 18px;
+  font-weight:800;
+  cursor:pointer;
+  border:0;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.dark{background:var(--primary);color:#fff;box-shadow:0 10px 22px rgba(39,34,71,.16)}
+.gold{background:var(--primary);color:#fff;box-shadow:0 10px 22px rgba(39,34,71,.16)}
+.soft{background:#fff;color:var(--primary);box-shadow:inset 0 0 0 1px rgba(39,34,71,.08)}
+.ghost{background:rgba(255,255,255,.72);color:var(--primary);box-shadow:inset 0 0 0 1px rgba(39,34,71,.08)}
+.light{background:#fff;color:var(--primary);border:1px solid var(--line)}
+.small{padding:10px 14px;font-size:14px}
+.grid{display:grid;gap:18px}
+.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:22px}
+.card,
+.unit-card-collapsible,
+.unit-editor-card,
+.day,
+.item,
+.rescard,
+.history,
+.alert,
+.settings-section{
+  background:rgba(255,255,255,.82);
+  border:1px solid var(--line);
+  border-radius:28px;
+  box-shadow:var(--card-shadow);
+}
+.card{padding:24px}
+.metric{position:relative;overflow:hidden;padding:24px 24px 22px}
+.metric:after{
+  content:"";position:absolute;right:-10px;top:-16px;width:124px;height:124px;border-radius:50%;
+  background:radial-gradient(circle, rgba(231,227,255,.88), rgba(231,227,255,0) 70%);
+}
+.label{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.value{font-size:46px;font-weight:800;letter-spacing:-.06em;margin:8px 0 6px;color:var(--primary)}
+.sub{font-size:14px;color:var(--muted);line-height:1.65}
+.split{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,.9fr);gap:20px}
+.unitgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.unit-card-collapsible,.unit-editor-card{overflow:hidden}
+.unit-collapsible-head,.unit-editor-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:18px;cursor:pointer}
+.unit-collapsible-head:hover,.unit-editor-head:hover,.settings-head:hover{background:rgba(245,244,251,.9)}
+.unit-collapsible-title,.unit-editor-title{display:grid;gap:8px;min-width:0}
+.unit-collapsible-title strong,.unit-editor-title strong{font-size:24px;letter-spacing:-.04em;color:var(--primary)}
+.badge{border-radius:999px;padding:9px 12px;font-size:11px;font-weight:800;white-space:nowrap;letter-spacing:.06em;text-transform:uppercase}
+.available{background:var(--okbg);color:var(--ok)}
+.occupied{background:var(--badbg);color:var(--bad)}
+.reserved{background:var(--warnbg);color:var(--warn)}
+.darkbadge{background:var(--primary);color:#fff}
+.chevron{width:14px;height:14px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:.25s ease;flex:0 0 auto;margin-right:6px;margin-top:6px}
+.open .chevron{transform:rotate(225deg)}
+.collapse{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s ease}
+.collapse-inner{overflow:hidden}
+.open > .collapse{grid-template-rows:1fr}
+.unit-collapsible-body{padding:0 18px 18px;display:grid;gap:14px}
+.unit-next{padding:14px 16px;border-radius:18px;background:linear-gradient(180deg,#faf9ff,#f2efff);border:1px solid var(--line)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip,.count-pill,.meta-pill,.legend-item{
+  font-size:12px;font-weight:700;padding:8px 12px;border-radius:999px;
+  background:#f5f4fb;border:1px solid var(--line);color:#49506a;
+}
+.list{display:grid;gap:12px}
+.item,.rescard,.history,.alert{padding:18px}
+.restop{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start;margin-bottom:8px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.tablewrap{overflow:auto;border-radius:18px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:14px 12px;border-bottom:1px solid rgba(49,52,85,.08);font-size:14px;vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:800}
+.input,.select,.textarea{
+  width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.96);outline:none;color:var(--ink)
+}
+.textarea{min-height:108px;resize:vertical}
+.input:focus,.select:focus,.textarea:focus{border-color:#cfc8ff;box-shadow:0 0 0 4px rgba(199,192,255,.22)}
+.field{display:grid;gap:6px;min-width:150px}
+.field label,label{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.calendar-scroll{overflow:auto;padding-bottom:4px}
+.calendargrid{display:grid;grid-template-columns:repeat(7,minmax(88px,1fr));gap:8px;min-width:620px}
+.dow{text-align:center;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.14em}
+.day{min-height:108px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.day.out{opacity:.42}.daynum{font-size:12px;font-weight:800;color:#5b6875}
+.bar{height:8px;border-radius:999px;background:#edf2f6;margin-top:auto}.bar.available{background:#dcefe5}.bar.occupied{background:#f1c7c7}.bar.reserved{background:#f3dfbc}
+.views{display:none}.views.active{display:block}
+.drawer{position:fixed;inset:0;display:none;z-index:50}.drawer.open{display:block}
+.back{position:absolute;inset:0;background:rgba(18,18,32,.42);backdrop-filter:blur(5px)}
+.drawerpanel{position:absolute;top:0;right:0;width:min(760px,100%);height:100%;overflow:auto;padding:22px;background:#faf9fe;border-left:1px solid var(--line)}
+.panelhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px}
+.panelhead h2,.panelhead h3{margin:0;font-size:34px;letter-spacing:-.05em;color:var(--primary)}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.full{grid-column:1/-1}
+.tabbar{position:fixed;left:0;right:0;bottom:0;height:var(--tab);background:rgba(33,29,60,.96);display:none;grid-template-columns:repeat(6,1fr);padding:10px 12px 16px;gap:8px;z-index:40}
+.tabbar button{background:transparent;color:rgba(255,255,255,.76);border-radius:16px;font-size:11px;font-weight:700}
+.tabbar button.active{background:#fff;color:var(--primary)}
+.empty{padding:18px;border:1px dashed var(--line-strong);border-radius:20px;background:#fff;color:var(--muted);text-align:center}
+.heatwrap{overflow:auto}.heatmap{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,14px);grid-auto-columns:14px;gap:4px;padding:6px 0}.heat{width:14px;height:14px;border-radius:4px}.h0{background:#eceef8}.h1{background:#d9dcf7}.h2{background:#a6b0f0}.h4{background:#41386f}
+.summary{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;line-height:1.55;background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px}
+.settings-grid{display:grid;gap:18px}
+.setting-list{display:grid;gap:10px}
+.toggle-row{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:#fff}
+.toggle-label{display:grid;gap:3px}
+.switch{position:relative;width:52px;height:30px;display:inline-block}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#d7dbee;border-radius:999px;transition:.2s}
+.slider:before{content:"";position:absolute;width:22px;height:22px;left:4px;top:4px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 4px 10px rgba(0,0,0,.12)}
+.switch input:checked + .slider{background:var(--primary)}
+.switch input:checked + .slider:before{transform:translateX(22px)}
+.unit-manager-grid{display:grid;gap:16px}
+.unit-editor-head{overflow:hidden}
+.unit-toolbar{flex-wrap:wrap;justify-content:flex-end}
+.unit-editor-head .unit-toolbar{margin-left:auto}
+.save-feedback{background:#ecebff;color:#4d6fcb;border-color:#d7d3fb}
+.delete-btn{background:#fff;color:#a84040;border:1px solid #f0c7c7}
+.hidden{display:none !important}.day-reservations .hidden{display:none !important}
+.unit-card-media{aspect-ratio:16/10;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#f4f7fa}
+.unit-card-media img{width:100%;height:100%;object-fit:cover}
+.search-row{display:flex;gap:12px;align-items:center;margin:0 0 16px;flex-wrap:wrap}
+.search-input-wrap{position:relative;flex:1 1 320px}
+.search-input-wrap .input{padding-left:42px}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;font-weight:700;pointer-events:none}
+.reservations-sections{display:grid;gap:18px}
+.section-title{margin:0 0 12px;font-size:20px;letter-spacing:-.03em;color:var(--primary)}
+.inline-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.actions-menu-wrap{position:relative;margin-left:auto}
+.menu-trigger{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--primary);font-size:20px;line-height:1;cursor:pointer}
+.context-menu{position:absolute;right:0;top:44px;min-width:140px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px rgba(13,27,42,.12);padding:6px;display:grid;gap:4px;z-index:25}
+.context-menu button{border:0;background:#fff;text-align:left;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:700;color:var(--text)}
+.context-menu button:hover{background:#f4f7fa}.context-menu button.delete{color:#a84040}
+.calendar-shell{display:grid;gap:16px}
+.calendar-legend{display:flex;gap:10px;flex-wrap:wrap}
+.legend-swatch{width:12px;height:12px;border-radius:999px}
+.day-reservations{display:grid;gap:6px;margin-top:auto}.day-chip{display:flex;align-items:center;justify-content:center;min-height:22px;padding:0 8px;border-radius:999px;opacity:.96;color:#fff;font-size:10px;font-weight:800;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)}.day-chip span{overflow:hidden;text-overflow:ellipsis}.day-chip.past{opacity:.5}
+.compact-mobile .daynum{font-size:12px}
+.compact-mobile .day-reservations{gap:4px}
+.compact-mobile .day-chip{min-height:18px;font-size:8px;padding:0 5px}
+.settings-accordion{display:grid;gap:14px}
+.settings-section{overflow:hidden}
+.settings-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px;cursor:pointer}
+.settings-body{padding:0 18px 18px}.settings-body .setting-list{margin-top:0}.settings-body .toggle-row{background:#fbfcfd}
+#view-dashboard > .split > .grid,
+#view-metricas > .grid,
+#view-configuracion .settings-grid{align-items:start}
+#view-dashboard .card h2,
+#view-metricas .card h2,
+#view-configuracion .card h2,
+#view-reservas .card h2,
+#view-calendario .card h2,
+#view-unidades .card h2{font-size:26px;line-height:1.05;color:var(--primary)}
+#upcomingCheckinsCard,#upcomingCheckoutsCard{min-height:calc(50% - 9px)}
+.metrics-chart-box{position:relative;width:100%;height:320px;min-height:320px}
+.metrics-chart-box.compact{height:260px;min-height:260px}
+#view-metricas canvas{display:block;width:100% !important;max-width:100%}
+#view-metricas .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+#view-metricas table{min-width:560px}
+#view-metricas .card{overflow:hidden}
+@media(max-width:1200px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats .metric:first-child{grid-column:auto}.split{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.hero h1{font-size:52px}}
+@media(max-width:1360px){
+  .app{width:min(100%,calc(100% - 20px));margin:10px auto}
+  .unitgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .split{grid-template-columns:1fr}
+}
+@media(max-width:1100px){
+  .main{padding:18px 18px calc(18px + var(--tab))}
+  .hero{padding:42px 28px 36px;grid-template-columns:1fr}
+  .hero h1{font-size:46px}
+  .unitgrid,.stats,.formgrid{grid-template-columns:1fr}
+  .drawerpanel{padding:18px}
+}
+@media(max-width:920px){
+  .app{width:100%;margin:0;border-radius:0}
+  .sidebar{display:none}
+  .tabbar{display:grid}
+  .main{padding:14px;padding-bottom:calc(24px + var(--tab))}
+  .hero{padding:24px 18px 116px;grid-template-columns:1fr;border-radius:26px}
+  .hero h1{font-size:34px;line-height:.98}
+  .hero p{max-width:none;font-size:14px}
+  .actions{width:100%;display:grid;grid-template-columns:1fr;gap:10px}
+  .actions .btn{width:100%;justify-content:center}
+  .card,.unit-card-collapsible,.unit-editor-card,.settings-section{border-radius:24px}
+  .panelhead{gap:14px;margin-bottom:16px}
+  .panelhead h2,.panelhead h3{font-size:24px;line-height:1.02}
+  .sub{font-size:13px;line-height:1.55}
+  .unitgrid,.kpis,.stats,.formgrid,.split{grid-template-columns:1fr}
+  .stats .metric,.stats .metric:first-child{grid-column:auto}
+  .metric{padding:20px}
+  .value{font-size:38px}
+  .search-row,.toolbar,.filterbar,.history-controls{align-items:stretch}
+  .toolbar .select,.toolbar .btn,.filterbar .field,.field{width:100%}
+  .calendar-scroll{margin:0;padding:0 0 6px;overflow:visible}
+  .calendargrid{min-width:0;gap:4px;grid-template-columns:repeat(7,minmax(0,1fr))}
+  .day{min-height:78px;padding:6px}
+  .dow{font-size:9px;letter-spacing:.08em}
+  .daynum{font-size:12px}
+  .day-chip{min-height:18px;font-size:8px;padding:0 5px}
+  .drawerpanel{padding:16px}
+  .unit-collapsible-head{padding:16px;display:grid;grid-template-columns:1fr;gap:14px}
+  .unit-editor-head{padding:16px;display:grid;grid-template-columns:1fr;gap:12px}
+  .unit-toolbar{display:grid;grid-template-columns:1fr 1fr auto;width:100%;align-items:center}
+  .unit-toolbar .btn{width:100%;padding-inline:12px}
+  .menu-trigger{width:42px;height:42px}
+  .metrics-chart-box{height:240px;min-height:240px}
+  .metrics-chart-box.compact{height:220px;min-height:220px}
+  #view-metricas .panelhead{margin-bottom:12px}
+  #view-metricas .card{padding:18px}
+  #view-metricas .tablewrap{margin:0 -4px;padding-bottom:4px}
+  #view-metricas th,#view-metricas td{padding:12px 10px;font-size:13px}
+}
+@media(max-width:560px){
+  .tabbar{height:86px;padding:10px 8px 18px;gap:6px}
+  .tabbar button{font-size:10px;padding:0 4px}
+  .hero{padding-bottom:108px}
+  .hero h1{font-size:30px}
+  .panelhead h2,.panelhead h3{font-size:22px}
+  .calendargrid{min-width:0;gap:3px}
+  .day{min-height:68px;padding:5px}
+  .dow{font-size:8px}
+  .day-chip{min-height:16px;font-size:7px;padding:0 4px}
+  .unit-toolbar{grid-template-columns:1fr}
+  .unit-toolbar .chevron{justify-self:end;margin-right:2px}
+  .metrics-chart-box{height:220px;min-height:220px}
+  .metrics-chart-box.compact{height:200px;min-height:200px}
+  #view-metricas .card{padding:16px}
+  #view-metricas th,#view-metricas td{padding:10px 8px;font-size:12px}
+}
+
+
+.gateway-shell,.login-shell,.client-shell{
+  min-height:calc(100vh - var(--safe-top) - var(--safe-bottom));
+  width:min(1280px,calc(100% - 32px));
+  margin:18px auto;
+  padding-top:var(--safe-top);
+  padding-bottom:var(--safe-bottom);
+  position:relative;
+  z-index:1;
+}
+.gateway-shell.hidden,.login-shell.hidden,.client-shell.hidden{display:none !important}
+.gateway-card,.login-card,.client-panel,.client-unit-card,.client-booking-card,.client-summary-card{
+  background:rgba(248,247,252,.88);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.48);
+  border-radius:34px;
+  box-shadow:var(--soft-shadow);
+}
+.gateway-card{padding:34px;display:grid;gap:22px}
+.gateway-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.gateway-link{
+  display:grid;gap:10px;padding:22px;border-radius:24px;background:#fff;
+  border:1px solid var(--line);text-decoration:none;color:var(--ink)
+}
+.gateway-link strong{font-size:22px;letter-spacing:-.04em;color:var(--primary)}
+.gateway-link .sub{font-size:14px}
+.login-shell{display:grid;place-items:center;padding:28px 0}
+.login-card{padding:28px;width:min(480px,100%)}
+.login-card .formgrid{grid-template-columns:1fr}
+.client-shell{display:grid;gap:18px;padding-bottom:calc(24px + var(--safe-bottom))}
+.client-topbar{
+  display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:18px 22px;background:rgba(249,248,252,.84);backdrop-filter:blur(18px);
+  border:1px solid var(--line);border-radius:30px;box-shadow:var(--card-shadow)
+}
+.client-topbar strong{font-size:18px;letter-spacing:-.03em;color:var(--primary)}
+.client-hero{
+  position:relative;overflow:hidden;padding:24px 28px;
+  background:linear-gradient(180deg,#fbfaff 0%, #f2efff 100%);
+  border:1px solid rgba(74,69,115,.08);border-radius:28px;box-shadow:var(--card-shadow)
+}
+.client-hero h1{margin:8px 0 10px;font-size:34px;line-height:.98;letter-spacing:-.05em;color:var(--primary);max-width:780px}
+.client-hero p{margin:0;max-width:760px;color:var(--muted);line-height:1.55;font-size:15px}
+.client-hero .hero-badges{margin-top:14px}
+.client-hero .hero-badge{padding:8px 12px;font-size:11px}
+.client-filters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.client-units-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.client-unit-card{padding:18px;display:grid;gap:14px}
+.client-unit-media{aspect-ratio:16/10;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#f4f7fa}
+.client-unit-media img{width:100%;height:100%;object-fit:cover}
+.client-unit-card h3{margin:0;font-size:25px;letter-spacing:-.04em;color:var(--primary)}
+.client-price{font-size:26px;font-weight:800;letter-spacing:-.05em;color:var(--primary)}
+.client-status-row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.client-booking-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(320px,.8fr);gap:18px}
+.client-summary-card{padding:22px}
+.client-summary-card.active-focus{box-shadow:0 22px 60px rgba(39,34,71,.14);border-color:rgba(60,53,104,.16)}
+.client-summary-card.pinned-mobile{order:-1}
+.client-booking-card{padding:22px}
+.client-booking-card .formgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.client-meta{display:flex;gap:8px;flex-wrap:wrap}
+.client-linkbox{padding:14px 16px;border-radius:18px;background:#fff;border:1px solid var(--line)}
+.mode-helper{font-size:12px;color:var(--muted)}
+.status-ok{background:#ecebff;color:#4d6fcb}
+.status-off{background:#fceaf4;color:#c65d91}
+.admin-config-extra{margin-top:18px}
+.app.hidden,.tabbar.hidden{display:none !important}
+.client-units-grid .empty{grid-column:1/-1}
+@media(max-width:920px){
+  .client-booking-card,.client-summary-card{padding:18px}
+  .client-unit-card{padding:16px;gap:12px}
+  .client-unit-card h3{font-size:22px}
+  .client-price{font-size:24px}
+  .client-filters .btn{width:100%}
+}
+
+.page-loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;background:
+  radial-gradient(circle at 50% 50%, rgba(255,255,255,.10), transparent 26%),
+  linear-gradient(180deg,var(--bg),#b5bfd5 56%, #a4aec9 100%);
+  z-index:9999;transition:opacity .45s ease,visibility .45s ease}
+.page-loader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.loader-box{display:grid;justify-items:center;gap:14px}
+.loader-spinner{width:58px;height:58px;border-radius:50%;border:5px solid rgba(255,255,255,.22);border-top-color:var(--primary);border-right-color:rgba(39,34,71,.45);animation:spin .9s linear infinite;filter:drop-shadow(0 10px 24px rgba(39,34,71,.16))}
+.loader-text{font-size:18px;font-weight:800;letter-spacing:-.02em;color:var(--primary);text-shadow:0 2px 10px rgba(255,255,255,.28)}
+.save-status{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.04em;background:#fff;border:1px solid var(--line);color:var(--muted)}
+.save-status.pending{background:#fff7e8;border-color:#f1d9a5;color:#8a5a00}
+.save-status.saving{background:#eef3ff;border-color:#d6defd;color:#3d5ca8}
+.save-status.saved{background:#edf8f1;border-color:#cde8d5;color:#22663a}
+.save-status.error{background:#fff0f0;border-color:#f2c8c8;color:#9f2f2f}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:1100px){
+  .client-units-grid,.client-filters,.client-booking-grid{grid-template-columns:1fr}
+  .client-hero h1{font-size:40px}
+  .gateway-actions{grid-template-columns:1fr}
+}
+@media(max-width:920px){
+  .gateway-shell,.login-shell,.client-shell{width:100%;margin:0;padding:calc(14px + var(--safe-top)) 14px calc(14px + var(--safe-bottom))}
+  .client-topbar{padding:16px;border-radius:24px}
+  .client-hero{padding:18px;border-radius:22px}
+  .client-hero h1{font-size:28px}
+  .client-hero p{font-size:14px;line-height:1.45}
+}
+
+</style>
+</head>
+<body>
+
+<div id="pageLoader" class="page-loader">
+  <div class="loader-box">
+    <div class="loader-spinner"></div>
+    <div class="loader-text">Cargando</div>
+  </div>
+</div>
+
+
+<div id="modeGateway" class="gateway-shell hidden">
+  <div class="gateway-card">
+    <div>
+      <div class="eyebrow">Accesos</div>
+      <h1 style="margin:10px 0 12px;font-size:56px;line-height:.95;letter-spacing:-.06em;color:var(--primary)">Reservas departamentos</h1>
+      
+    </div>
+    <div class="gateway-actions">
+      <a class="gateway-link" id="gatewayClientLink" href="index_clientes_mejorado.html">
+        <strong>Panel cliente</strong></a>
+      <a class="gateway-link" id="gatewayAdminLink" href="admin.html">
+        <strong>Panel titular</strong></a>
+    </div>
+  </div>
+</div>
+
+<div id="adminLogin" class="login-shell hidden">
+  <div class="login-card">
+    <div class="panelhead">
+      <div>
+        <div class="eyebrow">Acceso privado</div>
+        <h2>Ingresar al panel del titular</h2>
+        <div class="sub">El acceso del titular usa una clave separada del link público de reservas.</div>
+      </div>
+    </div>
+    <form id="adminLoginForm" class="formgrid">
+      <div class="full">
+        <label>Clave de acceso</label>
+        <input class="input" type="password" id="adminPinInput" placeholder="Ingresá la clave del titular" required>
+      </div>
+      <div class="full toolbar">
+        <button class="btn dark" type="submit">Entrar al panel</button>
+        <a class="btn light" id="backToClientLink" href="?app=cliente" style="text-decoration:none;display:inline-flex;align-items:center">Ir a reservas</a>
+      </div>
+      <div class="sub hidden" id="adminLoginError">Clave incorrecta.</div>
+    </form>
+  </div>
+</div>
+
+<div id="clientApp" class="client-shell hidden">
+  <section class="client-panel client-booking-card" id="clientSearchSection">
+    <div class="panelhead">
+      <div>
+        <div class="eyebrow">Disponibilidad</div>
+        <h2>Buscar fechas</h2>
+      </div>
+    </div>
+    <div class="client-filters">
+      <div class="field"><label>Fecha de entrada</label><input class="input" type="date" id="clientStartDate"></div>
+      <div class="field"><label>Fecha de salida</label><input class="input" type="date" id="clientEndDate"></div>
+      <div class="field"><label>Personas</label><input class="input" type="number" min="1" id="clientGuestsCount" value="2"></div>
+      <div class="field"><label>Actualizar</label><button class="btn dark" id="clientRefreshBtn" type="button">Ver disponibilidad</button></div>
+    </div>
+  </section>
+
+  <section class="client-booking-grid">
+    <div class="client-panel client-booking-card">
+      <div class="panelhead">
+        <div>
+          <div class="eyebrow">Unidades</div>
+          <h2>Departamentos disponibles</h2>
+        </div>
+      </div>
+      <div class="client-units-grid" id="clientUnitsGrid"></div>
+      <div class="toolbar" id="clientUnitsFooter" style="margin-top:16px"></div>
+    </div>
+    <aside class="client-summary-card" id="clientSummaryCard">
+      <div class="panelhead">
+        <div>
+          <div class="eyebrow">Resumen</div>
+          <h2>Reserva seleccionada</h2>
+        </div>
+      </div>
+      <div class="grid" id="clientSummaryBox">
+        <div class="empty">Elegí fechas y luego una unidad disponible.</div>
+      </div>
+    </aside>
+  </section>
+</div>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brandtop">
+        <div class="mark" id="brandAvatar">AD</div>
+        <div>
+          <div class="brandtitle" id="brandName">Admin Departamentos</div>
+          <div class="brandsub" id="brandSubtitle">Panel de gestión profesional</div>
+        </div>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="active" data-view="dashboard"><span>Inicio</span><span>01</span></button>
+      <button data-view="reservas"><span>Reservas</span><span>02</span></button>
+      <button data-view="calendario"><span>Calendario</span><span>03</span></button>
+      <button data-view="unidades"><span>Unidades</span><span>04</span></button>
+      <button data-view="metricas"><span>Métricas</span><span>05</span></button>
+      <button data-view="configuracion"><span>⚙ Configuración</span><span>06</span></button>
+    </nav>
+    <div class="navfoot">Persistencia activa en Firestore con respaldo local automático.</div>
+  </aside>
+
+  <main class="main">
+    <section class="hero" id="heroSection">
+      <div class="hero-copy">
+        <div class="eyebrow hidden" id="heroEyebrow">Panel editorial premium</div>
+        <h1 id="heroTitle">Tus Propiedades Bajo Control</h1>
+        <p id="heroText" class="hidden"></p>
+        <div class="hero-badges hidden" id="heroBadges"></div>
+      </div>
+      <div class="actions">
+        <button class="btn gold" id="newReservationBtn">Nueva reserva</button>
+        <button class="btn soft" id="editUnitsBtn">Ir a Unidades</button>
+      </div>
+    </section>
+
+    <section id="view-dashboard" class="views active">
+      <div class="grid stats" id="topStats"></div>
+
+      <div class="split">
+        <div class="card" id="dashboardUnitsCard">
+          <div class="panelhead">
+            <div>
+              <div class="eyebrow">Unidades</div>
+              <h2>Panel principal</h2>
+              <div class="sub">Estado actual y acciones rápidas por propiedad.</div>
+            </div>
+          </div>
+          <div class="unitgrid" id="unitGrid"></div>
+        </div>
+
+        <div class="grid">
+          <div class="card" id="upcomingCheckoutsCard">
+            <div class="panelhead">
+              <div>
+                <div class="eyebrow">Agenda</div>
+                <h2>Próximas salidas</h2>
+                <div class="sub">Reservas con checkout más cercano.</div>
+              </div>
+            </div>
+            <div class="list" id="upcomingCheckouts"></div>
+          </div>
+
+          <div class="card" id="upcomingCheckinsCard">
+            <div class="panelhead">
+              <div>
+                <div class="eyebrow">Agenda</div>
+                <h2>Próximas entradas</h2>
+                <div class="sub">Reservas con check-in más próximo.</div>
+              </div>
+            </div>
+            <div class="list" id="upcomingCheckins"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-reservas" class="views">
+      <div class="card">
+        <div class="panelhead">
+          <div>
+            <div class="eyebrow">Reservas</div>
+            <h2>Gestión de reservas activas e históricas</h2>
+          </div>
+          <div class="toolbar">
+            <select class="select" id="reservationsUnitFilter"></select>
+            <button class="btn dark" id="newReservationBtn2">Nueva reserva</button>
+          </div>
+        </div>
+        <div class="search-row" id="reservationsSearchRow">
+          <div class="search-input-wrap">
+            <span class="search-icon">⌕</span>
+            <input class="input" id="reservationsSearch" placeholder="Buscar reserva por nombre, fecha, unidad...">
+          </div>
+        </div>
+        <div class="reservations-sections">
+          <div id="activeReservationsBlock">
+            <h3 class="section-title">Reservas activas y futuras</h3>
+            <div class="grid" id="reservationsList"></div>
+          </div>
+          <div id="historyReservationsBlock">
+            <h3 class="section-title">Historial de huéspedes</h3>
+            <div class="grid" id="historyList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-calendario" class="views">
+      <div class="card">
+        <div class="panelhead">
+          <div>
+            <div class="eyebrow">Calendario</div>
+            <h2>Ocupación mensual por unidad</h2>
+          </div>
+          <div class="toolbar">
+            <select class="select" id="calendarUnitFilter"></select>
+            <button class="btn light small" id="prevMonthBtn">Mes anterior</button>
+            <button class="btn light small" id="currentMonthBtn">Hoy</button>
+            <button class="btn light small" id="nextMonthBtn">Mes siguiente</button>
+          </div>
+        </div>
+        <div class="calendar-shell"><div class="calendar-legend" id="calendarLegend"></div><div class="grid" id="calendarViews"></div></div>
+      </div>
+    </section>
+
+    <section id="view-unidades" class="views">
+      <div class="card">
+        <div class="panelhead">
+          <div>
+            <div class="eyebrow">Unidades</div>
+            <h2>Gestión visual de unidades</h2>
+            <div class="sub">Edición individual, tarjetas expandibles y alta de nuevas unidades.</div>
+          </div>
+          <div class="toolbar">
+            <span class="count-pill" id="unitsCountPill">0 unidades activas</span>
+            <button class="btn dark" id="addUnitBtn">Agregar nueva unidad</button>
+          </div>
+        </div>
+        <div class="unit-manager-grid" id="unitsEditor"></div>
+      </div>
+    </section>
+
+    <section id="view-metricas" class="views">
+      <div class="card">
+        <div class="panelhead">
+          <div>
+            <div class="eyebrow">Analítica</div>
+            <h2>Métricas y rendimiento del negocio</h2>
+          </div>
+          <div class="toolbar">
+            <button class="btn light small" id="copySummaryBtn">Exportar resumen</button>
+            <button class="btn dark small" id="printMetricsBtn">Imprimir vista</button>
+          </div>
+        </div>
+
+        <div class="filterbar">
+          <div class="field"><label>Rango</label><select class="select" id="metricsRangePreset"><option value="month">Este mes</option><option value="quarter">Este trimestre</option><option value="year" selected>Este año</option><option value="custom">Rango personalizado</option></select></div>
+          <div class="field"><label>Desde</label><input class="input" id="metricsStart" type="date"></div>
+          <div class="field"><label>Hasta</label><input class="input" id="metricsEnd" type="date"></div>
+          <div class="field"><label>Serie ingresos</label><select class="select" id="metricsIncomeSeries"></select></div>
+          <div class="field"><label>Vista trimestral</label><select class="select" id="metricsQuarterYear"></select></div>
+          <div class="field"><label>Aplicar</label><button class="btn dark" id="applyMetricsRange">Actualizar métricas</button></div>
+        </div>
+      </div>
+
+      <div class="grid kpis" id="metricsExecutiveCards" style="margin-top:18px"></div>
+
+      <div class="grid" style="margin-top:18px">
+        <div class="card">
+          <div class="panelhead">
+            <div>
+              <div class="eyebrow">Rendimiento por unidad</div>
+              <h2>Comparativa operativa</h2>
+            </div>
+            <div class="toolbar">
+              <span class="badge darkbadge" id="mostBookedBadge"></span>
+              <span class="badge darkbadge" id="mostProfitableBadge"></span>
+            </div>
+          </div>
+          <div class="metrics-chart-box"><canvas id="unitPerformanceChart"></canvas></div>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>Unidad</th><th>Reservas totales</th><th>Días ocupados</th><th>% Ocupación</th><th>Ingresos totales</th></tr></thead>
+              <tbody id="unitSummaryTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Análisis temporal</div><h2>Ingresos mensuales</h2></div></div>
+            <div class="metrics-chart-box"><canvas id="incomeTrendChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Análisis temporal</div><h2>Ocupación por mes</h2></div></div>
+            <div class="metrics-chart-box compact"><canvas id="occupancyMonthChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="grid kpis" id="temporalHighlights"></div>
+
+        <div class="card">
+          <div class="panelhead"><div><div class="eyebrow">Vista trimestral</div><h2>Comparación Q1, Q2, Q3 y Q4</h2></div></div>
+          <div class="metrics-chart-box"><canvas id="quarterChart"></canvas></div>
+        </div>
+
+        <div class="split">
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Huéspedes</div><h2>Distribución por tipo</h2></div></div>
+            <div class="metrics-chart-box compact"><canvas id="guestTypeChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Estadías</div><h2>Distribución por modalidad</h2></div></div>
+            <div class="metrics-chart-box compact"><canvas id="stayModeChart"></canvas></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead"><div><div class="eyebrow">Relación con clientes</div><h2>Recurrentes vs nuevos</h2></div></div>
+          <div class="grid kpis" id="guestHighlights"></div>
+          <div class="tablewrap">
+            <table>
+              <thead><tr><th>Huésped o empresa</th><th>Reservas</th><th>Tipo</th><th>Total histórico</th></tr></thead>
+              <tbody id="guestRankingTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead"><div><div class="eyebrow">Mapa de calor anual</div><h2>Intensidad diaria de ocupación</h2></div></div>
+          <div class="heatwrap"><div class="heatmap" id="heatmapGrid"></div></div>
+        </div>
+
+        <div class="split">
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Cochera</div><h2>Métricas de cochera</h2></div></div>
+            <div class="tablewrap">
+              <table>
+                <thead><tr><th>Unidad</th><th>% con cochera</th><th>Reservas con cochera</th><th>Impacto estimado</th></tr></thead>
+                <tbody id="garageTable"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="panelhead"><div><div class="eyebrow">Proyección y alertas</div><h2>Próximo mes y focos operativos</h2></div></div>
+            <div class="grid kpis" id="projectionCards"></div>
+            <div class="list" id="alertsList" style="margin-top:16px"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead"><div><div class="eyebrow">Resumen exportable</div><h2>Informe de métricas</h2></div></div>
+          <div class="summary" id="metricsSummaryBox"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-configuracion" class="views">
+      <div class="settings-grid">
+        <div class="card">
+          <div class="panelhead">
+            <div>
+              <div class="eyebrow">Configuración</div>
+              <h2>Identidad del panel</h2>
+              <div class="sub">Nombre del negocio, subtítulo y avatar del sidebar.</div>
+            </div>
+          </div>
+          <div class="formgrid">
+            <div><label>Nombre del negocio</label><input class="input" id="cfgBusinessName"></div>
+            <div><label>Subtítulo</label><input class="input" id="cfgBusinessSubtitle"></div>
+            <div><label>Avatar o letra</label><input class="input" id="cfgBusinessAvatar" maxlength="4"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead">
+            <div>
+              <div class="eyebrow">Hero</div>
+              <h2>Textos del hero</h2>
+              <div class="sub">Título, subtítulo y badges editables.</div>
+            </div>
+          </div>
+          <div class="formgrid">
+            <div class="full"><label>Título principal</label><input class="input" id="cfgHeroTitle"></div>
+            <div class="full"><label>Subtítulo descriptivo</label><textarea class="textarea" id="cfgHeroSubtitle"></textarea></div>
+            <div><label>Badge 1</label><input class="input" id="cfgHeroBadge1"></div>
+            <div><label>Badge 2</label><input class="input" id="cfgHeroBadge2"></div>
+            <div class="full"><label>Badge 3</label><input class="input" id="cfgHeroBadge3"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead">
+            <div>
+              <div class="eyebrow">Visibilidad</div>
+              <h2>Control por pestaña</h2>
+              <div class="sub">Expandí cada pestaña y elegí qué elementos mostrar u ocultar.</div>
+            </div>
+          </div>
+          <div class="settings-accordion" id="visibilitySettings"></div>
+        </div>
+
+
+        <div class="card admin-config-extra settings-section open">
+          <div class="settings-head" onclick="toggleAdminConfigSection()">
+            <div>
+              <div class="eyebrow">Reservas clientes</div>
+              <h2>Texto público y acceso privado</h2>
+              <div class="sub">Configurá la página visible al cliente y la clave de ingreso del titular.</div>
+            </div>
+            <span class="chevron"></span>
+          </div>
+          <div class="collapse" id="adminConfigCollapse">
+            <div class="collapse-inner">
+              <div class="settings-body">
+                <div class="formgrid">
+                  <div><label>Etiqueta superior</label><input class="input" id="cfgClientEyebrow"></div>
+                  <div><label>Título público</label><input class="input" id="cfgClientTitle"></div>
+                  <div class="full"><label>Subtítulo público</label><textarea class="textarea" id="cfgClientSubtitle"></textarea></div>
+                  <div><label>Badge 1</label><input class="input" id="cfgClientBadge1"></div>
+                  <div><label>Badge 2</label><input class="input" id="cfgClientBadge2"></div>
+                  <div class="full"><label>Badge 3</label><input class="input" id="cfgClientBadge3"></div>
+                  <div><label>Número de WhatsApp</label><input class="input" id="cfgWhatsappPhone" placeholder="542942646490"></div>
+                  <div><label>Clave del titular</label><input class="input" id="cfgAdminPin"></div>
+                  <div class="full"><label>Mensaje ticket para WhatsApp</label><textarea class="textarea" id="cfgWhatsappTemplate" placeholder="Usá variables como {guestName}, {unitName}, {startDate}, {endDate}, {nights}, {total}, {depositAmount}, {paymentMethod}, {contact}, {notes}"></textarea></div>
+                  <div><label>Acceso cliente sugerido</label><input class="input" id="cfgClientUrl" readonly></div>
+                  <div class="full"><label>Acceso titular sugerido</label><input class="input" id="cfgAdminUrl" readonly></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="panelhead">
+            <div>
+              <div class="eyebrow">Persistencia</div>
+              <h2>Guardar configuración</h2>
+              <div class="sub">Se guarda en Firestore en panelData/principal y deja respaldo local automático.</div>
+            </div>
+            <button class="btn dark" id="saveConfigBtn">Guardar configuración</button>
+            <span class="save-status" id="configSaveStatus">Sin cambios</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<nav class="tabbar">
+  <button class="active" data-view="dashboard">Inicio</button>
+  <button data-view="reservas">Reservas</button>
+  <button data-view="calendario">Calendario</button>
+  <button data-view="unidades">Unidades</button>
+  <button data-view="metricas">Métricas</button>
+  <button data-view="configuracion">Ajustes</button>
+</nav>
+
+<div class="drawer" id="reservationDrawer">
+  <div class="back" onclick="closeLayer('reservationDrawer')"></div>
+  <div class="drawerpanel">
+    <div class="panelhead">
+      <div><div class="eyebrow">Reserva</div><h3 id="reservationTitle">Nueva reserva</h3></div>
+      <button class="btn light small" onclick="closeLayer('reservationDrawer')">Cerrar</button>
+    </div>
+    <form id="reservationForm" class="formgrid"></form>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+const firebaseConfig={
+  apiKey:'AIzaSyD-vaiTZyXzIWdFJ61A8ppXu2h2E4A1uQA',
+  authDomain:'departamentos-37c4e.firebaseapp.com',
+  projectId:'departamentos-37c4e',
+  storageBucket:'departamentos-37c4e.firebasestorage.app',
+  messagingSenderId:'477447574305',
+  appId:'1:477447574305:web:8eaeb10e11f99e9cbd2460'
+};
+
+const FORCED_APP='';
+function resolveAppMode(){
+  if(FORCED_APP) return FORCED_APP;
+  const params=new URLSearchParams(location.search);
+  const app=params.get('app');
+  if(app==='admin'||app==='cliente') return app;
+  return 'portal';
+}
+const APP_MODE=resolveAppMode();
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+const KEY='gestion_boutique_alquileres_v7';
+const FIRESTORE_COLLECTION='panelData';
+const FIRESTORE_DOC_ID='principal';
+const defaultTabVisibility={
+  dashboard:{heroBanner:true,heroBadges:true,topStats:true,unitsSection:true,upcomingCheckouts:true,upcomingCheckins:true},
+  reservas:{searchBar:true,unitFilter:true,newReservationBtn:true,historicalList:true},
+  calendario:{unitSelector:true,colorLegend:true,monthNavigation:true},
+  unidades:{addUnitBtn:true,photoFields:true,amenitiesFields:true},
+  metricas:{filters:true,executiveCards:true}
+};
+const defaultSettings={
+  identity:{businessName:'Admin Departamentos',businessSubtitle:'Panel de gestión profesional',businessAvatar:'AD'},
+  hero:{title:'Tus Propiedades Bajo Control',subtitle:'Visualizá unidades, reservas próximas y estado general de la operación.',badges:['Reservas conectadas','Panel del titular','Sincronización en Firestore']},
+  clientSite:{
+    eyebrow:'Reservas online',
+    title:'Elegí tu departamento y reservá',
+    subtitle:'Seleccioná la unidad, cargá las fechas y dejá registrado el abono para confirmar tu estadía.',
+    badge1:'Reserva simple',
+    badge2:'Abono registrado',
+    badge3:'Confirmación conectada',
+    whatsappPhone:'',
+    whatsappTemplate:'Hola. Quiero confirmar esta reserva.\n\nNombre: {guestName}\nContacto: {contact}\nUnidad: {unitName}\nDirección: {unitAddress}\nFechas: {startDate} al {endDate}\nEstadía: {nights} noches\nTotal estimado: {total}\nMonto abonado: {depositAmount}\nMétodo de pago: {paymentMethod}\nNotas: {notes}'
+  },
+  access:{adminPin:'2468'},
+  tabVisibility:defaultTabVisibility
+};
+const unitColors=['#4A7CFF','#2BAA66','#F08A24','#B15CFF','#E0579A','#168AAD'];
+const seed={
+  units:[
+    {id:'u1',name:'Unidad 1',address:'Stefenelli & Matheu',subtitle:'Barrio Gama',description:'Monoambiente totalmente equipado, balcón a la calle, cochera opcional.',baseRate:45000,amenities:['Monoambiente','Totalmente equipado','Balcón a la calle','Cochera opcional'],notes:'Ideal para estadías urbanas breves y corporativas.',photos:['https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1200&q=80']},
+    {id:'u2',name:'Unidad 2',address:'Roca 135, Piso 12-B',subtitle:'A 1 cuadra del Monumento a San Martín',description:'Monoambiente equipamiento full, balcón a la calle, cochera opcional.',baseRate:52000,amenities:['Monoambiente','Equipamiento full','Balcón a la calle','Cochera opcional'],notes:'Muy demandada para viajes de trabajo y estadías cortas.',photos:['https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80']},
+    {id:'u3',name:'Unidad 3',address:'Roca 135, Piso 13-B',subtitle:'A 1 cuadra del Monumento a San Martín',description:'Monoambiente equipamiento full, balcón a la calle, cochera opcional.',baseRate:56000,amenities:['Monoambiente','Equipamiento full','Balcón a la calle','Cochera opcional'],notes:'Perfil premium con buena tracción para estadías mensuales.',photos:['https://images.unsplash.com/photo-1460317442991-0ec209397118?auto=format&fit=crop&w=1200&q=80']}
+  ],
+  reservations:[
+    {id:crypto.randomUUID(),unitId:'u1',guestName:'María Gómez',contact:'maria.gomez@email.com',guestType:'particular',startDate:'2026-01-08',endDate:'2026-01-13',stayMode:'corta',parking:true,agreedRate:185000,status:'ocupado',notes:'Ingreso tardío coordinado.'},
+    {id:crypto.randomUUID(),unitId:'u2',guestName:'Estudio Delta SRL',contact:'compras@deltasrl.com',guestType:'empresa',startDate:'2026-02-03',endDate:'2026-02-24',stayMode:'media',parking:true,agreedRate:690000,status:'ocupado',notes:'Factura A.'},
+    {id:crypto.randomUUID(),unitId:'u3',guestName:'Luciano Pérez',contact:'+54 9 341 555 9898',guestType:'particular',startDate:'2026-02-10',endDate:'2026-03-12',stayMode:'mensual',parking:false,agreedRate:980000,status:'ocupado',notes:'Renovable según disponibilidad.'},
+    {id:crypto.randomUUID(),unitId:'u1',guestName:'Daniel Ibáñez',contact:'daniibanez@email.com',guestType:'particular',startDate:'2026-04-21',endDate:'2026-04-27',stayMode:'corta',parking:true,agreedRate:225000,status:'reservado',notes:'Confirmó seña.'},
+    {id:crypto.randomUUID(),unitId:'u3',guestName:'AgroNova SA',contact:'rrhh@agronova.com',guestType:'empresa',startDate:'2026-05-04',endDate:'2026-05-30',stayMode:'mensual',parking:true,agreedRate:1120000,status:'reservado',notes:'Posible extensión.'},
+    {id:crypto.randomUUID(),unitId:'u2',guestName:'Carolina Suárez',contact:'carosuarez@email.com',guestType:'particular',startDate:'2026-06-08',endDate:'2026-06-14',stayMode:'corta',parking:false,agreedRate:248000,status:'reservado',notes:'Llega por evento.'},
+    {id:crypto.randomUUID(),unitId:'u1',guestName:'Inés Barrios',contact:'inesb@email.com',guestType:'particular',startDate:'2025-12-14',endDate:'2025-12-20',stayMode:'corta',parking:true,agreedRate:210000,status:'ocupado',notes:'Ingreso autónomo.'}
+  ],
+  settings:defaultSettings
+};
+
+let state=loadLocal();
+const ui={view:'dashboard',month:new Date(new Date().getFullYear(),new Date().getMonth(),1),editId:null,range:preset('year'),dashboardOpen:{},unitEditorOpen:{},savedUnit:null,savedConfig:false,settingsOpen:{dashboard:true,reservas:false,calendario:false,unidades:false,metricas:false},openReservationMenu:null,adminConfigOpen:true};
+const charts={};
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function withDefaults(data){
+  const out=clone(seed);
+  if(data.units) out.units=data.units;
+  if(data.reservations) out.reservations=data.reservations;
+  out.settings={...defaultSettings,...(data.settings||{})};
+  out.settings.identity={...defaultSettings.identity,...((data.settings||{}).identity||{})};
+  out.settings.hero={...defaultSettings.hero,...((data.settings||{}).hero||{})};
+  out.settings.clientSite={...defaultSettings.clientSite,...((data.settings||{}).clientSite||{})};
+  out.settings.access={...defaultSettings.access,...((data.settings||{}).access||{})};
+  out.units=(out.units||[]).map((u,i)=>({...u,baseRate:Number(u.baseRate||seed.units[i]?.baseRate||45000)}));
+  out.settings.tabVisibility=clone(defaultTabVisibility);
+  const savedTabs=((data.settings||{}).tabVisibility)||{};
+  Object.keys(defaultTabVisibility).forEach(tab=>{out.settings.tabVisibility[tab]={...defaultTabVisibility[tab],...(savedTabs[tab]||{})};});
+  if((data.settings||{}).dashboardVisibility){
+    const old=data.settings.dashboardVisibility;
+    out.settings.tabVisibility.dashboard.heroBanner=old.hero ?? out.settings.tabVisibility.dashboard.heroBanner;
+    out.settings.tabVisibility.dashboard.heroBadges=old.heroBadges ?? out.settings.tabVisibility.dashboard.heroBadges;
+    out.settings.tabVisibility.dashboard.topStats=(old.freeToday||old.occupiedNow||old.nextIn||old.nextOut) ?? out.settings.tabVisibility.dashboard.topStats;
+    out.settings.tabVisibility.dashboard.unitsSection=old.unitsSection ?? out.settings.tabVisibility.dashboard.unitsSection;
+    out.settings.tabVisibility.dashboard.upcomingCheckouts=old.upcomingCheckouts ?? out.settings.tabVisibility.dashboard.upcomingCheckouts;
+    out.settings.tabVisibility.dashboard.upcomingCheckins=old.upcomingCheckins ?? out.settings.tabVisibility.dashboard.upcomingCheckins;
+  }
+  return out;
+}
+function loadLocal(){try{const raw=localStorage.getItem(KEY);if(raw)return withDefaults(JSON.parse(raw))}catch(e){} localStorage.setItem(KEY,JSON.stringify(seed)); return clone(seed)}
+function saveLocal(){localStorage.setItem(KEY,JSON.stringify(state))}
+async function loadFromFirestore(){
+  try{
+    const ref=doc(db,FIRESTORE_COLLECTION,FIRESTORE_DOC_ID);
+    const snap=await getDoc(ref);
+    if(snap.exists()){
+      const data=withDefaults(snap.data());
+      localStorage.setItem(KEY,JSON.stringify(data));
+      return data;
+    }
+    await setDoc(ref,JSON.parse(JSON.stringify(seed)));
+    localStorage.setItem(KEY,JSON.stringify(seed));
+    return clone(seed);
+  }catch(error){
+    console.error('Error cargando desde Firestore:',error);
+    return loadLocal();
+  }
+}
+let saveTimer=null;
+async function saveToFirestore(){
+  try{
+    const ref=doc(db,FIRESTORE_COLLECTION,FIRESTORE_DOC_ID);
+    await setDoc(ref,JSON.parse(JSON.stringify(state)));
+  }catch(error){
+    console.error('Error guardando en Firestore:',error);
+  }
+}
+function save(){
+  saveLocal();
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{saveToFirestore();},180);
+}
+const parse=v=>{const[a,b,c]=v.split('-').map(Number);return new Date(a,b-1,c)};
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const sod=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
+const add=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const days=(a,b)=>Math.max(1,Math.round((sod(b)-sod(a))/86400000)+1);
+const money=v=>new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximumFractionDigits:0}).format(Number(v||0));
+const pc=v=>`${Number(v||0).toFixed(1)}%`;
+const fmt=v=>parse(v).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+const short=v=>parse(v).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit'});
+const unit=id=>state.units.find(u=>u.id===id);
+const vis=(tab,key)=>state.settings.tabVisibility?.[tab]?.[key]!==false;
+const colorForUnit=id=>unitColors[Math.max(0,state.units.findIndex(u=>u.id===id))%unitColors.length];
+function reservationSearchText(r){const u=unit(r.unitId); return [r.guestName,u?.name||'',u?.address||'',r.startDate,r.endDate,r.stayMode,r.contact,r.notes].join(' ').toLowerCase()}
+function reservationMatches(r,q,uf){return (uf==='all'||r.unitId===uf) && (!q || reservationSearchText(r).includes(q));}
+function isHistoricalReservation(r){return parse(r.endDate)<sod(new Date())}
+function overlap(a1,a2,b1,b2){const s=a1>b1?a1:b1,e=a2<b2?a2:b2;return Math.max(0,Math.round((sod(e)-sod(s))/86400000)+1)}
+function derived(r){const t=sod(new Date()),s=parse(r.startDate),e=parse(r.endDate); if(t>=s&&t<=e) return 'ocupado'; if(t<s) return 'reservado'; return 'disponible'}
+function unitStatus(id){const rs=state.reservations.filter(r=>r.unitId===id); if(rs.some(r=>derived(r)==='ocupado')) return 'ocupado'; if(rs.some(r=>derived(r)==='reservado')) return 'reservado'; return 'disponible'}
+function occ(id,d){const r=state.reservations.find(x=>x.unitId===id&&parse(d)>=parse(x.startDate)&&parse(d)<=parse(x.endDate)); return r?derived(r):'disponible'}
+function preset(p){const n=new Date(); if(p==='month') return {start:new Date(n.getFullYear(),n.getMonth(),1),end:new Date(n.getFullYear(),n.getMonth()+1,0)}; if(p==='quarter'){const m=Math.floor(n.getMonth()/3)*3; return {start:new Date(n.getFullYear(),m,1),end:new Date(n.getFullYear(),m+3,0)}} return {start:new Date(n.getFullYear(),0,1),end:new Date(n.getFullYear(),11,31)}}
+function overlapping(s,e){return state.reservations.filter(r=>overlap(parse(r.startDate),parse(r.endDate),s,e)>0)}
+function revIn(r,s,e){const td=days(parse(r.startDate),parse(r.endDate)),od=overlap(parse(r.startDate),parse(r.endDate),s,e); return td?Number(r.agreedRate||0)*od/td:0}
+function nextMovementForUnit(id){
+  const today=sod(new Date());
+  const current=state.reservations.filter(r=>r.unitId===id && parse(r.endDate)>=today).sort((a,b)=>parse(a.startDate)-parse(b.startDate));
+  if(!current.length) return 'Sin movimientos próximos.';
+  const r=current[0];
+  if(parse(r.startDate)<=today && parse(r.endDate)>=today) return `Ocupada hasta ${fmt(r.endDate)} por ${r.guestName}.`;
+  return `Próxima entrada: ${fmt(r.startDate)} · ${r.guestName}.`;
+}
+
+function fillOptions(){
+  const currentReservations=$('#reservationsUnitFilter')?.value || 'all';
+  const currentCalendar=$('#calendarUnitFilter')?.value || 'all';
+  const currentSeries=$('#metricsIncomeSeries')?.value || 'total';
+  ['#reservationsUnitFilter','#calendarUnitFilter'].forEach(sel=>$(sel).innerHTML='<option value="all">Todas las unidades</option>');
+  $('#metricsIncomeSeries').innerHTML='<option value="total">Total combinado</option>';
+  state.units.forEach(u=>{
+    $('#reservationsUnitFilter').insertAdjacentHTML('beforeend',`<option value="${u.id}">${u.name}</option>`);
+    $('#calendarUnitFilter').insertAdjacentHTML('beforeend',`<option value="${u.id}">${u.name}</option>`);
+    $('#metricsIncomeSeries').insertAdjacentHTML('beforeend',`<option value="${u.id}">${u.name}</option>`);
+  });
+  $('#reservationsUnitFilter').value=state.units.some(u=>u.id===currentReservations)?currentReservations:'all';
+  $('#calendarUnitFilter').value=state.units.some(u=>u.id===currentCalendar)?currentCalendar:'all';
+  $('#metricsIncomeSeries').value=(currentSeries==='total' || state.units.some(u=>u.id===currentSeries))?currentSeries:'total';
+  const years=[...new Set(state.reservations.flatMap(r=>[parse(r.startDate).getFullYear(),parse(r.endDate).getFullYear()]))].sort((a,b)=>b-a);
+  $('#metricsQuarterYear').innerHTML='';
+  years.forEach(y=>$('#metricsQuarterYear').insertAdjacentHTML('beforeend',`<option value="${y}">${y}</option>`));
+  if(!years.includes(new Date().getFullYear())) $('#metricsQuarterYear').insertAdjacentHTML('afterbegin',`<option value="${new Date().getFullYear()}">${new Date().getFullYear()}</option>`);
+  $('#metricsQuarterYear').value=String(new Date().getFullYear());
+  $('#metricsStart').value=iso(ui.range.start);
+  $('#metricsEnd').value=iso(ui.range.end);
+}
+
+function renderBrand(){
+  $('#brandName').textContent=state.settings.identity.businessName;
+  $('#brandSubtitle').textContent=state.settings.identity.businessSubtitle;
+  $('#brandAvatar').textContent=(state.settings.identity.businessAvatar || 'DB').slice(0,4);
+}
+function renderHero(){
+  $('#heroSection').classList.toggle('hidden', !vis('dashboard','heroBanner'));
+  $('#heroTitle').textContent=state.settings.hero.title || defaultSettings.hero.title;
+  $('#heroText').textContent=state.settings.hero.subtitle || '';
+  $('#heroText').classList.toggle('hidden', !state.settings.hero.subtitle);
+  const badges=(state.settings.hero.badges||[]).filter(Boolean);
+  $('#heroBadges').innerHTML=badges.map(b=>`<span class="hero-badge">${b}</span>`).join('');
+  $('#heroBadges').classList.toggle('hidden', !vis('dashboard','heroBadges') || !badges.length);
+}
+function renderTop(){
+  const t=iso(new Date());
+  const free=state.units.filter(u=>occ(u.id,t)==='disponible').length;
+  const occNow=state.units.filter(u=>occ(u.id,t)==='ocupado').length;
+  const outs=[...state.reservations].filter(r=>parse(r.endDate)>=sod(new Date())).sort((a,b)=>parse(a.endDate)-parse(b.endDate))[0];
+  const ins=[...state.reservations].filter(r=>parse(r.startDate)>=sod(new Date())).sort((a,b)=>parse(a.startDate)-parse(b.startDate))[0];
+  const cards=[['Unidades libres hoy',free,`Sobre ${state.units.length} unidades disponibles.`],['Unidades ocupadas hoy',occNow,'Ocupación activa al día de hoy.'],['Próxima salida',outs?short(outs.endDate):'—',outs?`${outs.guestName} · ${unit(outs.unitId).name}`:'Sin salidas próximas'],['Próxima entrada',ins?short(ins.startDate):'—',ins?`${ins.guestName} · ${unit(ins.unitId).name}`:'Sin entradas próximas']];
+  $('#topStats').innerHTML=cards.map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="value">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('');
+  $('#topStats').classList.toggle('hidden', !vis('dashboard','topStats'));
+}
+
+function renderUnits(){
+  $('#dashboardUnitsCard').classList.toggle('hidden', !vis('dashboard','unitsSection'));
+  $('#unitGrid').innerHTML=state.units.map(u=>{
+    const open=!!ui.dashboardOpen[u.id];
+    return `<article class="unit-card-collapsible ${open?'open':''}">
+      <div class="unit-collapsible-head" onclick="toggleDashboardUnit('${u.id}')">
+        <div class="unit-collapsible-title">
+          <div class="unit-card-media"><img src="${u.photos[0]||''}" alt="${u.name}"></div>
+          <strong>${u.name}</strong>
+          <div class="sub">${u.address}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="badge ${unitStatus(u.id)}">${unitStatus(u.id)}</span>
+          <span class="chevron"></span>
+        </div>
+      </div>
+      <div class="collapse">
+        <div class="collapse-inner">
+          <div class="unit-collapsible-body">
+            <div class="sub">${u.description||'Sin descripción.'}</div>
+            <div class="chips">${(u.amenities||[]).map(a=>`<span class="chip">${a}</span>`).join('') || '<span class="chip">Sin amenities</span>'}</div>
+            <div class="unit-next">${nextMovementForUnit(u.id)}</div>
+            <div class="toolbar">
+              <button class="btn dark small" onclick="event.stopPropagation(); openReservation('${u.id}')">Agregar reserva</button>
+              <button class="btn light small" onclick="event.stopPropagation(); switchView('unidades')">Editar unidad</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+  $('#clientUnitsGrid').innerHTML=units;
+  const selected=getClientSelectedUnit();
+  $('#clientUnitsFooter').innerHTML=selected?`<button class="btn dark" type="button" onclick="focusClientSummary()">Continuar con ${selected.name}</button>`:'';
+}
+
+function renderUpcoming(){
+  $('#upcomingCheckoutsCard').classList.toggle('hidden', !vis('dashboard','upcomingCheckouts'));
+  $('#upcomingCheckinsCard').classList.toggle('hidden', !vis('dashboard','upcomingCheckins'));
+  const t=sod(new Date());
+  const outs=[...state.reservations].filter(r=>parse(r.endDate)>=t).sort((a,b)=>parse(a.endDate)-parse(b.endDate)).slice(0,5);
+  const ins=[...state.reservations].filter(r=>parse(r.startDate)>=t).sort((a,b)=>parse(a.startDate)-parse(b.startDate)).slice(0,5);
+  const build=arr=>arr.length?arr.map(r=>`<div class="item"><strong>${r.guestName}</strong><div class="sub">${unit(r.unitId).name} · ${fmt(r.startDate)} al ${fmt(r.endDate)}</div><div class="sub">Tarifa acordada: ${money(r.agreedRate)} · ${r.parking?'Con cochera':'Sin cochera'}</div></div>`).join(''):'<div class="empty">Sin movimientos próximos.</div>';
+  $('#upcomingCheckouts').innerHTML=build(outs);
+  $('#upcomingCheckins').innerHTML=build(ins);
+}
+function buildReservationCard(r){
+  const u=unit(r.unitId);
+  const menuOpen=ui.openReservationMenu===r.id;
+  return `<article class="rescard"><div class="restop"><div><strong>${r.guestName}</strong><div class="sub">${u.name} · ${u.address}</div><div class="sub">${fmt(r.startDate)} al ${fmt(r.endDate)} · ${days(parse(r.startDate),parse(r.endDate))} días</div><div class="inline-meta"><span class="meta-pill">${r.contact}</span><span class="meta-pill">${r.guestType}</span><span class="meta-pill">${r.stayMode}</span><span class="meta-pill">${r.parking?'Con cochera':'Sin cochera'}</span></div></div><div style="display:flex;align-items:flex-start;gap:10px"><span class="badge ${derived(r)}">${derived(r)}</span><div class="actions-menu-wrap"><button class="menu-trigger" type="button" onclick="toggleReservationMenu(event,'${r.id}')">⋮</button>${menuOpen?`<div class="context-menu" data-menu-id="${r.id}"><button type="button" onclick="editReservation('${r.id}')">Editar</button><button type="button" class="delete" onclick="deleteReservation('${r.id}')">Eliminar</button></div>`:''}</div></div></div><div class="sub">Tarifa acordada: <strong>${money(r.agreedRate)}</strong></div><div class="sub">Notas internas: ${r.notes||'Sin notas.'}</div></article>`;
+}
+function renderReservations(){
+  const f=$('#reservationsUnitFilter').value||'all';
+  const q=($('#reservationsSearch')?.value||'').trim().toLowerCase();
+  const filtered=[...state.reservations].filter(r=>reservationMatches(r,q,f)).sort((a,b)=>parse(a.startDate)-parse(b.startDate));
+  const active=filtered.filter(r=>!isHistoricalReservation(r));
+  const history=filtered.filter(r=>isHistoricalReservation(r)).sort((a,b)=>parse(b.startDate)-parse(a.startDate));
+  $('#reservationsSearchRow').classList.toggle('hidden', !vis('reservas','searchBar'));
+  $('#reservationsUnitFilter').classList.toggle('hidden', !vis('reservas','unitFilter'));
+  $('#newReservationBtn2').classList.toggle('hidden', !vis('reservas','newReservationBtn'));
+  $('#historyReservationsBlock').classList.toggle('hidden', !vis('reservas','historicalList'));
+  $('#reservationsList').innerHTML=active.length?active.map(buildReservationCard).join(''):'<div class="empty">No hay reservas activas o futuras para ese filtro.</div>';
+  $('#historyList').innerHTML=history.length?history.map(buildReservationCard).join(''):'<div class="empty">No hay reservas históricas para ese filtro.</div>';
+}
+function renderCalendar(){
+  const sel=$('#calendarUnitFilter').value||'all', ms=new Date(ui.month.getFullYear(),ui.month.getMonth(),1);
+  const isSingle=sel!=='all';
+  const compactMobile=window.innerWidth<=920;
+  const weekdayLabels=window.innerWidth<=560 ? ['L','M','X','J','V','S','D'] : ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  $('#calendarUnitFilter').classList.toggle('hidden', !vis('calendario','unitSelector'));
+  ['#prevMonthBtn','#currentMonthBtn','#nextMonthBtn'].forEach(id=>$(id).classList.toggle('hidden', !vis('calendario','monthNavigation')));
+  $('#calendarLegend').classList.toggle('hidden', !vis('calendario','colorLegend'));
+  $('#calendarLegend').innerHTML=state.units.map(u=>`<div class="legend-item"><span class="legend-swatch" style="background:${colorForUnit(u.id)}"></span>${u.name}</div>`).join('');
+  const buildMonth=(units,title,subtitle)=>{
+    const first=new Date(ms); first.setDate(first.getDate()-((first.getDay()+6)%7));
+    let cells='';
+    for(let i=0;i<42;i++){
+      const c=add(first,i), d=iso(c), im=c.getMonth()===ms.getMonth();
+      const entries=units.flatMap(u=>state.reservations
+        .filter(r=>r.unitId===u.id && parse(d)>=parse(r.startDate) && parse(d)<=parse(r.endDate))
+        .map(r=>({u,r}))
+      );
+      const limit=compactMobile ? 1 : 3;
+      const blocks=entries.length
+        ? entries.slice(0,limit).map(({u,r})=>{
+            const shortUnit=(u.name||'Unidad').replace('Unidad ','U');
+            const guest=(r.guestName||'Reserva').split(' ')[0];
+            const label=isSingle ? guest.slice(0,compactMobile?8:12) : shortUnit;
+            return `<span class="day-chip ${parse(r.endDate)<sod(new Date())?'past':''}" style="background:${colorForUnit(u.id)}" title="${u.name} · ${r.guestName}"><span>${label}</span></span>`;
+          }).join('') + (entries.length>limit ? `<span class="day-chip" style="background:var(--primary-2)" title="${entries.length} reservas"><span>+${entries.length-limit}</span></span>` : '')
+        : '';
+      cells+=`<div class="day ${compactMobile?'compact-mobile':''} ${im?'':'out'}"><div class="daynum">${c.getDate()}</div><div class="day-reservations">${blocks || `<span class="day-chip hidden"></span>`}</div></div>`;
+    }
+    return `<section class="card"><div class="panelhead"><div><h3>${title}</h3><div class="sub">${subtitle}</div></div><span class="badge darkbadge">${ms.toLocaleDateString('es-AR',{month:'long',year:'numeric'})}</span></div><div class="calendar-scroll"><div class="calendargrid ${compactMobile?'compact-mobile':''}">${weekdayLabels.map(x=>`<div class="dow">${x}</div>`).join('')}${cells}</div></div></section>`;
+  };
+  if(sel==='all'){
+    $('#calendarViews').innerHTML=buildMonth(state.units,'Todas las unidades','Reservas pasadas y futuras visibles por unidad y día.');
+  } else {
+    const u=state.units.find(x=>x.id===sel);
+    $('#calendarViews').innerHTML=u?buildMonth([u],u.name,u.address):'';
+  }
+}
+
+function renderUnitsEditor(){
+  $('#unitsCountPill').textContent=`${state.units.length} unidades activas`;
+  $('#addUnitBtn').classList.toggle('hidden', !vis('unidades','addUnitBtn'));
+  $('#unitsEditor').innerHTML=state.units.map(u=>{
+    const open=ui.unitEditorOpen[u.id] ?? false;
+    const saved=ui.savedUnit===u.id;
+    return `<article class="unit-editor-card ${open?'open':''}">
+      <div class="unit-editor-head" onclick="toggleUnitEditor('${u.id}')">
+        <div class="unit-editor-title">
+          <strong>${u.name || 'Nueva unidad'}</strong>
+          <div class="sub">${u.address || 'Sin dirección cargada'}</div>
+        </div>
+        <div class="unit-toolbar" onclick="event.stopPropagation()">
+          <button class="btn small ${saved?'save-feedback':'dark'}" onclick="saveUnit('${u.id}')">${saved?'Guardado ✓':'Guardar cambios'}</button>
+          <button class="btn small delete-btn" onclick="deleteUnit('${u.id}')">Eliminar unidad</button>
+          <span class="chevron"></span>
+        </div>
+      </div>
+      <div class="collapse">
+        <div class="collapse-inner">
+          <div style="padding:0 18px 18px">
+            <div class="formgrid">
+              <div><label>Nombre</label><input class="input" id="u-name-${u.id}" value="${escapeHtml(u.name||'')}"></div>
+              <div><label>Dirección</label><input class="input" id="u-address-${u.id}" value="${escapeHtml(u.address||'')}"></div>
+              <div><label>Subtítulo</label><input class="input" id="u-subtitle-${u.id}" value="${escapeHtml(u.subtitle||'')}"></div>
+              <div><label>Tarifa base por noche</label><input class="input" type="number" id="u-rate-${u.id}" value="${Number(u.baseRate||0)}"></div>
+              <div class="unit-photo-field ${vis('unidades','photoFields')?'':'hidden'}"><label>Foto principal URL</label><input class="input" id="u-photo-${u.id}" value="${escapeHtml((u.photos&&u.photos[0])||'')}"></div>
+              <div class="full"><label>Descripción</label><textarea class="textarea" id="u-description-${u.id}">${escapeHtml(u.description||'')}</textarea></div>
+              <div class="full unit-amenities-field ${vis('unidades','amenitiesFields')?'':'hidden'}"><label>Amenities separados por coma</label><input class="input" id="u-amenities-${u.id}" value="${escapeHtml((u.amenities||[]).join(', '))}"></div>
+              <div class="full"><label>Observaciones</label><textarea class="textarea" id="u-notes-${u.id}">${escapeHtml(u.notes||'')}</textarea></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+function renderConfig(){
+  const s=state.settings;
+  $('#cfgBusinessName').value=s.identity.businessName;
+  $('#cfgBusinessSubtitle').value=s.identity.businessSubtitle;
+  $('#cfgBusinessAvatar').value=s.identity.businessAvatar;
+  $('#cfgHeroTitle').value=s.hero.title || defaultSettings.hero.title;
+  $('#cfgHeroSubtitle').value=s.hero.subtitle || '';
+  $('#cfgHeroBadge1').value=s.hero.badges?.[0] || '';
+  $('#cfgHeroBadge2').value=s.hero.badges?.[1] || '';
+  $('#cfgHeroBadge3').value=s.hero.badges?.[2] || '';
+  $('#cfgHeroSubtitle').closest('.full').classList.remove('hidden');
+  $('#cfgHeroBadge1').closest('div').classList.remove('hidden');
+  $('#cfgHeroBadge2').closest('div').classList.remove('hidden');
+  $('#cfgHeroBadge3').closest('.full').classList.remove('hidden');
+  $('#cfgClientEyebrow').value=s.clientSite.eyebrow || defaultSettings.clientSite.eyebrow;
+  $('#cfgClientTitle').value=s.clientSite.title || defaultSettings.clientSite.title;
+  $('#cfgClientSubtitle').value=s.clientSite.subtitle || defaultSettings.clientSite.subtitle;
+  $('#cfgClientBadge1').value=s.clientSite.badge1 || defaultSettings.clientSite.badge1;
+  $('#cfgClientBadge2').value=s.clientSite.badge2 || defaultSettings.clientSite.badge2;
+  $('#cfgClientBadge3').value=s.clientSite.badge3 || defaultSettings.clientSite.badge3;
+  $('#cfgWhatsappPhone').value=s.clientSite.whatsappPhone || defaultSettings.clientSite.whatsappPhone;
+  $('#cfgWhatsappTemplate').value=s.clientSite.whatsappTemplate || defaultSettings.clientSite.whatsappTemplate;
+  $('#cfgAdminPin').value=s.access.adminPin || defaultSettings.access.adminPin;
+  const base=location.origin + location.pathname.replace(/[^/]*$/, '');
+  $('#cfgClientUrl').value=base + 'index_clientes_mejorado.html';
+  $('#cfgAdminUrl').value=base + 'admin.html';
+  const configMap={
+    dashboard:{title:'Inicio',items:[['heroBanner','Hero banner','Bloque superior principal.'],['heroBadges','Badges del hero','Pills del hero.'],['topStats','Estadísticas superiores','Tarjetas resumen del inicio.'],['unitsSection','Sección de unidades','Panel principal de unidades.'],['upcomingCheckouts','Próximas salidas','Bloque lateral de agenda.'],['upcomingCheckins','Próximas entradas','Bloque lateral de agenda.']]},
+    reservas:{title:'Reservas',items:[['searchBar','Buscador','Barra de búsqueda general.'],['unitFilter','Filtro por unidad','Selector de unidad.'],['newReservationBtn','Botón nueva reserva','Acceso rápido para crear.'],['historicalList','Listado histórico','Historial de huéspedes debajo de activas.']]},
+    calendario:{title:'Calendario',items:[['unitSelector','Selector de unidad','Filtro por unidad o todas.'],['colorLegend','Leyenda de colores','Referencias por unidad.'],['monthNavigation','Navegación de meses','Botones anterior, hoy y siguiente.']]},
+    unidades:{title:'Unidades',items:[['addUnitBtn','Botón agregar unidad','Alta rápida de unidades.'],['photoFields','Campos de fotos','Inputs de URL de fotos.'],['amenitiesFields','Campos de amenities','Edición de amenities.']]},
+    metricas:{title:'Métricas',items:[['filters','Filtros superiores','Rango, serie y vista trimestral.'],['executiveCards','Tarjetas ejecutivas','KPIs superiores de métricas.']]}
+  };
+  $('#visibilitySettings').innerHTML=Object.entries(configMap).map(([tab,conf])=>{
+    const open=!!ui.settingsOpen[tab];
+    return `<section class="settings-section ${open?'open':''}"><div class="settings-head" onclick="toggleSettingsSection('${tab}')"><div><strong>${conf.title}</strong><div class="sub">Configuración de visibilidad de la pestaña ${conf.title.toLowerCase()}.</div></div><span class="chevron"></span></div><div class="collapse"><div class="collapse-inner"><div class="settings-body"><div class="setting-list">${conf.items.map(([key,title,desc])=>`<div class="toggle-row"><div class="toggle-label"><strong>${title}</strong><div class="sub">${desc}</div></div><label class="switch"><input type="checkbox" data-tab="${tab}" data-vis-key="${key}" ${vis(tab,key)?'checked':''}><span class="slider"></span></label></div>`).join('')}</div></div></div></div></section>`;
+  }).join('');
+}
+
+function mdata(s,e){
+  const ov=overlapping(s,e), totalDays=(Math.round((sod(e)-sod(s))/86400000)+1)*state.units.length, occDays=ov.reduce((n,r)=>n+overlap(parse(r.startDate),parse(r.endDate),s,e),0), rangeRev=ov.reduce((n,r)=>n+revIn(r,s,e),0), avg=ov.length?rangeRev/ov.length:0, pm=preset('month'), pq=preset('quarter'), py=preset('year');
+  const monthRev=overlapping(pm.start,pm.end).reduce((n,r)=>n+revIn(r,pm.start,pm.end),0), quarterRev=overlapping(pq.start,pq.end).reduce((n,r)=>n+revIn(r,pq.start,pq.end),0), yearRev=overlapping(py.start,py.end).reduce((n,r)=>n+revIn(r,py.start,py.end),0);
+  const per=state.units.map(u=>{const rs=ov.filter(r=>r.unitId===u.id), d=rs.reduce((n,r)=>n+overlap(parse(r.startDate),parse(r.endDate),s,e),0), rv=rs.reduce((n,r)=>n+revIn(r,s,e),0), wd=Math.round((sod(e)-sod(s))/86400000)+1; return {u,res:rs.length,days:d,pct:wd?d/wd*100:0,rev:rv}});
+  const mostBook=[...per].sort((a,b)=>b.res-a.res||b.days-a.days)[0], mostRev=[...per].sort((a,b)=>b.rev-a.rev)[0];
+  const months=[], base=new Date(new Date().getFullYear(),new Date().getMonth()-11,1);
+  for(let i=0;i<12;i++){
+    const a=new Date(base.getFullYear(),base.getMonth()+i,1), b=new Date(base.getFullYear(),base.getMonth()+i+1,0), rs=overlapping(a,b), total=rs.reduce((n,r)=>n+revIn(r,a,b),0), od=rs.reduce((n,r)=>n+overlap(parse(r.startDate),parse(r.endDate),a,b),0), by={};
+    state.units.forEach(u=>by[u.id]=rs.filter(r=>r.unitId===u.id).reduce((n,r)=>n+revIn(r,a,b),0));
+    months.push({label:a.toLocaleDateString('es-AR',{month:'short',year:'2-digit'}),total,occPct:od/((((sod(b)-sod(a))/86400000)+1)*state.units.length)*100,by});
+  }
+  const best=[...months].sort((a,b)=>b.total-a.total)[0], high=[...months].sort((a,b)=>b.occPct-a.occPct)[0], low=[...months].sort((a,b)=>a.total-b.total)[0];
+  const type={particular:ov.filter(r=>r.guestType==='particular').length,empresa:ov.filter(r=>r.guestType==='empresa').length}, stay={corta:ov.filter(r=>r.stayMode==='corta').length,media:ov.filter(r=>r.stayMode==='media').length,mensual:ov.filter(r=>r.stayMode==='mensual').length};
+  const guests={}; state.reservations.forEach(r=>{const k=r.guestName.toLowerCase(); if(!guests[k]) guests[k]={name:r.guestName,type:r.guestType,count:0,total:0}; guests[k].count++; guests[k].total+=Number(r.agreedRate||0)});
+  const ranking=Object.values(guests).sort((a,b)=>b.total-a.total), recurrent=ranking.filter(g=>g.count>1).length, fresh=ranking.filter(g=>g.count===1).length;
+  const yy=Number($('#metricsQuarterYear').value||new Date().getFullYear());
+  const quarters=[1,2,3,4].map(k=>{const a=new Date(yy,(k-1)*3,1),b=new Date(yy,(k-1)*3+3,0),rs=overlapping(a,b),rv=rs.reduce((n,r)=>n+revIn(r,a,b),0),od=rs.reduce((n,r)=>n+overlap(parse(r.startDate),parse(r.endDate),a,b),0); return {q:'Q'+k,rv,pct:od/((((sod(b)-sod(a))/86400000)+1)*state.units.length)*100}});
+  const heat=[]; for(let d=new Date(yy,0,1);d<=new Date(yy,11,31);d=add(d,1)){const z=iso(d), os=state.units.filter(u=>occ(u.id,z)!=='disponible').length, inc=state.reservations.filter(r=>parse(z)>=parse(r.startDate)&&parse(z)<=parse(r.endDate)).reduce((n,r)=>n+Number(r.agreedRate||0)/days(parse(r.startDate),parse(r.endDate)),0); heat.push({z,row:(d.getDay()+6)%7,lev:Math.min(4,os===0?0:os===1?1:os===2?2:4),inc})}
+  const garage=state.units.map(u=>{const rs=state.reservations.filter(r=>r.unitId===u.id), wp=rs.filter(r=>r.parking).length; return {u,pctg:rs.length?wp/rs.length*100:0,wp,impact:wp>0?'Mejora la ocupación':'Sin efecto claro'}});
+  const proj=months.slice(-3).reduce((n,m)=>n+m.total,0)/Math.max(1,months.slice(-3).length), alerts=[];
+  state.units.forEach(u=>{const fr=state.reservations.filter(r=>r.unitId===u.id&&parse(r.startDate)>=sod(new Date())).sort((a,b)=>parse(a.startDate)-parse(b.startDate)); if(!fr.length) alerts.push(`La ${u.name} no tiene reservas futuras cargadas.`); else {const gap=Math.round((sod(parse(fr[0].startDate))-sod(new Date()))/86400000); if(gap>7) alerts.push(`La ${u.name} tiene ${gap} días sin reservas por delante.`)}});
+  return {monthRev,quarterRev,yearRev,occPct:totalDays?occDays/totalDays*100:0,avg,per,mostBook,mostRev,months,best,high,low,type,stay,ranking,recurrent,fresh,quarters,heat,garage,proj,alerts,rangeRev};
+}
+function setChart(key,id,cfg){
+  if(charts[key]) charts[key].destroy();
+  const isMobile=window.innerWidth<=920;
+  const base={
+    responsive:true,
+    maintainAspectRatio:false,
+    animation:false,
+    layout:{padding:{top:4,right:isMobile?6:10,bottom:4,left:isMobile?2:6}},
+    plugins:{
+      legend:{
+        position:'bottom',
+        align:'start',
+        labels:{boxWidth:isMobile?12:18,boxHeight:isMobile?12:18,padding:isMobile?10:16,font:{size:isMobile?10:12}}
+      },
+      tooltip:{enabled:true}
+    },
+    scales:{
+      x:{ticks:{font:{size:isMobile?10:12},maxRotation:isMobile?0:30,minRotation:0,autoSkip:true},grid:{display:!isMobile}},
+      y:{ticks:{font:{size:isMobile?10:12}},grid:{color:'rgba(48,52,88,.12)'}}
+    }
+  };
+  const options={...(base||{}),...((cfg&&cfg.options)||{})};
+  options.plugins={...(base.plugins||{}),...((cfg.options&&cfg.options.plugins)||{})};
+  options.plugins.legend={...(base.plugins.legend||{}),...((cfg.options&&cfg.options.plugins&&cfg.options.plugins.legend)||{})};
+  options.plugins.legend.labels={...(base.plugins.legend.labels||{}),...((cfg.options&&cfg.options.plugins&&cfg.options.plugins.legend&&cfg.options.plugins.legend.labels)||{})};
+  options.scales={...(base.scales||{}),...((cfg.options&&cfg.options.scales)||{})};
+  if(options.scales.x) options.scales.x={...(base.scales.x||{}),...(options.scales.x||{}),ticks:{...(base.scales.x.ticks||{}),...((options.scales.x&&options.scales.x.ticks)||{})},grid:{...(base.scales.x.grid||{}),...((options.scales.x&&options.scales.x.grid)||{})}};
+  if(options.scales.y) options.scales.y={...(base.scales.y||{}),...(options.scales.y||{}),ticks:{...(base.scales.y.ticks||{}),...((options.scales.y&&options.scales.y.ticks)||{})},grid:{...(base.scales.y.grid||{}),...((options.scales.y&&options.scales.y.grid)||{})}};
+  charts[key]=new Chart(document.getElementById(id),{...cfg,options});
+}
+function renderMetrics(){
+  const d=mdata(ui.range.start,ui.range.end);
+  $('#metricsExecutiveCards').classList.toggle('hidden', !vis('metricas','executiveCards'));
+  document.querySelector('#view-metricas .filterbar').classList.toggle('hidden', !vis('metricas','filters'));
+  $('#metricsExecutiveCards').innerHTML=[['Total recaudado en el mes actual',money(d.monthRev),'Mes calendario actual'],['Total recaudado en el trimestre actual',money(d.quarterRev),'Trimestre calendario actual'],['Total recaudado en el año actual',money(d.yearRev),'Año calendario actual'],['Tasa de ocupación global',pc(d.occPct),'Días ocupados vs disponibles'],['Ingreso promedio por reserva',money(d.avg),'Promedio del rango seleccionado']].map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="value" style="font-size:28px">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('');
+  $('#mostBookedBadge').textContent=`Unidad más reservada: ${d.mostBook?.u?.name||'—'}`;
+  $('#mostProfitableBadge').textContent=`Unidad más rentable: ${d.mostRev?.u?.name||'—'}`;
+  setChart('u','unitPerformanceChart',{type:'bar',data:{labels:d.per.map(x=>x.u.name),datasets:[{label:'Reservas',data:d.per.map(x=>x.res),backgroundColor:'#0D1B2A'},{label:'Días ocupados',data:d.per.map(x=>x.days),backgroundColor:'#6e89a0'},{label:'Ingresos / 1000',data:d.per.map(x=>Math.round(x.rev/1000)),backgroundColor:'#c7a36b'}]},options:{plugins:{legend:{position:'bottom'}}}});
+  $('#unitSummaryTable').innerHTML=d.per.map(x=>`<tr><td>${x.u.name}</td><td>${x.res}</td><td>${x.days}</td><td>${pc(x.pct)}</td><td>${money(x.rev)}</td></tr>`).join('');
+  const sk=$('#metricsIncomeSeries').value||'total';
+  setChart('i','incomeTrendChart',{type:'line',data:{labels:d.months.map(m=>m.label),datasets:[{label:sk==='total'?'Ingresos totales':`Ingresos ${unit(sk).name}`,data:d.months.map(m=>sk==='total'?Math.round(m.total):Math.round(m.by[sk]||0)),borderColor:'#0D1B2A',backgroundColor:'rgba(13,27,42,.1)',tension:.35,fill:true}]},options:{plugins:{legend:{position:'bottom'}}}});
+  setChart('o','occupancyMonthChart',{type:'bar',data:{labels:d.months.map(m=>m.label),datasets:[{label:'% ocupación',data:d.months.map(m=>Number(m.occPct.toFixed(1))),backgroundColor:'#20425a'}]},options:{plugins:{legend:{position:'bottom'}}}});
+  $('#temporalHighlights').innerHTML=[['Mes más rentable',d.best?.label||'—',d.best?money(d.best.total):'Sin datos'],['Mes con mayor ocupación',d.high?.label||'—',d.high?pc(d.high.occPct):'Sin datos'],['Mes más flojo',d.low?.label||'—',d.low?money(d.low.total):'Sin datos']].map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="value" style="font-size:26px">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('');
+  setChart('q','quarterChart',{type:'bar',data:{labels:d.quarters.map(x=>x.q),datasets:[{label:'Ingresos / 1000',data:d.quarters.map(x=>Math.round(x.rv/1000)),backgroundColor:'#c7a36b'},{label:'% ocupación',data:d.quarters.map(x=>Number(x.pct.toFixed(1))),backgroundColor:'#0D1B2A'}]},options:{plugins:{legend:{position:'bottom'}}}});
+  setChart('gt','guestTypeChart',{type:'doughnut',data:{labels:['Particulares','Empresas'],datasets:[{data:[d.type.particular,d.type.empresa],backgroundColor:['#20425a','#c7a36b']}]},options:{plugins:{legend:{position:'bottom'}}}});
+  setChart('st','stayModeChart',{type:'doughnut',data:{labels:['Corta','Media','Mensual recurrente'],datasets:[{data:[d.stay.corta,d.stay.media,d.stay.mensual],backgroundColor:['#0D1B2A','#6e89a0','#c7a36b']}]},options:{plugins:{legend:{position:'bottom'}}}});
+  $('#guestHighlights').innerHTML=[['Huéspedes recurrentes',d.recurrent,'Con más de una reserva histórica'],['Huéspedes nuevos',d.fresh,'Con una sola reserva registrada'],['Top gastador',d.ranking[0]?.name||'—',d.ranking[0]?money(d.ranking[0].total):'Sin datos']].map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="value" style="font-size:24px">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('');
+  $('#guestRankingTable').innerHTML=d.ranking.slice(0,5).map(g=>`<tr><td>${g.name}</td><td>${g.count}</td><td>${g.type}</td><td>${money(g.total)}</td></tr>`).join('');
+  $('#heatmapGrid').innerHTML=d.heat.map(h=>`<div class="heat h${h.lev}" style="grid-row:${h.row+1}" title="${fmt(h.z)} · ${money(h.inc)}"></div>`).join('');
+  $('#garageTable').innerHTML=d.garage.map(g=>`<tr><td>${g.u.name}</td><td>${pc(g.pctg)}</td><td>${g.wp}</td><td>${g.impact}</td></tr>`).join('');
+  $('#projectionCards').innerHTML=[['Ingreso esperado mes siguiente',money(d.proj),'Promedio simple de los últimos 3 meses'],['Rango filtrado',`${fmt(iso(ui.range.start))} a ${fmt(iso(ui.range.end))}`,'Filtro activo'],['Ingreso del rango activo',money(d.rangeRev),'Facturación estimada']].map(x=>`<div class="card metric"><div class="label">${x[0]}</div><div class="value" style="font-size:22px">${x[1]}</div><div class="sub">${x[2]}</div></div>`).join('');
+  $('#alertsList').innerHTML=d.alerts.length?d.alerts.map(a=>`<div class="alert">${a}</div>`).join(''):'<div class="empty">Sin alertas activas.</div>';
+  $('#metricsSummaryBox').textContent=['Resumen ejecutivo',`- Recaudación mes actual: ${money(d.monthRev)}`,`- Recaudación trimestre actual: ${money(d.quarterRev)}`,`- Recaudación año actual: ${money(d.yearRev)}`,`- Tasa de ocupación global: ${pc(d.occPct)}`,`- Ingreso promedio por reserva: ${money(d.avg)}`,'',`- Unidad más reservada: ${d.mostBook?.u?.name||'—'}`,`- Unidad más rentable: ${d.mostRev?.u?.name||'—'}`,`- Mes más rentable: ${d.best?.label||'—'}`,`- Mes con mayor ocupación: ${d.high?.label||'—'}`,`- Mes más flojo: ${d.low?.label||'—'}`,'',`- Ingreso esperado mes siguiente: ${money(d.proj)}`,'','Alertas',...d.alerts.map(a=>`- ${a}`)].join('\n');
+}
+
+function form(id){
+  const r=id?state.reservations.find(x=>x.id===id):null;
+  ui.editId=id||null;
+  $('#reservationTitle').textContent=r?'Editar reserva':'Nueva reserva';
+  const t=iso(new Date());
+  $('#reservationForm').innerHTML=`<div><label>Unidad</label><select class="select" name="unitId">${state.units.map(u=>`<option value="${u.id}" ${r?.unitId===u.id?'selected':''}>${u.name}</option>`).join('')}</select></div><div><label>Nombre del huésped</label><input class="input" name="guestName" value="${escapeHtml(r?.guestName||'')}" required></div><div><label>Contacto</label><input class="input" name="contact" value="${escapeHtml(r?.contact||'')}" required></div><div><label>Tipo</label><select class="select" name="guestType"><option value="particular" ${r?.guestType==='particular'?'selected':''}>Particular</option><option value="empresa" ${r?.guestType==='empresa'?'selected':''}>Empresa</option></select></div><div><label>Fecha de entrada</label><input class="input" type="date" name="startDate" value="${r?.startDate||t}" required></div><div><label>Fecha de salida</label><input class="input" type="date" name="endDate" value="${r?.endDate||t}" required></div><div><label>Modalidad</label><select class="select" name="stayMode"><option value="corta" ${r?.stayMode==='corta'?'selected':''}>Corta</option><option value="media" ${r?.stayMode==='media'?'selected':''}>Media</option><option value="mensual" ${r?.stayMode==='mensual'?'selected':''}>Mensual recurrente</option></select></div><div><label>Tarifa acordada</label><input class="input" type="number" name="agreedRate" value="${r?.agreedRate||''}" required></div><div><label>Monto abonado</label><input class="input" type="number" name="depositAmount" value="${Number(r?.depositAmount||0)}"></div><div><label>Método de pago</label><input class="input" name="paymentMethod" value="${escapeHtml(r?.paymentMethod||'Transferencia')}" ></div><div><label>Cochera</label><select class="select" name="parking"><option value="true" ${r?.parking?'selected':''}>Sí</option><option value="false" ${r&&!r.parking?'selected':''}>No</option></select></div><div><label>Estado</label><select class="select" name="status"><option value="reservado" ${r?.status==='reservado'?'selected':''}>Reservado</option><option value="ocupado" ${r?.status==='ocupado'?'selected':''}>Ocupado</option></select></div><div><label>Estado del pago</label><select class="select" name="paymentStatus"><option value="abonado" ${(r?.paymentStatus||'abonado')==='abonado'?'selected':''}>Abonado</option><option value="pendiente" ${r?.paymentStatus==='pendiente'?'selected':''}>Pendiente</option></select></div><div class="full"><label>Notas internas</label><textarea class="textarea" name="notes">${escapeHtml(r?.notes||'')}</textarea></div><div class="full toolbar"><button class="btn dark" type="submit">${r?'Guardar cambios':'Crear reserva'}</button><button class="btn light" type="button" onclick="closeLayer('reservationDrawer')">Cancelar</button></div>`;
+}
+
+function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;')}
+
+function calcStayNights(startDate,endDate){
+  if(!startDate || !endDate) return 0;
+  const a=parse(startDate), b=parse(endDate);
+  return Math.max(1, Math.round((sod(b)-sod(a))/86400000)+1);
+}
+function unitIsAvailable(unitId,startDate,endDate,excludeId=null){
+  if(!startDate || !endDate) return false;
+  const s=parse(startDate), e=parse(endDate);
+  if(e<s) return false;
+  return !state.reservations.some(r=>r.unitId===unitId && r.id!==excludeId && overlap(parse(r.startDate),parse(r.endDate),s,e)>0);
+}
+const clientUi={selectedUnitId:null};
+function getClientSelectedUnit(){return state.units.find(u=>u.id===clientUi.selectedUnitId) || null}
+function renderClientHero(){
+  const topbar=document.querySelector('.client-topbar');
+  if(topbar) topbar.classList.add('hidden');
+}
+function renderClientUnits(){
+  const startDate=$('#clientStartDate').value;
+  const endDate=$('#clientEndDate').value;
+  const guests=Number($('#clientGuestsCount').value||1);
+  const unitsSource=(Array.isArray(state.units) && state.units.length)?state.units:seed.units;
+  if(!unitsSource.length){
+    $('#clientUnitsGrid').innerHTML='<div class="empty">No hay unidades cargadas todavía.</div>';
+    return;
+  }
+  const cards=unitsSource.map(u=>{
+    const available=unitIsAvailable(u.id,startDate,endDate);
+    const nights=calcStayNights(startDate,endDate);
+    const total=nights * Number(u.baseRate||0);
+    return `<article class="client-unit-card">
+      <div class="client-unit-media"><img src="${u.photos?.[0]||''}" alt="${u.name}"></div>
+      <div>
+        <h3>${u.name}</h3>
+        <div class="sub">${u.subtitle||u.address||''}</div>
+      </div>
+      <div class="client-price">${money(u.baseRate||0)} <span style="font-size:13px;font-weight:700;color:var(--muted)">/ noche</span></div>
+      <div class="sub">${u.description||'Sin descripción.'}</div>
+      <div class="chips">${(u.amenities||[]).map(a=>`<span class="chip">${a}</span>`).join('') || '<span class="chip">Sin amenities</span>'}</div>
+      <div class="client-status-row">
+        <span class="badge ${available?'available':'occupied'}">${available?'Disponible':'No disponible'}</span>
+        <span class="meta-pill">${guests} ${guests===1?'persona':'personas'}</span>
+      </div>
+      <div class="sub">${nights>0?`Estadía estimada: ${nights} noches · Total ${money(total)}`:'Elegí fechas para calcular el total.'}</div>
+      <button class="btn ${available?'dark':'light'}" type="button" ${available?'':'disabled'} onclick="selectClientUnit('${u.id}')">${available?'Reservar esta unidad':'Sin disponibilidad'}</button>
+    </article>`;
+  }).join('');
+  $('#clientUnitsGrid').innerHTML=cards;
+}
+function renderClientSummary(){
+  const u=getClientSelectedUnit();
+  const startDate=$('#clientStartDate').value;
+  const endDate=$('#clientEndDate').value;
+  const nights=calcStayNights(startDate,endDate);
+  if(!u){
+    $('#clientSummaryCard')?.classList.remove('pinned-mobile');
+    $('#clientSummaryBox').innerHTML='<div class="empty">Elegí fechas, tocá una unidad disponible y el formulario aparecerá acá para continuar.</div>';
+    return;
+  }
+  const total=nights * Number(u.baseRate||0);
+  const summaryCard=$('#clientSummaryCard');
+  if(summaryCard && window.innerWidth<=920) summaryCard.classList.add('pinned-mobile');
+  $('#clientSummaryBox').innerHTML=`<div class="client-linkbox"><strong>${u.name}</strong><div class="sub">${u.address}</div></div>
+  <div class="client-linkbox"><strong>Fechas</strong><div class="sub">${fmt(startDate)} al ${fmt(endDate)}</div></div>
+  <div class="client-linkbox"><strong>Estadía</strong><div class="sub">${nights} noches</div></div>
+  <div class="client-linkbox"><strong>Total estimado</strong><div class="sub">${money(total)}</div></div>
+  <form id="clientBookingForm" class="formgrid">
+    <div><label>Nombre y apellido</label><input class="input" name="guestName" required></div>
+    <div><label>Contacto</label><input class="input" name="contact" required placeholder="WhatsApp o email"></div>
+    <div><label>Monto abonado</label><input class="input" type="number" name="depositAmount" value="${Math.round(total*0.3)}" required></div>
+    <div><label>Método de pago</label><select class="select" name="paymentMethod"><option value="Transferencia">Transferencia</option><option value="Efectivo">Efectivo</option><option value="Mercado Pago">Mercado Pago</option></select></div>
+    <div class="full"><label>Notas</label><textarea class="textarea" name="notes" placeholder="Horario de llegada, observaciones, etc."></textarea></div>
+    <div class="full toolbar"><button class="btn dark" type="submit">Confirmar y seguir por WhatsApp</button></div>
+  </form>`;
+  $('#clientBookingForm').addEventListener('submit',submitClientBooking);
+}
+function renderClientApp(){
+  renderClientHero();
+  renderClientUnits();
+  renderClientSummary();
+}
+function normalizeWhatsappNumber(value){
+  return String(value||'').replace(/\D/g,'');
+}
+function buildWhatsappTicket(reservation,u,nights,total){
+  const template=String(state.settings.clientSite.whatsappTemplate || defaultSettings.clientSite.whatsappTemplate || '').replace(/\r/g,'');
+  const values={
+    guestName:reservation.guestName || '',
+    contact:reservation.contact || '',
+    unitName:u?.name || '',
+    unitAddress:u?.address || '',
+    startDate:fmt(reservation.startDate),
+    endDate:fmt(reservation.endDate),
+    nights:String(nights||0),
+    total:money(total),
+    depositAmount:money(reservation.depositAmount || 0),
+    paymentMethod:reservation.paymentMethod || '',
+    notes:reservation.notes || 'Sin notas'
+  };
+  return template.replace(/\{(guestName|contact|unitName|unitAddress|startDate|endDate|nights|total|depositAmount|paymentMethod|notes)\}/g,(_,key)=>values[key]||'');
+}
+function openReservationWhatsapp(reservation,u,nights,total,targetWindow){
+  const phone=normalizeWhatsappNumber(state.settings.clientSite.whatsappPhone || defaultSettings.clientSite.whatsappPhone);
+  const message=buildWhatsappTicket(reservation,u,nights,total);
+  if(!phone){
+    if(targetWindow && !targetWindow.closed) targetWindow.close();
+    return false;
+  }
+  const url=`https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  try{
+    if(targetWindow && !targetWindow.closed){
+      targetWindow.location.replace(url);
+      return true;
+    }
+  }catch(error){}
+  try{
+    window.open(url,'_blank');
+    return true;
+  }catch(error){}
+  window.location.assign(url);
+  return true;
+}
+function focusClientSummary(){
+  const card=$('#clientSummaryCard');
+  if(!card) return;
+  card.classList.add('active-focus');
+  card.scrollIntoView({behavior:'smooth',block:'start'});
+  setTimeout(()=>card.classList.remove('active-focus'),1600);
+}
+function selectClientUnit(id){
+  clientUi.selectedUnitId=id;
+  renderClientSummary();
+  renderClientUnits();
+  focusClientSummary();
+}
+window.selectClientUnit=selectClientUnit;
+async function submitClientBooking(e){
+  e.preventDefault();
+  const u=getClientSelectedUnit();
+  const startDate=$('#clientStartDate').value;
+  const endDate=$('#clientEndDate').value;
+  if(!u) return alert('Seleccioná una unidad.');
+  if(!unitIsAvailable(u.id,startDate,endDate)) return alert('La unidad ya no está disponible en esas fechas.');
+  const fd=new FormData(e.target);
+  const nights=calcStayNights(startDate,endDate);
+  const total=nights * Number(u.baseRate||0);
+  const submitBtn=e.target.querySelector('button[type="submit"]');
+  const phone=normalizeWhatsappNumber(state.settings.clientSite.whatsappPhone || defaultSettings.clientSite.whatsappPhone);
+  const pendingWindow=phone ? window.open('about:blank','_blank') : null;
+  if(submitBtn){ submitBtn.disabled=true; submitBtn.textContent='Guardando...'; }
+  const reservation={
+    id:crypto.randomUUID(),
+    unitId:u.id,
+    guestName:String(fd.get('guestName')).trim(),
+    contact:String(fd.get('contact')).trim(),
+    guestType:'particular',
+    startDate,
+    endDate,
+    stayMode:nights>=28?'mensual':nights>=8?'media':'corta',
+    agreedRate:total,
+    parking:false,
+    status:'reservado',
+    notes:String(fd.get('notes')||'').trim(),
+    source:'cliente',
+    paymentStatus:'abonado',
+    paymentMethod:String(fd.get('paymentMethod')||'Transferencia'),
+    depositAmount:Number(fd.get('depositAmount')||0),
+    createdAt:new Date().toISOString()
+  };
+  try{
+    state.reservations.push(reservation);
+    saveLocal();
+    await saveToFirestore();
+    clientUi.selectedUnitId=null;
+    renderAll();
+    const redirected=openReservationWhatsapp(reservation,u,nights,total,pendingWindow);
+    if(!redirected){
+      alert('El propietario aún no configuró el número de WhatsApp. Comunicate directamente para confirmar tu reserva.');
+    }
+  }catch(error){
+    if(pendingWindow && !pendingWindow.closed) pendingWindow.close();
+    console.error('Error guardando la reserva:',error);
+    alert('No se pudo guardar la reserva. Intentá nuevamente.');
+  }finally{
+    if(submitBtn){ submitBtn.disabled=false; submitBtn.textContent='Confirmar y seguir por WhatsApp'; }
+  }
+}
+function setAdminNavigationVisible(visible){
+  const tabbar=document.querySelector('.tabbar');
+  if(tabbar) tabbar.classList.toggle('hidden', !visible);
+  const sidebar=document.querySelector('.sidebar');
+  if(sidebar) sidebar.classList.toggle('hidden', !visible);
+}
+
+
+function applyModeChrome(mode){
+  const adminApp=document.querySelector('.app');
+  const mobileTab=document.querySelector('.tabbar');
+  if(mode==='admin'){
+    if(adminApp) adminApp.classList.remove('hidden');
+    if(mobileTab) mobileTab.classList.remove('hidden');
+  }else{
+    if(adminApp) adminApp.classList.add('hidden');
+    if(mobileTab) mobileTab.classList.add('hidden');
+  }
+}
+
+function showPortalMode(){
+  setAdminNavigationVisible(false);
+  applyModeChrome('portal');
+  $('#modeGateway').classList.toggle('hidden', APP_MODE!=='portal');
+  $('#adminLogin').classList.add('hidden');
+  $('#clientApp').classList.add('hidden');
+}
+function showClientMode(){
+  setAdminNavigationVisible(false);
+  applyModeChrome('cliente');
+  $('#modeGateway').classList.add('hidden');
+  $('#adminLogin').classList.add('hidden');
+  $('#clientApp').classList.remove('hidden');
+  if(!$('#clientStartDate').value){
+    const today=iso(new Date());
+    $('#clientStartDate').value=today;
+    $('#clientEndDate').value=iso(add(new Date(),2));
+  }
+  renderClientApp();
+}
+function showAdminMode(){
+  setAdminNavigationVisible(true);
+  $('#modeGateway').classList.add('hidden');
+  $('#clientApp').classList.add('hidden');
+  const ok=sessionStorage.getItem('departamentos_admin_auth')==='1';
+  if(ok){
+    applyModeChrome('admin');
+    $('#adminLogin').classList.add('hidden');
+    renderAll();
+  }else{
+    applyModeChrome('portal');
+    $('#adminLogin').classList.remove('hidden');
+  }
+}
+
+function renderAll(){fillOptions(); renderBrand(); renderHero(); renderTop(); renderUnits(); renderUpcoming(); renderReservations(); renderCalendar(); renderUnitsEditor(); renderConfig(); renderMetrics(); if(APP_MODE==='cliente') renderClientApp();}
+function switchView(v){
+  ui.view=v; $$('.views').forEach(x=>x.classList.remove('active')); $('#view-'+v).classList.add('active');
+  $$('.nav button,.tabbar button').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  const t={dashboard:['Gestión boutique con claridad total','Visualizá unidades, reservas próximas y estado general de la operación.'],reservas:['Reservas y huéspedes','Gestioná cada estadía con tarifa privada, modalidad, cochera y notas internas.'],calendario:['Calendario mensual de ocupación','Revisá disponibilidad, ocupación y reservas futuras por unidad.'],unidades:['Unidades y datos base','Administrá tus unidades con tarjetas expandibles y guardado individual.'],metricas:['Analítica premium del negocio','Ingresos, ocupación, huéspedes, cochera, alertas y proyecciones desde un solo lugar.'],configuracion:['Configuración general del panel','Identidad, visibilidad del dashboard y textos editables del hero.']};
+  $('#heroTitle').textContent=state.settings.hero.title;
+  $('#heroText').textContent= state.settings.hero.subtitle;
+  if(v==='configuracion'){ $('#heroTitle').textContent=t[v][0]; $('#heroText').textContent=t[v][1]; }
+  if(v==='metricas') renderMetrics();
+}
+window.closeLayer=id=>$('#'+id).classList.remove('open');
+window.openReservation=id=>{form(); $('#reservationDrawer').classList.add('open'); setTimeout(()=>$('#reservationForm select[name="unitId"]').value=id,0)};
+window.editReservation=id=>{form(id); $('#reservationDrawer').classList.add('open')};
+window.deleteReservation=id=>{const r=state.reservations.find(x=>x.id===id); if(r&&confirm(`Eliminar la reserva de ${r.guestName}?`)){state.reservations=state.reservations.filter(x=>x.id!==id); ui.openReservationMenu=null; save(); renderAll()}};
+window.toggleReservationMenu=(event,id)=>{event.stopPropagation(); ui.openReservationMenu=ui.openReservationMenu===id?null:id; renderReservations()};
+window.toggleDashboardUnit=id=>{ui.dashboardOpen[id]=!ui.dashboardOpen[id]; renderUnits()};
+window.toggleSettingsSection=tab=>{ui.settingsOpen[tab]=!ui.settingsOpen[tab]; renderConfig()};
+window.toggleAdminConfigSection=()=>{
+  ui.adminConfigOpen=!ui.adminConfigOpen;
+  const card=document.querySelector('.admin-config-extra');
+  if(card) card.classList.toggle('open', ui.adminConfigOpen);
+};
+window.toggleUnitEditor=id=>{ui.unitEditorOpen[id]=!(ui.unitEditorOpen[id] ?? true); renderUnitsEditor()};
+window.saveUnit=id=>{
+  const u=state.units.find(x=>x.id===id); if(!u) return;
+  const photoField=$('#u-photo-'+id);
+  const amenitiesField=$('#u-amenities-'+id);
+  u.name=$('#u-name-'+id).value.trim() || 'Nueva unidad';
+  u.address=$('#u-address-'+id).value.trim();
+  u.subtitle=$('#u-subtitle-'+id).value.trim();
+  u.baseRate=Number($('#u-rate-'+id)?.value||0);
+  u.description=$('#u-description-'+id).value.trim();
+  if(amenitiesField) u.amenities=amenitiesField.value.split(',').map(x=>x.trim()).filter(Boolean);
+  u.notes=$('#u-notes-'+id).value.trim();
+  if(photoField) u.photos=[photoField.value.trim()].filter(Boolean);
+  save();
+  ui.savedUnit=id;
+  renderAll();
+  setTimeout(()=>{ui.savedUnit=null; renderUnitsEditor()},1400);
+};
+window.deleteUnit=id=>{
+  const u=state.units.find(x=>x.id===id); if(!u) return;
+  const hasRes=state.reservations.some(r=>r.unitId===id);
+  const msg=hasRes?`Eliminar ${u.name} también borrará sus reservas asociadas. Continuar?`:`Eliminar ${u.name}?`;
+  if(confirm(msg)){
+    state.units=state.units.filter(x=>x.id!==id);
+    state.reservations=state.reservations.filter(r=>r.unitId!==id);
+    save();
+    renderAll();
+  }
+};
+
+$$('.nav button,.tabbar button').forEach(b=>b.addEventListener('click',()=>switchView(b.dataset.view)));
+$('#reservationsSearch').addEventListener('input',renderReservations);
+$('#reservationsUnitFilter').addEventListener('change',renderReservations);
+$('#calendarUnitFilter').addEventListener('change',renderCalendar);
+$('#newReservationBtn').addEventListener('click',()=>{form(); $('#reservationDrawer').classList.add('open')});
+$('#newReservationBtn2').addEventListener('click',()=>{form(); $('#reservationDrawer').classList.add('open')});
+$('#editUnitsBtn').addEventListener('click',()=>switchView('unidades'));
+document.addEventListener('input',e=>{if(e.target.closest('#view-configuracion')) markConfigPending();});
+document.addEventListener('change',e=>{if(e.target.closest('#view-configuracion')) markConfigPending();});
+const resetDemoBtn=$('#resetDemoBtn'); if(resetDemoBtn){resetDemoBtn.addEventListener('click',()=>{if(confirm('Restaurar demo eliminará los datos actuales guardados en este navegador.')){localStorage.setItem(KEY,JSON.stringify(seed)); location.reload()}});}
+window.addEventListener('resize',()=>{if(ui.view==='calendario') renderCalendar(); if(ui.view==='metricas') renderMetrics();});
+$('#prevMonthBtn').addEventListener('click',()=>{ui.month=new Date(ui.month.getFullYear(),ui.month.getMonth()-1,1); renderCalendar()});
+$('#nextMonthBtn').addEventListener('click',()=>{ui.month=new Date(ui.month.getFullYear(),ui.month.getMonth()+1,1); renderCalendar()});
+$('#currentMonthBtn').addEventListener('click',()=>{ui.month=new Date(new Date().getFullYear(),new Date().getMonth(),1); renderCalendar()});
+$('#addUnitBtn').addEventListener('click',()=>{
+  const id='u'+Math.random().toString(36).slice(2,8);
+  state.units.push({id,name:'',address:'',subtitle:'',description:'',baseRate:45000,amenities:[],notes:'',photos:[]});
+  ui.unitEditorOpen[id]=true;
+  save();
+  renderAll();
+  switchView('unidades');
+});
+$('#metricsRangePreset').addEventListener('change',e=>{if(e.target.value!=='custom'){ui.range=preset(e.target.value); $('#metricsStart').value=iso(ui.range.start); $('#metricsEnd').value=iso(ui.range.end); renderMetrics()}});
+$('#metricsIncomeSeries').addEventListener('change',renderMetrics);
+$('#metricsQuarterYear').addEventListener('change',renderMetrics);
+$('#applyMetricsRange').addEventListener('click',()=>{const s=$('#metricsStart').value,e=$('#metricsEnd').value; if(!s||!e) return alert('Definí fecha inicial y final.'); ui.range={start:parse(s),end:parse(e)}; $('#metricsRangePreset').value='custom'; renderMetrics()});
+$('#copySummaryBtn').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('#metricsSummaryBox').textContent); alert('Resumen copiado al portapapeles.')}catch(e){alert('No se pudo copiar automáticamente.')}});
+$('#printMetricsBtn').addEventListener('click',()=>{switchView('metricas'); setTimeout(()=>print(),150)});
+$('#saveConfigBtn').addEventListener('click',()=>{
+  const tabs=clone(defaultTabVisibility);
+  $$('[data-vis-key]').forEach(inp=>{tabs[inp.dataset.tab][inp.dataset.visKey]=inp.checked});
+  state.settings.identity.businessName=$('#cfgBusinessName').value.trim() || defaultSettings.identity.businessName;
+  state.settings.identity.businessSubtitle=$('#cfgBusinessSubtitle').value.trim() || defaultSettings.identity.businessSubtitle;
+  state.settings.identity.businessAvatar=($('#cfgBusinessAvatar').value.trim() || defaultSettings.identity.businessAvatar).slice(0,4);
+  state.settings.hero.title=$('#cfgHeroTitle').value.trim() || defaultSettings.hero.title;
+  state.settings.hero.subtitle=$('#cfgHeroSubtitle').value.trim() || defaultSettings.hero.subtitle;
+  state.settings.hero.badges=[$('#cfgHeroBadge1').value.trim(),$('#cfgHeroBadge2').value.trim(),$('#cfgHeroBadge3').value.trim()].filter(Boolean);
+  state.settings.clientSite.eyebrow=$('#cfgClientEyebrow').value.trim() || defaultSettings.clientSite.eyebrow;
+  state.settings.clientSite.title=$('#cfgClientTitle').value.trim() || defaultSettings.clientSite.title;
+  state.settings.clientSite.subtitle=$('#cfgClientSubtitle').value.trim() || defaultSettings.clientSite.subtitle;
+  state.settings.clientSite.badge1=$('#cfgClientBadge1').value.trim();
+  state.settings.clientSite.badge2=$('#cfgClientBadge2').value.trim();
+  state.settings.clientSite.badge3=$('#cfgClientBadge3').value.trim();
+  state.settings.clientSite.whatsappPhone=$('#cfgWhatsappPhone').value.trim();
+  state.settings.clientSite.whatsappTemplate=$('#cfgWhatsappTemplate').value.trim() || defaultSettings.clientSite.whatsappTemplate;
+  state.settings.access.adminPin=$('#cfgAdminPin').value.trim() || defaultSettings.access.adminPin;
+  state.settings.tabVisibility=tabs;
+  save();
+  const btn=$('#saveConfigBtn'); const old=btn.textContent; btn.textContent='Guardado ✓'; btn.classList.add('save-feedback');
+  renderAll();
+  setTimeout(()=>{btn.textContent=old; btn.classList.remove('save-feedback')},1400);
+});
+$('#reservationForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const fd=new FormData(e.target);
+  const existing=state.reservations.find(x=>x.id===ui.editId) || {};
+  const p={...existing,id:ui.editId||crypto.randomUUID(),unitId:fd.get('unitId'),guestName:String(fd.get('guestName')).trim(),contact:String(fd.get('contact')).trim(),guestType:fd.get('guestType'),startDate:fd.get('startDate'),endDate:fd.get('endDate'),stayMode:fd.get('stayMode'),agreedRate:Number(fd.get('agreedRate')||0),depositAmount:Number(fd.get('depositAmount')||0),paymentMethod:String(fd.get('paymentMethod')||''),paymentStatus:String(fd.get('paymentStatus')||'abonado'),parking:fd.get('parking')==='true',status:fd.get('status'),notes:String(fd.get('notes')).trim()};
+  if(parse(p.endDate)<parse(p.startDate)) return alert('La fecha de salida no puede ser anterior a la fecha de entrada.');
+  const i=state.reservations.findIndex(x=>x.id===p.id); if(i>=0) state.reservations[i]=p; else state.reservations.push(p);
+  save(); closeLayer('reservationDrawer'); renderAll();
+});
+
+document.addEventListener('click',e=>{if(!e.target.closest('.actions-menu-wrap')){if(ui.openReservationMenu!==null){ui.openReservationMenu=null; renderReservations();}}});
+$('#clientRefreshBtn').addEventListener('click',()=>{clientUi.selectedUnitId=null; renderClientApp(); const grid=$('#clientUnitsGrid'); if(grid) grid.scrollIntoView({behavior:'smooth',block:'start'});});
+$('#clientStartDate').addEventListener('change',()=>{clientUi.selectedUnitId=null; renderClientApp();});
+$('#clientEndDate').addEventListener('change',()=>{clientUi.selectedUnitId=null; renderClientApp();});
+$('#clientGuestsCount').addEventListener('input',renderClientUnits);
+$('#adminLoginForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const pin=$('#adminPinInput').value.trim();
+  if(pin === String(state.settings.access.adminPin||defaultSettings.access.adminPin)){
+    sessionStorage.setItem('departamentos_admin_auth','1');
+    $('#adminLoginError').classList.add('hidden');
+    showAdminMode();
+  }else{
+    $('#adminLoginError').classList.remove('hidden');
+  }
+});
+
+
+function wait(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+function getLoaderSessionKey(){return `departamentos_loader_seen_${APP_MODE}`;}
+function shouldAnimateLoader(){
+  try{
+    const alreadySeen=sessionStorage.getItem(getLoaderSessionKey())==='1';
+    const nav=performance.getEntriesByType('navigation')[0];
+    const isReload=nav?.type==='reload';
+    return !alreadySeen && !isReload;
+  }catch(error){
+    return true;
+  }
+}
+async function finishBoot(showAnimatedLoader){
+  const loader=$('#pageLoader');
+  if(!loader) return;
+  const minDelay=showAnimatedLoader ? 3000 : 120;
+  await wait(minDelay);
+  loader.classList.add('hidden');
+  try{sessionStorage.setItem(getLoaderSessionKey(),'1');}catch(error){}
+}
+
+async function boot(){
+  const animatedLoader=shouldAnimateLoader();
+  const loader=$('#pageLoader');
+  if(!animatedLoader && loader) loader.style.transition='opacity .2s ease,visibility .2s ease';
+  const forcedHide=setTimeout(()=>{const l=$('#pageLoader'); if(l) l.classList.add('hidden');}, 6500);
+  state=await loadFromFirestore();
+  if(APP_MODE==='portal') showPortalMode();
+  else if(APP_MODE==='cliente') showClientMode();
+  else showAdminMode();
+  await finishBoot(animatedLoader);
+  clearTimeout(forcedHide);
+}
+
+boot();
+</script>
+</body>
+</html>
