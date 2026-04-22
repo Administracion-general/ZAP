@@ -1,0 +1,2264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reservas Departamento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+:root{
+  --bg:#c8d4eb;
+  --bg-2:#dce4f2;
+  --surface:rgba(244,248,255,.72);
+  --surface-2:rgba(255,255,255,.42);
+  --surface-3:rgba(230,238,252,.78);
+  --glass:rgba(255,255,255,.16);
+  --text:#f7fbff;
+  --text-dark:#18253d;
+  --text-2:#5a6780;
+  --text-3:#8e9ab2;
+  --accent:#ffffff;
+  --accent-ink:#162338;
+  --accent-soft:#e8eef9;
+  --line:rgba(255,255,255,.58);
+  --line-2:rgba(44,66,103,.12);
+  --ok:#2e8b6c;
+  --ok-bg:rgba(46,139,108,.12);
+  --warn:#a4751f;
+  --warn-bg:rgba(164,117,31,.12);
+  --err:#b14c56;
+  --err-bg:rgba(177,76,86,.12);
+  --shadow-sm:0 10px 24px rgba(22,34,56,.08);
+  --shadow:0 18px 48px rgba(22,34,56,.12);
+  --shadow-lg:0 28px 80px rgba(22,34,56,.18);
+  --r-sm:14px;
+  --r:20px;
+  --r-lg:28px;
+  --r-xl:40px;
+  --t:.25s ease;
+}
+body{
+  font-family:'Manrope',sans-serif;
+  background:linear-gradient(180deg,#c7d3e7 0%,#dbe2ee 48%,#f1ddd7 100%);
+  color:var(--text-dark);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  min-height:100dvh;
+}
+input,select,textarea,button{font-family:inherit}
+button{cursor:pointer;border:none;background:none}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+.hidden{display:none!important}
+.view{min-height:100dvh;display:flex;flex-direction:column;animation:fadeIn .35s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.divider{height:1px;background:var(--line-2);margin:16px 0}
+.chip{display:inline-flex;align-items:center;padding:6px 12px;border-radius:999px;font-size:.73rem;font-weight:700;background:rgba(255,255,255,.5);color:var(--text-dark)}
+
+/* Loader */
+#loader{
+  position:fixed;inset:0;z-index:9999;
+  background:linear-gradient(180deg,#c7d3e7 0%,#dbe2ee 50%,#f1ddd7 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+  transition:opacity .45s ease,visibility .45s ease;
+}
+#loader.fade-out{opacity:0;visibility:hidden}
+.loader-ring{
+  width:52px;height:52px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.45);
+  border-top-color:#2a3851;
+  animation:spin .85s linear infinite;
+  box-shadow:0 0 0 8px rgba(255,255,255,.12);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{
+  font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;
+  color:#54617a;font-weight:700;
+}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(28px);
+  background:#1e2b41;color:#fff;padding:12px 22px;border-radius:999px;
+  font-size:.82rem;font-weight:700;letter-spacing:.02em;
+  opacity:0;transition:opacity .3s,transform .3s;z-index:8000;
+  pointer-events:none;white-space:nowrap;box-shadow:var(--shadow);
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.ok{background:#2e8b6c}
+#toast.err{background:#b14c56}
+
+/* Landing */
+#view-landing{
+  position:relative;
+  overflow:hidden;
+  min-height:100dvh;
+  background:
+    radial-gradient(circle at 20% 12%,rgba(255,255,255,.65),transparent 34%),
+    linear-gradient(180deg,#bfcde4 0%,#d3dcef 52%,#efd7d4 100%);
+}
+#view-landing::before{
+  content:'';
+  position:absolute;inset:0;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0) 36%),
+    radial-gradient(circle at 80% 22%,rgba(255,255,255,.32),transparent 20%);
+  pointer-events:none;
+}
+.landing-bg{
+  position:absolute;
+  inset:7.5vh 8vw 9vh 8vw;
+  border-radius:34px;
+  background:
+    linear-gradient(180deg,rgba(210,224,246,.18),rgba(25,31,46,.08)),
+    url('https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;
+  border:4px solid rgba(255,255,255,.86);
+  box-shadow:0 28px 80px rgba(21,34,58,.16);
+  opacity:1;
+}
+.landing-bg::before{
+  content:'';
+  position:absolute;inset:18px;
+  border-radius:26px;
+  border:1px solid rgba(255,255,255,.36);
+  pointer-events:none;
+}
+.landing-overlay{
+  position:absolute;inset:7.5vh 8vw 9vh 8vw;border-radius:34px;
+  background:
+    linear-gradient(180deg,rgba(214,224,246,.36) 0%,rgba(45,49,75,.08) 48%,rgba(33,28,33,.14) 100%),
+    linear-gradient(90deg,rgba(24,34,56,.18),transparent 36%,rgba(24,34,56,.18));
+  pointer-events:none;
+}
+.landing-content{
+  position:relative;
+  z-index:2;
+  min-height:100dvh;
+  width:min(1080px,calc(100vw - 40px));
+  margin:0 auto;
+  padding:8.5vh 3.4vw 10.5vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  text-align:left;
+}
+.landing-content::before{
+  content:'Work: UX UI Design';
+  position:absolute;
+  top:3.2vh;right:15.5vw;
+  font-size:.72rem;font-weight:600;line-height:1.55;
+  color:rgba(255,255,255,.78);
+  letter-spacing:.02em;
+}
+.landing-content::after{
+  content:'Year: 2025';
+  position:absolute;
+  top:3.2vh;right:8.2vw;
+  font-size:.72rem;font-weight:600;line-height:1.55;
+  color:rgba(255,255,255,.78);
+}
+.landing-badge{
+  display:inline-flex;align-items:center;gap:10px;
+  width:max-content;
+  padding:9px 16px;
+  border-radius:999px;
+  background:rgba(255,255,255,.58);
+  backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.72);
+  color:#3e4b64;
+  font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
+  margin-top:24px;margin-left:26px;
+  box-shadow:var(--shadow-sm);
+}
+.landing-badge span{
+  width:7px;height:7px;border-radius:50%;background:#ffffff;display:inline-block;
+  box-shadow:0 0 0 4px rgba(255,255,255,.18);
+}
+.landing-title{
+  margin-top:150px;
+  margin-left:26px;
+  font-family:'Outfit',sans-serif;
+  font-size:clamp(4rem,12vw,8.5rem);
+  font-weight:800;
+  line-height:.92;
+  letter-spacing:.03em;
+  color:rgba(255,255,255,.72);
+  text-transform:uppercase;
+  text-shadow:0 8px 30px rgba(44,58,85,.14);
+}
+.landing-title em{
+  font-style:normal;
+  font-weight:800;
+  color:inherit;
+}
+.landing-sub{
+  margin-top:18px;
+  margin-left:30px;
+  max-width:300px;
+  color:rgba(255,255,255,.92);
+  font-size:.95rem;
+  font-weight:500;
+  line-height:1.6;
+}
+.btn-client{
+  margin-top:26px;
+  margin-left:30px;
+  width:max-content;
+  padding:14px 20px 14px 22px;
+  border-radius:999px;
+  background:#fff;
+  color:#18253d;
+  font-size:.84rem;
+  font-weight:800;
+  letter-spacing:.02em;
+  box-shadow:0 14px 30px rgba(22,34,56,.14);
+  transition:transform var(--t),box-shadow var(--t),background var(--t);
+  border:1px solid rgba(255,255,255,.82);
+}
+.btn-client:hover{transform:translateY(-2px);box-shadow:0 20px 36px rgba(22,34,56,.18);background:#fefefe}
+.landing-footer{
+  position:absolute;
+  left:calc(8vw + 34px);
+  bottom:calc(9vh + 26px);
+  color:rgba(255,255,255,.94);
+  font-size:.95rem;
+  font-weight:500;
+  line-height:1.35;
+  max-width:220px;
+  justify-content:flex-start;
+}
+#lock-btn{
+  position:fixed;right:22px;bottom:22px;z-index:500;
+  width:46px;height:46px;border-radius:999px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.22);
+  color:rgba(51,65,90,.42);font-size:1rem;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(14px);
+  box-shadow:none;
+  opacity:.5;
+  transition:all var(--t);
+}
+#lock-btn:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.36);color:rgba(51,65,90,.65);opacity:.72;transform:translateY(-2px)}
+#lock-btn.on-light{
+  background:rgba(255,255,255,.14);
+  border-color:rgba(255,255,255,.24);
+  color:rgba(51,65,90,.4);
+  opacity:.44;
+}
+
+/* Login */
+#view-login{
+  align-items:center;justify-content:center;
+  background:
+    radial-gradient(circle at top left,rgba(255,255,255,.6),transparent 30%),
+    linear-gradient(180deg,#c5d4ea 0%,#dce5f1 55%,#efe1dd 100%);
+  padding:28px;
+}
+.login-card,.search-card,.booking-panel,.panel-card,.chart-card,.config-card,.table-wrap,.calendar-wrap,.next-list,.unit-card,.unit-card-admin,.stat-card{
+  background:rgba(246,249,255,.74);
+  backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.82);
+  box-shadow:var(--shadow);
+}
+.login-card{
+  border-radius:30px;
+  padding:38px 32px;
+  width:100%;max-width:420px;
+}
+.login-icon{
+  width:62px;height:62px;margin:0 auto 18px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:20px;
+  background:rgba(255,255,255,.62);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8);
+}
+.login-title,.results-title,.booking-panel h2,.section-title,.modal-title,.admin-topbar h2,.client-header-text h1,.cal-month{
+  font-family:'Outfit',sans-serif;
+  letter-spacing:-.02em;
+}
+.login-title{font-size:1.9rem;font-weight:700;color:#18253d;margin-bottom:6px}
+.login-sub{color:#69758d;font-size:.86rem;margin-bottom:28px;line-height:1.55}
+.form-group{text-align:left;margin-bottom:16px}
+.form-group label,.form-group-inline label,.search-label,.config-field label{
+  display:block;font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#70809e;margin-bottom:8px;
+}
+.form-input,.search-input,.search-input-bar,.filter-select,.config-field input,.config-field textarea,.config-field select,.guests-input{
+  width:100%;
+  padding:13px 15px;
+  border:1px solid rgba(73,92,128,.14);
+  border-radius:16px;
+  font-size:.92rem;
+  color:#18253d;
+  background:rgba(255,255,255,.8);
+  outline:none;
+  transition:border-color var(--t),box-shadow var(--t),background var(--t);
+}
+.form-input:focus,.search-input:focus,.search-input-bar:focus,.config-field input:focus,.config-field textarea:focus,.config-field select:focus,.guests-input:focus{
+  border-color:rgba(59,82,124,.34);
+  box-shadow:0 0 0 4px rgba(127,153,199,.16);
+  background:#fff;
+}
+textarea.form-input,.config-field textarea{resize:vertical;min-height:90px;line-height:1.6}
+.btn-primary,.btn-search,.btn-select,.btn-sm.btn-accent{
+  background:#1e2b41;
+  color:#fff;
+  border-radius:999px;
+  font-size:.84rem;
+  font-weight:800;
+  letter-spacing:.02em;
+  padding:12px 20px;
+  transition:all var(--t);
+  box-shadow:0 10px 24px rgba(30,43,65,.16);
+}
+.btn-primary{width:100%;margin-top:8px}
+.btn-primary:hover,.btn-search:hover,.btn-select:hover,.btn-sm.btn-accent:hover{transform:translateY(-1px);background:#24334d}
+.login-back{color:#74829b;font-size:.82rem;font-weight:700;margin-top:18px;text-align:center}
+
+/* Client */
+#view-client,#view-admin{
+  background:
+    radial-gradient(circle at 0 0,rgba(255,255,255,.45),transparent 24%),
+    linear-gradient(180deg,#cad6ea 0%,#dde5f1 58%,#efe3df 100%);
+}
+.client-header{
+  padding:18px 22px;
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:14px;
+  background:rgba(244,248,255,.46);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(255,255,255,.65);
+  box-shadow:0 12px 24px rgba(22,34,56,.06);
+}
+.client-back,.cal-nav-btn,.modal-close,.btn-logout,.action-btn,.client-top-pill{
+  border-radius:999px;
+}
+.client-back{
+  width:42px;height:42px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.74);
+  border:1px solid rgba(255,255,255,.82);
+  color:#34425d;
+  box-shadow:var(--shadow-sm);
+}
+.client-header-text h1{font-size:1.46rem;font-weight:700;color:#18253d}
+.client-header-text p{color:#73809a;font-size:.8rem;font-weight:600;letter-spacing:.01em}
+.client-body{padding:24px;max-width:1240px;margin:0 auto;width:100%}
+.search-card,.booking-panel,.panel-card,.chart-card,.config-card,.table-wrap,.calendar-wrap,.next-list{border-radius:28px}
+.search-card{padding:22px}
+.search-grid{display:grid;grid-template-columns:1fr 1fr auto auto;gap:12px;align-items:end}
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.results-title{font-size:1.5rem;font-weight:700;color:#18253d}
+.results-count{color:#71809d;font-size:.8rem;font-weight:700}
+.units-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+.unit-card{
+  border-radius:30px;
+  overflow:hidden;
+  transition:transform var(--t),box-shadow var(--t),border-color var(--t);
+}
+.unit-card:hover{transform:translateY(-3px);box-shadow:0 26px 44px rgba(22,34,56,.14)}
+.unit-card.selected{border-color:rgba(30,43,65,.62);box-shadow:0 26px 44px rgba(22,34,56,.16)}
+.unit-img,.unit-img-placeholder,.unit-card-admin-img,.unit-card-admin-ph{
+  height:210px;
+  background:linear-gradient(180deg,#dbe5f5,#edf2fb);
+}
+.unit-img{object-fit:cover;width:100%}
+.unit-img-placeholder,.unit-card-admin-ph{
+  display:flex;align-items:center;justify-content:center;font-size:2rem;color:#7f8ba3;
+}
+.unit-body,.unit-card-admin-body{padding:18px}
+.unit-name,.unit-card-admin-name{font-size:1.02rem;font-weight:800;color:#18253d;margin-bottom:5px}
+.unit-addr,.unit-card-admin-addr{color:#74829b;font-size:.8rem;line-height:1.5;margin-bottom:12px}
+.unit-amenities{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:6px 10px;border-radius:999px;font-size:.7rem;font-weight:800;
+}
+.badge-neutral{background:rgba(224,232,247,.8);color:#53627f}
+.badge-ok{background:var(--ok-bg);color:var(--ok)}
+.badge-warn{background:var(--warn-bg);color:var(--warn)}
+.badge-err{background:var(--err-bg);color:var(--err)}
+.badge-accent{background:rgba(30,43,65,.1);color:#1e2b41}
+.badge-gold{background:rgba(190,160,92,.14);color:#886939}
+.unit-footer{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding-top:14px;border-top:1px solid rgba(58,77,111,.09)
+}
+.unit-price,.unit-card-admin-price,.stat-value{
+  font-family:'Outfit',sans-serif;
+  letter-spacing:-.03em;
+}
+.unit-price{font-size:1.42rem;font-weight:700;color:#18253d}
+.unit-price span{font-family:'Manrope',sans-serif;font-size:.74rem;color:#73809a;font-weight:700}
+.btn-select.selected{background:#2e8b6c}
+.booking-panel{padding:26px}
+.booking-panel h2{font-size:1.5rem;font-weight:700;margin-bottom:18px;color:#18253d}
+.booking-summary{
+  background:rgba(255,255,255,.56);
+  border-radius:22px;
+  padding:18px;
+  margin-bottom:20px;
+  border:1px solid rgba(255,255,255,.78);
+}
+.booking-summary-row{
+  display:flex;justify-content:space-between;gap:16px;
+  padding:6px 0;font-size:.86rem;color:#3f4c67;
+}
+.booking-summary-row.total{font-weight:800;color:#18253d;padding-top:12px;border-top:1px solid rgba(58,77,111,.11);margin-top:8px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.payment-options{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.payment-btn,.period-btn,.btn-sm.btn-outline{
+  padding:10px 14px;border-radius:999px;font-size:.78rem;font-weight:800;
+  border:1px solid rgba(65,84,118,.14);
+  background:rgba(255,255,255,.68);color:#56647f;
+  transition:all var(--t);
+}
+.payment-btn.active,.period-btn.active{
+  background:#1e2b41;color:#fff;border-color:#1e2b41;
+}
+.btn-whatsapp{
+  width:100%;padding:14px;margin-top:10px;
+  background:#25D366;color:#fff;border-radius:999px;
+  font-size:.94rem;font-weight:800;letter-spacing:.01em;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all var(--t);
+  box-shadow:0 14px 30px rgba(37,211,102,.18);
+}
+.btn-whatsapp:hover{transform:translateY(-1px);background:#20ba5a}
+.no-results{
+  text-align:center;padding:64px 20px;color:#75829a;
+  background:rgba(246,249,255,.42);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.68);
+  border-radius:30px;
+  box-shadow:var(--shadow-sm);
+}
+.no-results .nr-icon{font-size:2.5rem;margin-bottom:12px;opacity:.55}
+.no-results h3{font-size:1.04rem;color:#22314a;font-weight:800;margin-bottom:6px}
+.no-results p{font-size:.84rem;line-height:1.65}
+
+/* Admin */
+#view-admin{flex-direction:row}
+.admin-sidebar{
+  width:248px;flex-shrink:0;
+  background:rgba(244,248,255,.48);
+  backdrop-filter:blur(20px);
+  border-right:1px solid rgba(255,255,255,.64);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;height:100dvh;z-index:200;overflow-y:auto;
+  box-shadow:12px 0 30px rgba(22,34,56,.06);
+}
+.admin-logo{
+  padding:28px 22px 18px;
+  border-bottom:1px solid rgba(58,77,111,.08);
+}
+.admin-logo h1{
+  font-family:'Outfit',sans-serif;font-size:1.18rem;font-weight:700;color:#18253d;line-height:1.3;
+}
+.admin-logo p{font-size:.72rem;color:#7a879f;letter-spacing:.08em;margin-top:4px;text-transform:uppercase;font-weight:800}
+.admin-nav{padding:16px 12px;flex:1}
+.nav-section-label{
+  font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:#8a96ac;padding:10px 12px 6px;
+}
+.nav-item,.bn-item{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 14px;border-radius:18px;
+  color:#5f6d87;font-size:.86rem;font-weight:700;
+  transition:all var(--t);cursor:pointer;margin-bottom:4px;
+}
+.nav-item:hover{background:rgba(255,255,255,.58);color:#1f2e47}
+.nav-item.active{
+  background:#ffffff;color:#1f2e47;
+  box-shadow:0 12px 24px rgba(22,34,56,.08);
+}
+.nav-item .nav-icon{font-size:1rem;width:18px;text-align:center;flex-shrink:0}
+.admin-user{
+  padding:16px 18px;border-top:1px solid rgba(58,77,111,.08);
+  display:flex;align-items:center;gap:10px
+}
+.admin-avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:#ffffff;color:#1f2e47;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;font-weight:800;
+  box-shadow:var(--shadow-sm);
+}
+.admin-user-info{flex:1;min-width:0}
+.admin-user-info .name{font-size:.82rem;font-weight:800;color:#1d2a41;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.admin-user-info .role{font-size:.72rem;color:#7b87a0}
+.btn-logout{
+  width:32px;height:32px;background:rgba(255,255,255,.66);color:#6c7791;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.72);
+}
+.btn-logout:hover{background:#fff;color:#1f2e47}
+.admin-main{
+  margin-left:248px;flex:1;min-height:100dvh;
+  display:flex;flex-direction:column;
+}
+.admin-topbar{
+  padding:18px 28px;
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(244,248,255,.46);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(255,255,255,.65);
+  box-shadow:0 12px 24px rgba(22,34,56,.05);
+}
+.admin-topbar h2{font-size:1.5rem;font-weight:700;color:#18253d}
+.admin-topbar-right{display:flex;align-items:center;gap:10px}
+.admin-content{padding:28px;flex:1}
+.save-indicator{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:.74rem;font-weight:800;color:#65728c;
+  padding:8px 14px;border-radius:999px;
+  background:rgba(255,255,255,.58);transition:all var(--t);
+  border:1px solid rgba(255,255,255,.82);
+}
+.save-indicator.saving{color:var(--warn);background:var(--warn-bg)}
+.save-indicator.saved{color:var(--ok);background:var(--ok-bg)}
+.save-indicator.error{color:var(--err);background:var(--err-bg)}
+.admin-bottom-nav{
+  display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(244,248,255,.64);
+  backdrop-filter:blur(18px);
+  border-top:1px solid rgba(255,255,255,.68);
+  padding:8px 0 env(safe-area-inset-bottom,8px);
+  box-shadow:0 -12px 30px rgba(22,34,56,.08);
+}
+.bottom-nav-items{display:flex;justify-content:space-around}
+.bn-item{
+  flex-direction:column;gap:3px;padding:6px 12px;margin-bottom:0;
+  color:#73809a;background:transparent;
+}
+.bn-item.active{color:#1e2b41}
+.bn-item .bn-icon{font-size:1.05rem}
+.bn-item .bn-label{font-size:.62rem;font-weight:800;letter-spacing:.02em}
+
+/* Stats and sections */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;margin-bottom:28px}
+.stat-card{
+  position:relative;overflow:hidden;padding:22px;border-radius:28px;
+}
+.stat-card::after{
+  content:'';position:absolute;top:-16px;right:-18px;width:98px;height:98px;border-radius:50%;opacity:.09;
+}
+.stat-card.blue::after{background:#4963a0}
+.stat-card.gold::after{background:#ad8b50}
+.stat-card.green::after{background:#2e8b6c}
+.stat-card.purple::after{background:#7b64b0}
+.stat-label{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:#7c88a0;margin-bottom:10px}
+.stat-value{font-size:2.25rem;font-weight:700;line-height:1;color:#18253d;margin-bottom:6px}
+.stat-change{font-size:.76rem;color:#77839a;font-weight:700}
+.stat-change.up{color:var(--ok)}
+.stat-change.down{color:var(--err)}
+.stat-icon{position:absolute;top:18px;right:18px;font-size:1.4rem;opacity:.34}
+.section-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}
+.section-title{font-size:1.25rem;font-weight:700;color:#18253d}
+.btn-sm{padding:10px 16px;border-radius:999px;font-size:.78rem;font-weight:800}
+.btn-sm.btn-outline{
+  color:#56647f;background:rgba(255,255,255,.72);
+}
+.btn-sm.btn-outline:hover{background:#fff;color:#1f2e47}
+.btn-danger{
+  background:var(--err-bg);color:var(--err);border:1px solid transparent;
+  border-radius:999px;font-weight:800;padding:10px 16px;
+}
+.btn-danger:hover{background:#b14c56;color:#fff}
+
+/* Tables */
+.table-wrap{overflow:hidden}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead{background:rgba(255,255,255,.44)}
+th{
+  padding:14px 16px;text-align:left;font-size:.7rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:.14em;color:#77839b;white-space:nowrap
+}
+td{
+  padding:14px 16px;border-top:1px solid rgba(58,77,111,.08);
+  font-size:.84rem;vertical-align:middle;color:#24324b;
+}
+tr:hover td{background:rgba(255,255,255,.36)}
+.td-actions{display:flex;gap:8px;white-space:nowrap}
+.action-btn{
+  width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;
+  font-size:.82rem;transition:all var(--t);cursor:pointer
+}
+.action-btn.edit{background:rgba(30,43,65,.1);color:#1e2b41}
+.action-btn.edit:hover{background:#1e2b41;color:#fff}
+.action-btn.del{background:var(--err-bg);color:var(--err)}
+.action-btn.del:hover{background:var(--err);color:#fff}
+.empty-state{padding:54px 20px;text-align:center;color:#78849b}
+.empty-state .es-icon{font-size:2rem;margin-bottom:12px;opacity:.45}
+
+/* Search bar */
+.search-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+
+/* Calendar */
+.calendar-nav{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.cal-month{font-size:1.35rem;font-weight:700;color:#18253d}
+.cal-nav-btn{
+  width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.72);
+  border:1px solid rgba(255,255,255,.82);
+  color:#35425b;box-shadow:var(--shadow-sm);
+}
+.cal-table{border-collapse:collapse;min-width:100%}
+.cal-table th{
+  padding:10px 12px;background:rgba(255,255,255,.48);
+  font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#77839b;
+  text-align:center;border:1px solid rgba(58,77,111,.08);white-space:nowrap;min-width:60px
+}
+.cal-table th:first-child{text-align:left;min-width:70px;position:sticky;left:0;z-index:2;background:rgba(255,255,255,.66)}
+.cal-table td{
+  padding:8px 10px;border:1px solid rgba(58,77,111,.08);text-align:center;font-size:.75rem;position:relative
+}
+.cal-table td:first-child{
+  font-size:.72rem;font-weight:800;color:#7a879f;text-align:left;position:sticky;left:0;background:rgba(246,249,255,.82);z-index:1
+}
+.cal-cell{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:30px;height:22px;border-radius:8px;font-size:.68rem;font-weight:800;
+}
+.cal-avail{background:rgba(46,139,108,.12);color:#2e8b6c}
+.cal-reserved{background:rgba(164,117,31,.12);color:#a4751f}
+.cal-occupied{background:rgba(177,76,86,.12);color:#b14c56}
+.cal-na{background:rgba(224,232,247,.8);color:#7a879f}
+.cal-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.cal-legend-item{display:flex;align-items:center;gap:6px;font-size:.75rem;color:#66728b;font-weight:700}
+.cal-legend-dot{width:12px;height:12px;border-radius:4px}
+
+/* Units admin */
+.units-grid-admin{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px}
+.unit-card-admin{border-radius:28px;overflow:hidden}
+.unit-card-admin-price{font-size:1.26rem;font-weight:700;color:#1e2b41;margin-bottom:12px}
+.unit-card-admin-actions{display:flex;gap:8px}
+
+/* Metrics */
+.metrics-period{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.chart-card{padding:22px}
+.chart-title{font-weight:800;font-size:.78rem;margin-bottom:18px;color:#70809a;text-transform:uppercase;letter-spacing:.14em}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:130px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bar-fill{width:100%;background:#1e2b41;border-radius:10px 10px 4px 4px;min-height:6px;transition:height .5s ease;opacity:.9}
+.bar-label{font-size:.65rem;color:#7a879f;text-align:center;white-space:nowrap;font-weight:700}
+.bar-val{font-size:.68rem;font-weight:800;color:#1e2b41;white-space:nowrap}
+.metrics-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+
+/* Config */
+.config-sections{display:flex;flex-direction:column;gap:24px}
+.config-card{padding:24px}
+.config-card-title{
+  font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:#70809a;
+  margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid rgba(58,77,111,.08)
+}
+.config-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.config-full{grid-column:1/-1}
+.config-hint{font-size:.72rem;color:#8190a8;margin-top:4px}
+
+/* Modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(20,29,46,.26);z-index:1000;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  backdrop-filter:blur(6px);opacity:0;transition:opacity .25s
+}
+.modal-overlay.open{opacity:1}
+.modal-box{
+  background:rgba(246,249,255,.9);
+  border:1px solid rgba(255,255,255,.88);
+  border-radius:32px;
+  box-shadow:var(--shadow-lg);
+  width:100%;max-width:580px;max-height:90dvh;overflow-y:auto;
+  transform:scale(.96) translateY(20px);transition:transform .25s
+}
+.modal-overlay.open .modal-box{transform:scale(1) translateY(0)}
+.modal-header{
+  padding:22px 24px 16px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:rgba(246,249,255,.92);z-index:1;
+  border-bottom:1px solid rgba(58,77,111,.08)
+}
+.modal-title{font-size:1.34rem;font-weight:700;color:#18253d}
+.modal-close{
+  width:34px;height:34px;background:rgba(255,255,255,.82);
+  border:1px solid rgba(255,255,255,.88);color:#66728b;
+}
+.modal-close:hover{background:#fff;color:#1f2e47}
+.modal-body{padding:22px 24px}
+.modal-footer{padding:16px 24px 22px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid rgba(58,77,111,.08)}
+
+/* Misc blocks */
+.panel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:24px}
+.next-item{
+  padding:14px 16px;display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid rgba(58,77,111,.08)
+}
+.next-item:last-child{border-bottom:none}
+.next-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.next-info{flex:1;min-width:0}
+.next-name{font-size:.84rem;font-weight:800;color:#24324b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.next-detail{font-size:.73rem;color:#7b88a0}
+.next-date{font-size:.75rem;font-weight:800;color:#4b5973;white-space:nowrap}
+.home-grid,.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+/* Responsive */
+@media(max-width:900px){
+  .landing-bg,.landing-overlay{inset:82px 18px 90px}
+  .landing-content{width:100%;padding:72px 18px 96px}
+  .landing-content::before,.landing-content::after{display:none}
+  .landing-badge,.landing-title,.landing-sub,.btn-client{margin-left:16px}
+  .landing-title{margin-top:180px;font-size:clamp(3.5rem,16vw,5.5rem)}
+  .landing-footer{left:34px;bottom:112px}
+  .admin-sidebar{display:none}
+  .admin-main{margin-left:0;padding-bottom:76px}
+  .admin-bottom-nav{display:block}
+}
+@media(max-width:768px){
+  .admin-content,.client-body{padding:16px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .admin-topbar{padding:14px 16px}
+  .search-grid{grid-template-columns:1fr 1fr}
+  .search-grid .btn-search,.search-grid .guests-wrap{grid-column:1/-1}
+  .form-row,.config-grid,.metrics-row,.home-grid,.two-col{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .landing-badge{margin-top:18px}
+  .landing-title{margin-top:210px}
+  .client-header{padding:14px 16px}
+  .client-header-text h1{font-size:1.28rem}
+  .units-grid,.units-grid-admin,.stats-grid{grid-template-columns:1fr}
+  .search-card,.booking-panel,.panel-card,.chart-card,.config-card,.table-wrap,.calendar-wrap,.next-list,.unit-card,.unit-card-admin,.stat-card,.no-results{border-radius:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LOADER ============ -->
+<div id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-text">Cargando</div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div id="toast"></div>
+
+<!-- ============ LOCK BTN (global) ============ -->
+<button id="lock-btn" title="Acceso titular" onclick="App.handleLock()">🔒</button>
+
+<!-- ============ MODAL ============ -->
+<div class="modal-overlay" id="modal-overlay" onclick="App.closeModal(event)">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Modal</div>
+      <button class="modal-close" onclick="App.closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- ============ LANDING ============ -->
+<div id="view-landing" class="view">
+  <div class="landing-bg" id="landing-bg"></div>
+  <div class="landing-overlay"></div>
+  <div class="landing-content">
+    <div class="landing-badge"><span></span><span id="landing-badge-text">Reservas</span></div>
+    <h1 class="landing-title" id="landing-title">Reservas<br><em>Departamento</em></h1>
+    <p class="landing-sub" id="landing-sub">Alquileres temporarios · Buenos Aires</p>
+    <button class="btn-client" onclick="App.goClient()">Panel cliente</button>
+  </div>
+  <div class="landing-footer" id="landing-footer">Ingresá tu consulta en cualquier momento</div>
+</div>
+
+<!-- ============ LOGIN ============ -->
+<div id="view-login" class="view hidden">
+  <div class="login-card">
+    <div class="login-icon">🔐</div>
+    <div class="login-title" id="login-biz-name">Panel Titular</div>
+    <div class="login-sub">Acceso privado al panel de administración</div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="login-password" class="form-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')App.login()">
+    </div>
+    <button class="btn-primary" onclick="App.login()">Ingresar</button>
+    <div class="login-back" onclick="App.goLanding()">← Volver al inicio</div>
+  </div>
+</div>
+
+<!-- ============ CLIENT PANEL ============ -->
+<div id="view-client" class="view hidden">
+  <div class="client-header">
+    <button class="client-back" onclick="App.goLanding()">←</button>
+    <div class="client-header-text">
+      <h1 id="client-header-title">Reservas Departamento</h1>
+      <p id="client-header-sub">Consultá disponibilidad y reservá tu estadía</p>
+    </div>
+  </div>
+  <div class="client-body">
+    <div class="search-card">
+      <div class="search-grid">
+        <div>
+          <div class="search-label">Entrada</div>
+          <input type="date" id="checkin" class="search-input">
+        </div>
+        <div>
+          <div class="search-label">Salida</div>
+          <input type="date" id="checkout" class="search-input">
+        </div>
+        <div class="guests-wrap">
+          <div class="search-label">Personas</div>
+          <input type="number" id="guests" class="guests-input search-input" value="2" min="1" max="20">
+        </div>
+        <div><button class="btn-search" onclick="App.checkAvailability()">Buscar</button></div>
+      </div>
+    </div>
+    <div id="client-results"></div>
+    <div id="client-booking-panel"></div>
+  </div>
+</div>
+
+<!-- ============ ADMIN PANEL ============ -->
+<div id="view-admin" class="view hidden">
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-logo">
+      <h1 id="admin-logo-name">Panel Admin</h1>
+      <p>Sistema de reservas</p>
+    </div>
+    <nav class="admin-nav">
+      <div class="nav-section-label">Principal</div>
+      <div class="nav-item active" data-section="home" onclick="App.navTo('home')">
+        <span class="nav-icon">🏠</span> Inicio
+      </div>
+      <div class="nav-item" data-section="reservations" onclick="App.navTo('reservations')">
+        <span class="nav-icon">📋</span> Reservas
+      </div>
+      <div class="nav-item" data-section="calendar" onclick="App.navTo('calendar')">
+        <span class="nav-icon">📅</span> Calendario
+      </div>
+      <div class="nav-section-label" style="margin-top:8px">Gestión</div>
+      <div class="nav-item" data-section="units" onclick="App.navTo('units')">
+        <span class="nav-icon">🏢</span> Unidades
+      </div>
+      <div class="nav-item" data-section="metrics" onclick="App.navTo('metrics')">
+        <span class="nav-icon">📊</span> Métricas
+      </div>
+      <div class="nav-item" data-section="config" onclick="App.navTo('config')">
+        <span class="nav-icon">⚙️</span> Configuración
+      </div>
+    </nav>
+    <div class="admin-user">
+      <div class="admin-avatar">AD</div>
+      <div class="admin-user-info">
+        <div class="name" id="admin-user-name">Administrador</div>
+        <div class="role">Titular</div>
+      </div>
+      <button class="btn-logout" title="Cerrar sesión" onclick="App.logout()">↩</button>
+    </div>
+  </aside>
+
+  <!-- Mobile bottom nav -->
+  <nav class="admin-bottom-nav">
+    <div class="bottom-nav-items">
+      <div class="bn-item active" data-section="home" onclick="App.navTo('home')">
+        <div class="bn-icon">🏠</div><div class="bn-label">Inicio</div>
+      </div>
+      <div class="bn-item" data-section="reservations" onclick="App.navTo('reservations')">
+        <div class="bn-icon">📋</div><div class="bn-label">Reservas</div>
+      </div>
+      <div class="bn-item" data-section="calendar" onclick="App.navTo('calendar')">
+        <div class="bn-icon">📅</div><div class="bn-label">Calendario</div>
+      </div>
+      <div class="bn-item" data-section="units" onclick="App.navTo('units')">
+        <div class="bn-icon">🏢</div><div class="bn-label">Unidades</div>
+      </div>
+      <div class="bn-item" data-section="config" onclick="App.navTo('config')">
+        <div class="bn-icon">⚙️</div><div class="bn-label">Config</div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h2 id="admin-section-title">Inicio</h2>
+      <div class="admin-topbar-right">
+        <div class="save-indicator" id="save-indicator">● Sincronizado</div>
+      </div>
+    </div>
+    <div class="admin-content" id="admin-content"></div>
+  </main>
+</div>
+
+<script>
+// =============================================
+// DEFAULT DATA
+// =============================================
+const DEFAULT_DATA = {
+  config: {
+    businessName: "Reservas Departamento",
+    subtitle: "Alquileres temporarios · Buenos Aires",
+    heroText: "Tu espacio en la ciudad",
+    badge: "Disponibilidad inmediata",
+    whatsapp: "5491112345678",
+    currency: "ARS",
+    adminPassword: "admin123",
+    waTemplate: `Hola! Me interesa hacer una reserva.\n\n📋 *SOLICITUD DE RESERVA*\n👤 Nombre: {nombre}\n🏠 Unidad: {unidad}\n📅 Entrada: {entrada}\n📅 Salida: {salida}\n🌙 Noches: {noches}\n👥 Personas: {personas}\n\n💰 *RESUMEN*\nTotal estimado: {total}\nSeña: {seña}\nMedio de pago: {pago}\n\n📝 Notas: {notas}\n\nQuedo a la espera de confirmación. Gracias!`
+  },
+  units: [
+    {
+      id:"u1",name:"Departamento Central",address:"Av. Corrientes 1200, CABA",
+      subtitle:"Studio moderno con luz natural",
+      description:"Amplio estudio completamente equipado en pleno centro porteño. Cocina integrada, baño completo, WiFi de alta velocidad y todo lo necesario para una estadía confortable.",
+      price:12000,capacity:2,
+      image:"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=70",
+      amenities:["WiFi","A/C","Cocina","TV","Lavandería"],
+      active:true,notes:""
+    },
+    {
+      id:"u2",name:"Loft Palermo",address:"Thames 678, Palermo, CABA",
+      subtitle:"Loft con terraza y vistas abiertas",
+      description:"Loft de diseño con techos altos, terraza privada y equipamiento premium. A pasos de los mejores restaurantes y bares de Palermo.",
+      price:18000,capacity:4,
+      image:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=70",
+      amenities:["WiFi","A/C","Terraza","Jacuzzi","Cocina Premium","TV 4K"],
+      active:true,notes:""
+    },
+    {
+      id:"u3",name:"Apartamento Recoleta",address:"Callao 890, Recoleta, CABA",
+      subtitle:"Clásico porteño completamente renovado",
+      description:"Precioso apartamento de época completamente renovado en el corazón de Recoleta. Techos altos, pisos de madera y decoración de diseño.",
+      price:15500,capacity:3,
+      image:"https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=800&q=70",
+      amenities:["WiFi","A/C","Cocina","Balcón","Parking"],
+      active:true,notes:""
+    },
+    {
+      id:"u4",name:"Suite Belgrano",address:"Virrey del Pino 2400, Belgrano, CABA",
+      subtitle:"Suite ejecutiva con amenities completos",
+      description:"Suite ejecutiva con todo incluido. Ideal para estadías largas o trabajo remoto. Escritorio, silla ergonómica, conexión de fibra óptica y servicio de limpieza semanal.",
+      price:22000,capacity:2,
+      image:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=70",
+      amenities:["WiFi Fibra","A/C","Escritorio","Gym","Concierge","Cocina"],
+      active:true,notes:""
+    }
+  ],
+  reservations: [
+    {
+      id:"r1",guestName:"María González",phone:"11-5555-1234",email:"maria@email.com",
+      unitId:"u1",checkIn:"2025-07-10",checkOut:"2025-07-14",guests:2,
+      status:"confirmed",paymentMethod:"Transferencia",notes:"Viaje de trabajo",
+      total:48000,createdAt:"2025-06-15"
+    },
+    {
+      id:"r2",guestName:"Carlos Rodríguez",phone:"11-4444-5678",email:"carlos@email.com",
+      unitId:"u2",checkIn:"2025-07-08",checkOut:"2025-07-11",guests:4,
+      status:"confirmed",paymentMethod:"Efectivo",notes:"Turistas de Córdoba",
+      total:54000,createdAt:"2025-06-20"
+    },
+    {
+      id:"r3",guestName:"Ana Martínez",phone:"11-3333-9012",email:"ana@email.com",
+      unitId:"u3",checkIn:"2025-07-20",checkOut:"2025-07-25",guests:3,
+      status:"pending",paymentMethod:"MercadoPago",notes:"",
+      total:77500,createdAt:"2025-06-25"
+    },
+    {
+      id:"r4",guestName:"Luis Fernández",phone:"11-2222-3456",email:"luis@email.com",
+      unitId:"u4",checkIn:"2025-06-01",checkOut:"2025-06-05",guests:2,
+      status:"completed",paymentMethod:"Transferencia",notes:"Cliente frecuente",
+      total:88000,createdAt:"2025-05-20"
+    },
+    {
+      id:"r5",guestName:"Sofía Pérez",phone:"11-1111-7890",email:"sofia@email.com",
+      unitId:"u1",checkIn:"2025-07-28",checkOut:"2025-08-02",guests:1,
+      status:"confirmed",paymentMethod:"Efectivo",notes:"Trabajo remoto",
+      total:60000,createdAt:"2025-06-28"
+    }
+  ]
+};
+
+// =============================================
+// STATE
+// =============================================
+const S = {
+  currentView: 'landing',
+  adminSection: 'home',
+  isLoggedIn: false,
+  data: null,
+  saveTimeout: null,
+  saveStatus: 'idle',
+  calMonth: new Date().getMonth(),
+  calYear: new Date().getFullYear(),
+  metricsPeriod: 'month',
+  selectedUnit: null,
+  checkIn: null,
+  checkOut: null,
+  guests: 2,
+  paymentMethod: 'Transferencia',
+  availabilityChecked: false
+};
+
+// =============================================
+// DB (localStorage + Firebase optional)
+// =============================================
+const DB = {
+  KEY: 'reservasDeptApp_v2',
+
+  load() {
+    try {
+      const raw = localStorage.getItem(this.KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // Merge with defaults to ensure all keys exist
+        return this.merge(DEFAULT_DATA, parsed);
+      }
+    } catch(e) { console.warn('DB load error', e); }
+    return JSON.parse(JSON.stringify(DEFAULT_DATA));
+  },
+
+  save(data) {
+    try {
+      localStorage.setItem(this.KEY, JSON.stringify(data));
+      return true;
+    } catch(e) {
+      console.error('DB save error', e);
+      return false;
+    }
+  },
+
+  merge(defaults, saved) {
+    const result = JSON.parse(JSON.stringify(defaults));
+    if (!saved) return result;
+    // Override with saved data
+    if (saved.config) Object.assign(result.config, saved.config);
+    if (saved.units && saved.units.length) result.units = saved.units;
+    if (saved.reservations && saved.reservations.length) result.reservations = saved.reservations;
+    return result;
+  }
+};
+
+// =============================================
+// UTILS
+// =============================================
+const U = {
+  id() { return 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2,8); },
+  
+  fmtDate(str) {
+    if (!str) return '-';
+    const [y,m,d] = str.split('-');
+    const months = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    return `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
+  },
+  
+  fmtMoney(n, currency='ARS') {
+    if (!n && n !== 0) return '-';
+    return new Intl.NumberFormat('es-AR',{style:'currency',currency,minimumFractionDigits:0}).format(n);
+  },
+  
+  nights(ci, co) {
+    if (!ci||!co) return 0;
+    return Math.max(0, Math.round((new Date(co)-new Date(ci))/(1000*60*60*24)));
+  },
+  
+  todayStr() {
+    return new Date().toISOString().split('T')[0];
+  },
+  
+  nextDayStr(d) {
+    const dt = new Date(d); dt.setDate(dt.getDate()+1);
+    return dt.toISOString().split('T')[0];
+  },
+  
+  isOverlap(ci1,co1,ci2,co2) {
+    return ci1 < co2 && co1 > ci2;
+  },
+  
+  monthName(m) {
+    return ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][m];
+  },
+  
+  statusLabel(s) {
+    const map={confirmed:'Confirmada',pending:'Pendiente',completed:'Completada',cancelled:'Cancelada'};
+    return map[s]||s;
+  },
+  
+  statusClass(s) {
+    const map={confirmed:'badge-ok',pending:'badge-warn',completed:'badge-accent',cancelled:'badge-err'};
+    return map[s]||'badge-neutral';
+  },
+
+  debounce(fn, ms) {
+    let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>fn(...a),ms); };
+  },
+
+  escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+};
+
+// =============================================
+// TOAST
+// =============================================
+const Toast = {
+  t: null,
+  show(msg, type='') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = 'show' + (type ? ' '+type : '');
+    clearTimeout(this.t);
+    this.t = setTimeout(()=>{ el.className=''; }, 2800);
+  }
+};
+
+// =============================================
+// SAVE INDICATOR
+// =============================================
+const SaveInd = {
+  set(status) {
+    const el = document.getElementById('save-indicator');
+    if (!el) return;
+    S.saveStatus = status;
+    const map = {
+      idle: ['● Sincronizado', ''],
+      saving: ['⏳ Guardando…', 'saving'],
+      saved: ['✓ Cambios guardados', 'saved'],
+      error: ['⚠ Error al guardar', 'error']
+    };
+    const [txt, cls] = map[status] || map.idle;
+    el.textContent = txt;
+    el.className = 'save-indicator' + (cls ? ' '+cls : '');
+    if (status === 'saved') {
+      setTimeout(()=>SaveInd.set('idle'), 2500);
+    }
+  }
+};
+
+// =============================================
+// MAIN APP
+// =============================================
+const App = {
+  // ---- INIT ----
+  init() {
+    S.data = DB.load();
+    this.applyConfig();
+    setTimeout(() => {
+      document.getElementById('loader').classList.add('fade-out');
+      this.showView('landing');
+    }, 900);
+  },
+
+  applyConfig() {
+    const c = S.data.config;
+    document.getElementById('page-title') && (document.title = c.businessName);
+    const t = document.getElementById('landing-title');
+    if (t) {
+      const parts = c.businessName.split(' ');
+      if (parts.length > 1) {
+        t.innerHTML = parts.slice(0,-1).join(' ') + '<br><em>' + parts.slice(-1) + '</em>';
+      } else {
+        t.innerHTML = c.businessName;
+      }
+    }
+    const sb = document.getElementById('landing-sub');
+    if (sb) sb.textContent = c.subtitle;
+    const badge = document.getElementById('landing-badge-text');
+    if (badge) badge.textContent = c.badge || 'Reservas';
+    const ch = document.getElementById('client-header-title');
+    if (ch) ch.textContent = c.businessName;
+    const chs = document.getElementById('client-header-sub');
+    if (chs) chs.textContent = c.heroText || c.subtitle;
+    const al = document.getElementById('admin-logo-name');
+    if (al) al.textContent = c.businessName;
+    const lbn = document.getElementById('login-biz-name');
+    if (lbn) lbn.textContent = 'Panel Titular · ' + c.businessName;
+  },
+
+  save: U.debounce(function() {
+    SaveInd.set('saving');
+    const ok = DB.save(S.data);
+    SaveInd.set(ok ? 'saved' : 'error');
+    if (!ok) Toast.show('Error al guardar localmente', 'err');
+  }, 500),
+
+  // ---- VIEWS ----
+  showView(name) {
+    ['landing','login','client','admin'].forEach(v => {
+      document.getElementById('view-'+v)?.classList.toggle('hidden', v !== name);
+    });
+    S.currentView = name;
+    const lock = document.getElementById('lock-btn');
+    if (name === 'client') {
+      lock.classList.add('on-light');
+      lock.style.display = 'none'; // Hidden in client view
+    } else if (name === 'admin') {
+      lock.style.display = 'none';
+    } else {
+      lock.style.display = '';
+      lock.classList.remove('on-light');
+    }
+  },
+
+  goLanding() { this.showView('landing'); },
+  
+  goClient() {
+    this.showView('client');
+    // Set default dates
+    const today = U.todayStr();
+    const next3 = new Date(); next3.setDate(next3.getDate()+3);
+    document.getElementById('checkin').value = today;
+    document.getElementById('checkout').value = next3.toISOString().split('T')[0];
+    document.getElementById('guests').value = 2;
+    document.getElementById('client-results').innerHTML = '';
+    document.getElementById('client-booking-panel').innerHTML = '';
+    S.selectedUnit = null;
+    S.availabilityChecked = false;
+    this.renderClientInitial();
+  },
+
+  renderClientInitial() {
+    const el = document.getElementById('client-results');
+    el.innerHTML = `
+      <div class="no-results">
+        <div class="nr-icon">🔍</div>
+        <h3>Ingresá tus fechas</h3>
+        <p>Seleccioná entrada, salida y personas para ver disponibilidad</p>
+      </div>`;
+  },
+
+  // ---- AUTH ----
+  handleLock() {
+    this.showView('login');
+  },
+
+  login() {
+    const pw = document.getElementById('login-password').value;
+    if (!pw) { Toast.show('Ingresá la contraseña', 'err'); return; }
+    if (pw === S.data.config.adminPassword) {
+      S.isLoggedIn = true;
+      document.getElementById('login-password').value = '';
+      this.showView('admin');
+      this.navTo('home');
+      Toast.show('Bienvenido al panel');
+    } else {
+      Toast.show('Contraseña incorrecta', 'err');
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-password').focus();
+    }
+  },
+
+  logout() {
+    S.isLoggedIn = false;
+    this.showView('landing');
+    Toast.show('Sesión cerrada');
+  },
+
+  // ---- ADMIN NAV ----
+  navTo(section) {
+    S.adminSection = section;
+    // Update nav items
+    document.querySelectorAll('[data-section]').forEach(el => {
+      el.classList.toggle('active', el.dataset.section === section);
+    });
+    const titles = {
+      home:'Inicio',reservations:'Reservas',calendar:'Calendario',
+      units:'Unidades',metrics:'Métricas',config:'Configuración'
+    };
+    document.getElementById('admin-section-title').textContent = titles[section] || section;
+    const content = document.getElementById('admin-content');
+    const renders = {
+      home: ()=>this.renderHome(),
+      reservations: ()=>this.renderReservations(),
+      calendar: ()=>this.renderCalendar(),
+      units: ()=>this.renderUnits(),
+      metrics: ()=>this.renderMetrics(),
+      config: ()=>this.renderConfig()
+    };
+    content.innerHTML = '';
+    (renders[section]||renders.home)();
+  },
+
+  // ---- CLIENT AVAILABILITY ----
+  checkAvailability() {
+    const ci = document.getElementById('checkin').value;
+    const co = document.getElementById('checkout').value;
+    const g = parseInt(document.getElementById('guests').value) || 2;
+    if (!ci || !co) { Toast.show('Seleccioná fechas de entrada y salida', 'err'); return; }
+    if (ci >= co) { Toast.show('La salida debe ser posterior a la entrada', 'err'); return; }
+    S.checkIn = ci; S.checkOut = co; S.guests = g;
+    S.availabilityChecked = true;
+    S.selectedUnit = null;
+    document.getElementById('client-booking-panel').innerHTML = '';
+
+    const available = S.data.units.filter(u => {
+      if (!u.active) return false;
+      if (u.capacity < g) return false;
+      // Check no overlapping confirmed/pending reservations
+      const conflict = S.data.reservations.some(r =>
+        r.unitId === u.id &&
+        ['confirmed','pending'].includes(r.status) &&
+        U.isOverlap(ci, co, r.checkIn, r.checkOut)
+      );
+      return !conflict;
+    });
+
+    const nights = U.nights(ci, co);
+    const el = document.getElementById('client-results');
+
+    if (!available.length) {
+      el.innerHTML = `
+        <div class="no-results">
+          <div class="nr-icon">😔</div>
+          <h3>Sin disponibilidad</h3>
+          <p>No hay unidades disponibles para esas fechas y cantidad de personas.<br>Probá cambiar las fechas.</p>
+        </div>`;
+      return;
+    }
+
+    el.innerHTML = `
+      <div class="results-header">
+        <div class="results-title">${available.length} unidad${available.length>1?'es':''} disponible${available.length>1?'s':''}</div>
+        <div class="results-count">${nights} noche${nights>1?'s':''} · ${g} persona${g>1?'s':''}</div>
+      </div>
+      <div class="units-grid">
+        ${available.map(u => this.unitCard(u, nights)).join('')}
+      </div>`;
+  },
+
+  unitCard(u, nights) {
+    const total = u.price * nights;
+    const curr = S.data.config.currency || 'ARS';
+    const selected = S.selectedUnit?.id === u.id;
+    const imgHTML = u.image
+      ? `<img class="unit-img" src="${U.escHtml(u.image)}" alt="${U.escHtml(u.name)}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=unit-img-placeholder>🏢</div>'">`
+      : `<div class="unit-img-placeholder">🏢</div>`;
+    return `
+      <div class="unit-card${selected?' selected':''}" id="card-${u.id}">
+        ${imgHTML}
+        <div class="unit-body">
+          <div class="unit-name">${U.escHtml(u.name)}</div>
+          <div class="unit-addr">📍 ${U.escHtml(u.address)}</div>
+          <div class="unit-amenities">
+            ${(u.amenities||[]).slice(0,4).map(a=>`<span class="badge badge-neutral">${U.escHtml(a)}</span>`).join('')}
+            ${u.capacity?`<span class="badge badge-accent">👥 ${u.capacity} pers.</span>`:''}
+          </div>
+          <div class="unit-footer">
+            <div class="unit-price">${U.fmtMoney(u.price,curr)}<span>/noche</span>
+              ${nights?`<div style="font-size:.72rem;color:var(--text-3);font-family:'Plus Jakarta Sans'">Total: ${U.fmtMoney(total,curr)}</div>`:''}
+            </div>
+            <button class="btn-select${selected?' selected':''}" onclick="App.selectUnit('${u.id}')">
+              ${selected?'✓ Seleccionado':'Seleccionar'}
+            </button>
+          </div>
+        </div>
+      </div>`;
+  },
+
+  selectUnit(unitId) {
+    S.selectedUnit = S.data.units.find(u=>u.id===unitId) || null;
+    // Re-render cards to update selected state
+    if (S.availabilityChecked) {
+      document.querySelectorAll('.unit-card').forEach(c=>{
+        const id = c.id.replace('card-','');
+        c.classList.toggle('selected', id===unitId);
+        const btn = c.querySelector('.btn-select');
+        if(btn){
+          btn.textContent = id===unitId ? '✓ Seleccionado' : 'Seleccionar';
+          btn.classList.toggle('selected', id===unitId);
+        }
+      });
+    }
+    if (S.selectedUnit) this.renderBookingPanel();
+  },
+
+  renderBookingPanel() {
+    const u = S.selectedUnit;
+    if (!u) return;
+    const nights = U.nights(S.checkIn, S.checkOut);
+    const total = u.price * nights;
+    const seña = Math.round(total * 0.3);
+    const curr = S.data.config.currency || 'ARS';
+    const el = document.getElementById('client-booking-panel');
+    el.innerHTML = `
+      <div class="booking-panel">
+        <h2>Completá tu reserva</h2>
+        <div class="booking-summary">
+          <div class="booking-summary-row"><span>Unidad</span><span><strong>${U.escHtml(u.name)}</strong></span></div>
+          <div class="booking-summary-row"><span>Entrada</span><span>${U.fmtDate(S.checkIn)}</span></div>
+          <div class="booking-summary-row"><span>Salida</span><span>${U.fmtDate(S.checkOut)}</span></div>
+          <div class="booking-summary-row"><span>Noches</span><span>${nights}</span></div>
+          <div class="booking-summary-row"><span>Personas</span><span>${S.guests}</span></div>
+          <div class="booking-summary-row"><span>Tarifa/noche</span><span>${U.fmtMoney(u.price,curr)}</span></div>
+          <div class="booking-summary-row total"><span>Total estimado</span><span>${U.fmtMoney(total,curr)}</span></div>
+          <div class="booking-summary-row"><span>Seña (30%)</span><span>${U.fmtMoney(seña,curr)}</span></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group-inline">
+            <label>Nombre completo *</label>
+            <input id="f-name" class="form-input" type="text" placeholder="Tu nombre">
+          </div>
+          <div class="form-group-inline">
+            <label>Teléfono *</label>
+            <input id="f-phone" class="form-input" type="tel" placeholder="11-1234-5678">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group-inline">
+            <label>Email</label>
+            <input id="f-email" class="form-input" type="email" placeholder="tu@email.com">
+          </div>
+          <div class="form-group-inline">
+            <label>Personas</label>
+            <input id="f-guests" class="form-input" type="number" value="${S.guests}" min="1">
+          </div>
+        </div>
+        <div class="form-group-inline">
+          <label>Medio de pago</label>
+          <div class="payment-options">
+            ${['Transferencia','Efectivo','MercadoPago','Tarjeta'].map(p=>`
+              <button class="payment-btn${S.paymentMethod===p?' active':''}" onclick="App.selectPayment('${p}')">${p}</button>
+            `).join('')}
+          </div>
+        </div>
+        <div class="form-group-inline" style="margin-top:14px">
+          <label>Notas adicionales</label>
+          <textarea id="f-notes" class="form-input" placeholder="Horario de llegada, requerimientos especiales…"></textarea>
+        </div>
+        <button class="btn-whatsapp" onclick="App.openWhatsApp()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Confirmar por WhatsApp
+        </button>
+      </div>`;
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+  },
+
+  selectPayment(p) {
+    S.paymentMethod = p;
+    document.querySelectorAll('.payment-btn').forEach(b=>{
+      b.classList.toggle('active', b.textContent.trim()===p);
+    });
+  },
+
+  openWhatsApp() {
+    const name = document.getElementById('f-name')?.value?.trim();
+    const phone = document.getElementById('f-phone')?.value?.trim();
+    if (!name||!phone) { Toast.show('Completá nombre y teléfono', 'err'); return; }
+    const u = S.selectedUnit;
+    if (!u) return;
+    const nights = U.nights(S.checkIn, S.checkOut);
+    const total = u.price * nights;
+    const seña = Math.round(total * 0.3);
+    const curr = S.data.config.currency || 'ARS';
+    const notes = document.getElementById('f-notes')?.value?.trim() || 'Sin notas';
+    const tmpl = S.data.config.waTemplate || DEFAULT_DATA.config.waTemplate;
+    const msg = tmpl
+      .replace('{nombre}', name)
+      .replace('{unidad}', u.name)
+      .replace('{entrada}', U.fmtDate(S.checkIn))
+      .replace('{salida}', U.fmtDate(S.checkOut))
+      .replace('{noches}', nights)
+      .replace('{personas}', document.getElementById('f-guests')?.value || S.guests)
+      .replace('{total}', U.fmtMoney(total,curr))
+      .replace('{seña}', U.fmtMoney(seña,curr))
+      .replace('{pago}', S.paymentMethod)
+      .replace('{notas}', notes);
+    const wa = S.data.config.whatsapp || '5491112345678';
+    window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
+  },
+
+  // =============================================
+  // ADMIN - HOME
+  // =============================================
+  renderHome() {
+    const d = S.data;
+    const today = U.todayStr();
+    const curr = d.config.currency || 'ARS';
+    const activeRes = d.reservations.filter(r=>r.status==='confirmed'||r.status==='pending');
+    const monthStart = today.slice(0,7) + '-01';
+    const monthEnd = today.slice(0,7) + '-31';
+    const monthIncome = d.reservations
+      .filter(r=>r.status==='confirmed'||r.status==='completed')
+      .filter(r=>r.checkIn>=monthStart&&r.checkIn<=monthEnd)
+      .reduce((s,r)=>s+(r.total||0),0);
+    const totalGuests = activeRes.reduce((s,r)=>s+(r.guests||0),0);
+    const totalUnits = d.units.filter(u=>u.active).length;
+    const occupiedUnits = new Set(activeRes.filter(r=>r.checkIn<=today&&r.checkOut>today).map(r=>r.unitId)).size;
+    const occupancy = totalUnits ? Math.round(occupiedUnits/totalUnits*100) : 0;
+
+    const nextCheckins = d.reservations
+      .filter(r=>['confirmed','pending'].includes(r.status)&&r.checkIn>=today)
+      .sort((a,b)=>a.checkIn.localeCompare(b.checkIn)).slice(0,4);
+    const nextCheckouts = d.reservations
+      .filter(r=>['confirmed','pending'].includes(r.status)&&r.checkOut>=today)
+      .sort((a,b)=>a.checkOut.localeCompare(b.checkOut)).slice(0,4);
+
+    document.getElementById('admin-content').innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card blue">
+          <div class="stat-label">Ingresos del mes</div>
+          <div class="stat-value">${U.fmtMoney(monthIncome,curr)}</div>
+          <div class="stat-change up">↑ Este mes</div>
+          <div class="stat-icon">💰</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-label">Reservas activas</div>
+          <div class="stat-value">${activeRes.length}</div>
+          <div class="stat-change">${d.reservations.filter(r=>r.status==='pending').length} pendiente${d.reservations.filter(r=>r.status==='pending').length!==1?'s':''}</div>
+          <div class="stat-icon">📋</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Ocupación hoy</div>
+          <div class="stat-value">${occupancy}%</div>
+          <div class="stat-change">${occupiedUnits}/${totalUnits} unidades</div>
+          <div class="stat-icon">🏢</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">Huéspedes activos</div>
+          <div class="stat-value">${totalGuests}</div>
+          <div class="stat-change">${activeRes.length} reservas activas</div>
+          <div class="stat-icon">👥</div>
+        </div>
+      </div>
+
+      <div class="home-grid">
+        <div>
+          <div class="section-header">
+            <div class="section-title">Próximas entradas</div>
+          </div>
+          <div class="next-list">
+            ${nextCheckins.length ? nextCheckins.map(r=>{
+              const u = d.units.find(x=>x.id===r.unitId);
+              return `<div class="next-item">
+                <div class="next-dot" style="background:var(--ok)"></div>
+                <div class="next-info">
+                  <div class="next-name">${U.escHtml(r.guestName)}</div>
+                  <div class="next-detail">${u?.name||'-'} · ${r.guests} persona${r.guests!==1?'s':''}</div>
+                </div>
+                <div class="next-date">${U.fmtDate(r.checkIn)}</div>
+              </div>`;
+            }).join('') : '<div class="empty-state"><div class="es-icon">📭</div><p>Sin próximas entradas</p></div>'}
+          </div>
+        </div>
+        <div>
+          <div class="section-header">
+            <div class="section-title">Próximas salidas</div>
+          </div>
+          <div class="next-list">
+            ${nextCheckouts.length ? nextCheckouts.map(r=>{
+              const u = d.units.find(x=>x.id===r.unitId);
+              return `<div class="next-item">
+                <div class="next-dot" style="background:var(--gold)"></div>
+                <div class="next-info">
+                  <div class="next-name">${U.escHtml(r.guestName)}</div>
+                  <div class="next-detail">${u?.name||'-'}</div>
+                </div>
+                <div class="next-date">${U.fmtDate(r.checkOut)}</div>
+              </div>`;
+            }).join('') : '<div class="empty-state"><div class="es-icon">📭</div><p>Sin próximas salidas</p></div>'}
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px">
+        <div class="section-header">
+          <div class="section-title">Estado de unidades</div>
+          <button class="btn-sm btn-outline" onclick="App.navTo('units')">Ver todas</button>
+        </div>
+        <div class="panel-grid">
+          ${d.units.filter(u=>u.active).map(u=>{
+            const today2 = U.todayStr();
+            const occ = d.reservations.some(r=>r.unitId===u.id&&['confirmed','pending'].includes(r.status)&&r.checkIn<=today2&&r.checkOut>today2);
+            return `<div class="panel-card" style="display:flex;align-items:center;gap:12px">
+              <div style="width:44px;height:44px;border-radius:var(--r-sm);background:${occ?'var(--warn-bg)':'var(--ok-bg)'};color:${occ?'var(--warn)':'var(--ok)'};display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0">🏢</div>
+              <div>
+                <div style="font-weight:700;font-size:.88rem">${U.escHtml(u.name)}</div>
+                <span class="badge ${occ?'badge-warn':'badge-ok'}">${occ?'Ocupado':'Disponible'}</span>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  },
+
+  // =============================================
+  // ADMIN - RESERVATIONS
+  // =============================================
+  renderReservations(filter='', statusFilter='all') {
+    const d = S.data;
+    let res = [...d.reservations].sort((a,b)=>b.checkIn.localeCompare(a.checkIn));
+    if (filter) {
+      const f = filter.toLowerCase();
+      res = res.filter(r=>r.guestName.toLowerCase().includes(f)||r.phone?.includes(f)||(d.units.find(u=>u.id===r.unitId)?.name||'').toLowerCase().includes(f));
+    }
+    if (statusFilter !== 'all') res = res.filter(r=>r.status===statusFilter);
+    const curr = d.config.currency || 'ARS';
+
+    document.getElementById('admin-content').innerHTML = `
+      <div class="search-bar">
+        <input class="search-input-bar" placeholder="Buscar por nombre, teléfono o unidad…" value="${U.escHtml(filter)}"
+          oninput="App.renderReservations(this.value,document.getElementById('rf-status').value)">
+        <select class="filter-select" id="rf-status" onchange="App.renderReservations(document.querySelector('.search-input-bar').value,this.value)">
+          <option value="all">Todos los estados</option>
+          <option value="confirmed">Confirmadas</option>
+          <option value="pending">Pendientes</option>
+          <option value="completed">Completadas</option>
+          <option value="cancelled">Canceladas</option>
+        </select>
+        <button class="btn-sm btn-accent" onclick="App.openReservationModal()">+ Nueva reserva</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Huésped</th>
+                <th>Unidad</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Pers.</th>
+                <th>Estado</th>
+                <th>Total</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${res.length ? res.map(r=>{
+                const u = d.units.find(x=>x.id===r.unitId);
+                return `<tr>
+                  <td><strong>${U.escHtml(r.guestName)}</strong><br><span style="font-size:.73rem;color:var(--text-3)">${U.escHtml(r.phone||'')}</span></td>
+                  <td>${u?U.escHtml(u.name):'-'}</td>
+                  <td>${U.fmtDate(r.checkIn)}</td>
+                  <td>${U.fmtDate(r.checkOut)}</td>
+                  <td>${r.guests||'-'}</td>
+                  <td><span class="badge ${U.statusClass(r.status)}">${U.statusLabel(r.status)}</span></td>
+                  <td>${r.total?U.fmtMoney(r.total,curr):'-'}</td>
+                  <td><div class="td-actions">
+                    <button class="action-btn edit" title="Editar" onclick="App.openReservationModal('${r.id}')">✏️</button>
+                    <button class="action-btn del" title="Eliminar" onclick="App.deleteReservation('${r.id}')">🗑</button>
+                  </div></td>
+                </tr>`;
+              }).join('') : `<tr><td colspan="8"><div class="empty-state"><div class="es-icon">📋</div><p>Sin reservas</p></div></td></tr>`}
+            </tbody>
+          </table>
+        </div>
+      </div>`;
+    if (statusFilter!=='all') {
+      const el = document.getElementById('rf-status');
+      if(el) el.value = statusFilter;
+    }
+  },
+
+  openReservationModal(id) {
+    const d = S.data;
+    const r = id ? d.reservations.find(x=>x.id===id) : null;
+    const units = d.units.filter(u=>u.active);
+    const curr = d.config.currency || 'ARS';
+    document.getElementById('modal-title').textContent = r ? 'Editar reserva' : 'Nueva reserva';
+    document.getElementById('modal-body').innerHTML = `
+      <div class="form-row">
+        <div class="form-group-inline">
+          <label>Nombre *</label>
+          <input id="mf-name" class="form-input" value="${r?U.escHtml(r.guestName):''}" placeholder="Nombre completo">
+        </div>
+        <div class="form-group-inline">
+          <label>Teléfono</label>
+          <input id="mf-phone" class="form-input" value="${r?U.escHtml(r.phone||''):''}" placeholder="11-1234-5678">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group-inline">
+          <label>Email</label>
+          <input id="mf-email" class="form-input" value="${r?U.escHtml(r.email||''):''}" placeholder="email@ejemplo.com">
+        </div>
+        <div class="form-group-inline">
+          <label>Unidad *</label>
+          <select id="mf-unit" class="form-input">
+            ${units.map(u=>`<option value="${u.id}"${r&&r.unitId===u.id?' selected':''}>${U.escHtml(u.name)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group-inline">
+          <label>Entrada *</label>
+          <input id="mf-checkin" class="form-input" type="date" value="${r?r.checkIn:''}">
+        </div>
+        <div class="form-group-inline">
+          <label>Salida *</label>
+          <input id="mf-checkout" class="form-input" type="date" value="${r?r.checkOut:''}">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group-inline">
+          <label>Personas</label>
+          <input id="mf-guests" class="form-input" type="number" value="${r?r.guests:2}" min="1">
+        </div>
+        <div class="form-group-inline">
+          <label>Estado</label>
+          <select id="mf-status" class="form-input">
+            ${['confirmed','pending','completed','cancelled'].map(s=>`<option value="${s}"${r&&r.status===s?' selected':''}>${U.statusLabel(s)}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group-inline">
+          <label>Total (${curr})</label>
+          <input id="mf-total" class="form-input" type="number" value="${r?r.total||'':''}" placeholder="0">
+        </div>
+        <div class="form-group-inline">
+          <label>Medio de pago</label>
+          <select id="mf-payment" class="form-input">
+            ${['Transferencia','Efectivo','MercadoPago','Tarjeta'].map(p=>`<option${r&&r.paymentMethod===p?' selected':''}>${p}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="form-group-inline">
+        <label>Notas</label>
+        <textarea id="mf-notes" class="form-input">${r?U.escHtml(r.notes||''):''}</textarea>
+      </div>`;
+    document.getElementById('modal-footer').innerHTML = `
+      <button class="btn-sm btn-outline" onclick="App.closeModal()">Cancelar</button>
+      <button class="btn-sm btn-accent" onclick="App.saveReservation('${r?.id||''}')">
+        ${r?'Guardar cambios':'Crear reserva'}
+      </button>`;
+    this.openModal();
+  },
+
+  saveReservation(id) {
+    const name = document.getElementById('mf-name').value.trim();
+    const ci = document.getElementById('mf-checkin').value;
+    const co = document.getElementById('mf-checkout').value;
+    const unitId = document.getElementById('mf-unit').value;
+    if (!name||!ci||!co||!unitId) { Toast.show('Completá los campos obligatorios', 'err'); return; }
+    if (ci>=co) { Toast.show('La salida debe ser posterior a la entrada', 'err'); return; }
+    const obj = {
+      guestName: name,
+      phone: document.getElementById('mf-phone').value.trim(),
+      email: document.getElementById('mf-email').value.trim(),
+      unitId, checkIn:ci, checkOut:co,
+      guests: parseInt(document.getElementById('mf-guests').value)||2,
+      status: document.getElementById('mf-status').value,
+      total: parseFloat(document.getElementById('mf-total').value)||0,
+      paymentMethod: document.getElementById('mf-payment').value,
+      notes: document.getElementById('mf-notes').value.trim()
+    };
+    if (id) {
+      const idx = S.data.reservations.findIndex(r=>r.id===id);
+      if (idx>=0) S.data.reservations[idx] = {...S.data.reservations[idx], ...obj};
+    } else {
+      obj.id = U.id();
+      obj.createdAt = U.todayStr();
+      S.data.reservations.push(obj);
+    }
+    this.save();
+    this.closeModal();
+    this.renderReservations();
+    Toast.show(id ? 'Reserva actualizada' : 'Reserva creada', 'ok');
+  },
+
+  deleteReservation(id) {
+    if (!confirm('¿Eliminar esta reserva?')) return;
+    S.data.reservations = S.data.reservations.filter(r=>r.id!==id);
+    this.save();
+    this.renderReservations();
+    Toast.show('Reserva eliminada');
+  },
+
+  // =============================================
+  // ADMIN - CALENDAR
+  // =============================================
+  renderCalendar() {
+    const units = S.data.units.filter(u=>u.active);
+    const year = S.calYear, month = S.calMonth;
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+    const today = U.todayStr();
+
+    const getCellStatus = (unitId, dayStr) => {
+      const r = S.data.reservations.find(res =>
+        res.unitId===unitId &&
+        ['confirmed','pending'].includes(res.status) &&
+        res.checkIn <= dayStr && res.checkOut > dayStr
+      );
+      if (!r) return 'avail';
+      return r.status === 'pending' ? 'reserved' : 'occupied';
+    };
+
+    document.getElementById('admin-content').innerHTML = `
+      <div class="calendar-nav">
+        <button class="cal-nav-btn" onclick="App.calPrev()">←</button>
+        <div class="cal-month">${U.monthName(month)} ${year}</div>
+        <button class="cal-nav-btn" onclick="App.calNext()">→</button>
+      </div>
+      <div class="cal-legend">
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#e8f4ed"></div>Disponible</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#fff0d6"></div>Pendiente</div>
+        <div class="cal-legend-item"><div class="cal-legend-dot" style="background:#fae8e8"></div>Ocupado</div>
+      </div>
+      <div class="calendar-wrap">
+        <table class="cal-table">
+          <thead>
+            <tr>
+              <th>Día</th>
+              ${units.map(u=>`<th>${U.escHtml(u.name.split(' ').slice(0,2).join(' '))}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            ${Array.from({length:daysInMonth},(_,i)=>{
+              const d = i+1;
+              const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+              const isToday = ds===today;
+              return `<tr>
+                <td style="${isToday?'font-weight:700;color:var(--accent)':''}">${d}</td>
+                ${units.map(u=>{
+                  const st = getCellStatus(u.id, ds);
+                  const cls = {avail:'cal-avail',reserved:'cal-reserved',occupied:'cal-occupied'}[st];
+                  const lbl = {avail:'✓',reserved:'↺',occupied:'●'}[st];
+                  return `<td><div class="cal-cell ${cls}">${lbl}</div></td>`;
+                }).join('')}
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  },
+
+  calPrev() {
+    if (S.calMonth===0) { S.calMonth=11; S.calYear--; }
+    else S.calMonth--;
+    this.renderCalendar();
+  },
+
+  calNext() {
+    if (S.calMonth===11) { S.calMonth=0; S.calYear++; }
+    else S.calMonth++;
+    this.renderCalendar();
+  },
+
+  // =============================================
+  // ADMIN - UNITS
+  // =============================================
+  renderUnits() {
+    const d = S.data;
+    document.getElementById('admin-content').innerHTML = `
+      <div class="section-header" style="margin-bottom:20px">
+        <div class="section-title">Unidades (${d.units.length})</div>
+        <button class="btn-sm btn-accent" onclick="App.openUnitModal()">+ Agregar unidad</button>
+      </div>
+      <div class="units-grid-admin">
+        ${d.units.map(u=>{
+          const imgHTML = u.image
+            ? `<img class="unit-card-admin-img" src="${U.escHtml(u.image)}" loading="lazy" onerror="this.parentNode.innerHTML='<div class=unit-card-admin-ph>🏢</div>'">`
+            : `<div class="unit-card-admin-ph">🏢</div>`;
+          return `<div class="unit-card-admin">
+            ${imgHTML}
+            <div class="unit-card-admin-body">
+              <div class="unit-card-admin-name">${U.escHtml(u.name)}</div>
+              <div class="unit-card-admin-addr">📍 ${U.escHtml(u.address||'')}</div>
+              <div class="unit-card-admin-price">${U.fmtMoney(u.price, d.config.currency||'ARS')}<span style="font-size:.72rem;color:var(--text-3);font-family:'Plus Jakarta Sans'">/noche</span></div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">
+                ${(u.amenities||[]).slice(0,4).map(a=>`<span class="badge badge-neutral">${U.escHtml(a)}</span>`).join('')}
+                <span class="badge ${u.active?'badge-ok':'badge-err'}">${u.active?'Activa':'Inactiva'}</span>
+              </div>
+              <div class="unit-card-admin-actions">
+                <button class="btn-sm btn-outline" style="flex:1" onclick="App.openUnitModal('${u.id}')">Editar</button>
+                <button class="btn-sm btn-danger" onclick="App.deleteUnit('${u.id}')">🗑</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+  },
+
+  openUnitModal(id) {
+    const u = id ? S.data.units.find(x=>x.id===id) : null;
+    document.getElementById('modal-title').textContent = u ? 'Editar unidad' : 'Nueva unidad';
+    document.getElementById('modal-body').innerHTML = `
+      <div class="form-row">
+        <div class="form-group-inline">
+          <label>Nombre *</label>
+          <input id="uf-name" class="form-input" value="${u?U.escHtml(u.name):''}" placeholder="Ej: Departamento Central">
+        </div>
+        <div class="form-group-inline">
+          <label>Precio/noche *</label>
+          <input id="uf-price" class="form-input" type="number" value="${u?u.price:''}" placeholder="12000">
+        </div>
+      </div>
+      <div class="form-group-inline">
+        <label>Dirección</label>
+        <input id="uf-addr" class="form-input" value="${u?U.escHtml(u.address||''):''}" placeholder="Calle y número, barrio, ciudad">
+      </div>
+      <div class="form-group-inline">
+        <label>Subtítulo</label>
+        <input id="uf-subtitle" class="form-input" value="${u?U.escHtml(u.subtitle||''):''}" placeholder="Breve descripción">
+      </div>
+      <div class="form-group-inline">
+        <label>Descripción</label>
+        <textarea id="uf-desc" class="form-input">${u?U.escHtml(u.description||''):''}</textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group-inline">
+          <label>Capacidad (personas)</label>
+          <input id="uf-cap" class="form-input" type="number" value="${u?u.capacity:2}" min="1">
+        </div>
+        <div class="form-group-inline">
+          <label>Estado</label>
+          <select id="uf-active" class="form-input">
+            <option value="1"${!u||u.active?' selected':''}>Activa</option>
+            <option value="0"${u&&!u.active?' selected':''}>Inactiva</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group-inline">
+        <label>URL de imagen</label>
+        <input id="uf-img" class="form-input" value="${u?U.escHtml(u.image||''):''}" placeholder="https://…">
+      </div>
+      <div class="form-group-inline">
+        <label>Amenities (separados por coma)</label>
+        <input id="uf-amen" class="form-input" value="${u?(u.amenities||[]).join(', '):''}" placeholder="WiFi, A/C, Cocina, TV">
+      </div>
+      <div class="form-group-inline">
+        <label>Notas internas</label>
+        <textarea id="uf-notes" class="form-input">${u?U.escHtml(u.notes||''):''}</textarea>
+      </div>`;
+    document.getElementById('modal-footer').innerHTML = `
+      <button class="btn-sm btn-outline" onclick="App.closeModal()">Cancelar</button>
+      <button class="btn-sm btn-accent" onclick="App.saveUnit('${u?.id||''}')">
+        ${u?'Guardar cambios':'Crear unidad'}
+      </button>`;
+    this.openModal();
+  },
+
+  saveUnit(id) {
+    const name = document.getElementById('uf-name').value.trim();
+    const price = parseFloat(document.getElementById('uf-price').value);
+    if (!name||!price) { Toast.show('Nombre y precio son obligatorios', 'err'); return; }
+    const obj = {
+      name, price, active: document.getElementById('uf-active').value==='1',
+      address: document.getElementById('uf-addr').value.trim(),
+      subtitle: document.getElementById('uf-subtitle').value.trim(),
+      description: document.getElementById('uf-desc').value.trim(),
+      capacity: parseInt(document.getElementById('uf-cap').value)||2,
+      image: document.getElementById('uf-img').value.trim(),
+      amenities: document.getElementById('uf-amen').value.split(',').map(a=>a.trim()).filter(Boolean),
+      notes: document.getElementById('uf-notes').value.trim()
+    };
+    if (id) {
+      const idx = S.data.units.findIndex(u=>u.id===id);
+      if (idx>=0) S.data.units[idx] = {...S.data.units[idx], ...obj};
+    } else {
+      obj.id = U.id();
+      S.data.units.push(obj);
+    }
+    this.save();
+    this.closeModal();
+    this.renderUnits();
+    Toast.show(id ? 'Unidad actualizada' : 'Unidad creada', 'ok');
+  },
+
+  deleteUnit(id) {
+    if (!confirm('¿Eliminar esta unidad? También se eliminarán sus reservas.')) return;
+    S.data.units = S.data.units.filter(u=>u.id!==id);
+    S.data.reservations = S.data.reservations.filter(r=>r.unitId!==id);
+    this.save();
+    this.renderUnits();
+    Toast.show('Unidad eliminada');
+  },
+
+  // =============================================
+  // ADMIN - METRICS
+  // =============================================
+  renderMetrics() {
+    const d = S.data;
+    const curr = d.config.currency || 'ARS';
+    const period = S.metricsPeriod;
+    const today = new Date();
+    let startDate;
+    if (period==='week') { startDate = new Date(today); startDate.setDate(startDate.getDate()-7); }
+    else if (period==='month') { startDate = new Date(today.getFullYear(), today.getMonth(), 1); }
+    else if (period==='quarter') { startDate = new Date(today); startDate.setMonth(startDate.getMonth()-3); }
+    else { startDate = new Date(today.getFullYear(),0,1); }
+
+    const startStr = startDate.toISOString().split('T')[0];
+    const filteredRes = d.reservations.filter(r =>
+      r.checkIn >= startStr &&
+      ['confirmed','completed'].includes(r.status)
+    );
+
+    const totalIncome = filteredRes.reduce((s,r)=>s+(r.total||0),0);
+    const totalRes = filteredRes.length;
+    const totalGuests = filteredRes.reduce((s,r)=>s+(r.guests||0),0);
+    const totalNights = filteredRes.reduce((s,r)=>s+U.nights(r.checkIn,r.checkOut),0);
+
+    const months = [];
+    for(let i=5;i>=0;i--) {
+      const d2 = new Date(today.getFullYear(), today.getMonth()-i, 1);
+      const y = d2.getFullYear(), m = String(d2.getMonth()+1).padStart(2,'0');
+      const prefix = `${y}-${m}`;
+      const income = d.reservations
+        .filter(r=>r.checkIn.startsWith(prefix)&&['confirmed','completed'].includes(r.status))
+        .reduce((s,r)=>s+(r.total||0),0);
+      months.push({label:U.monthName(d2.getMonth()).slice(0,3), value:income});
+    }
+    const maxVal = Math.max(...months.map(m=>m.value), 1);
+
+    const unitStats = d.units.map(u => {
+      const reservations = filteredRes.filter(r=>r.unitId===u.id);
+      const reservationsCount = reservations.length;
+      const nightsBooked = reservations.reduce((s,r)=>s+U.nights(r.checkIn,r.checkOut),0);
+      const income = reservations.reduce((s,r)=>s+(r.total||0),0);
+      const adr = nightsBooked ? Math.round(income / nightsBooked) : 0;
+      const avgTicket = reservationsCount ? Math.round(income / reservationsCount) : 0;
+      const periodDays = Math.max(1, Math.ceil((today - startDate) / (1000*60*60*24)));
+      const capacityNights = periodDays * 1;
+      const occupancy = capacityNights ? (nightsBooked / capacityNights) * 100 : 0;
+      return {
+        id:u.id,
+        name:u.name,
+        income,
+        reservationsCount,
+        nightsBooked,
+        adr,
+        avgTicket,
+        occupancy
+      };
+    });
+
+    const byIncome = [...unitStats].sort((a,b)=>b.income-a.income);
+    const byOccupancy = [...unitStats].sort((a,b)=>b.occupancy-a.occupancy);
+    const byTicket = [...unitStats].sort((a,b)=>b.avgTicket-a.avgTicket);
+
+    const rankHTML = (title, arr, formatter) => `
+      <div class="chart-card">
+        <div class="chart-title">${title}</div>
+        <div class="rank-list">
+          ${arr.map((u,idx)=>`
+            <div class="rank-item">
+              <div class="rank-pos">${idx+1}</div>
+              <div>
+                <div class="rank-name">${U.escHtml(u.name)}</div>
+                <div class="rank-meta">${u.reservationsCount} reserva${u.reservationsCount!==1?'s':''} · ${u.nightsBooked} noche${u.nightsBooked!==1?'s':''}</div>
+              </div>
+              <div class="rank-value">${formatter(u)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+
+    document.getElementById('admin-content').innerHTML = `
+      <div class="metrics-period">
+        ${[['week','Semana'],['month','Mes'],['quarter','Trimestre'],['year','Año']].map(([v,l])=>`
+          <button class="period-btn${period===v?' active':''}" onclick="S.metricsPeriod='${v}';App.renderMetrics()">${l}</button>
+        `).join('')}
+      </div>
+      <div class="stats-grid" style="margin-bottom:24px">
+        <div class="stat-card blue">
+          <div class="stat-label">Ingresos período</div>
+          <div class="stat-value">${U.fmtMoney(totalIncome,curr)}</div>
+          <div class="stat-change">${totalRes} reserva${totalRes!==1?'s':''}</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="stat-label">Reservas</div>
+          <div class="stat-value">${totalRes}</div>
+          <div class="stat-change">${totalNights} noches totales</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Huéspedes</div>
+          <div class="stat-value">${totalGuests}</div>
+          <div class="stat-change">${totalRes?Math.round(totalGuests/totalRes):0} promedio/reserva</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-label">Ticket promedio</div>
+          <div class="stat-value">${U.fmtMoney(totalRes?Math.round(totalIncome/totalRes):0,curr)}</div>
+          <div class="stat-change">por reserva</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Ingresos últimos 6 meses</div>
+        <div class="bar-chart">
+          ${months.map(m=>{
+            const pct = maxVal ? Math.round(m.value/maxVal*100) : 0;
+            return `<div class="bar-col">
+              <div class="bar-val">${m.value?U.fmtMoney(m.value,curr).replace(/[^\d.,]/g,''):''}</div>
+              <div class="bar-fill" style="height:${Math.max(pct,2)}%"></div>
+              <div class="bar-label">${m.label}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Ingresos por unidad</div>
+        <div>
+          ${unitStats.map(u=>{
+            const uPct = totalIncome ? Math.round(u.income/totalIncome*100) : 0;
+            return `<div style="margin-bottom:12px">
+              <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:5px">
+                <span>${U.escHtml(u.name)}</span>
+                <span>${U.fmtMoney(u.income,curr)} (${uPct}%)</span>
+              </div>
+              <div style="background:var(--surface-2);border-radius:40px;height:8px;overflow:hidden">
+                <div style="background:var(--accent);height:100%;border-radius:40px;width:${uPct}%;transition:width .5s ease"></div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Comparativa entre unidades</div>
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Unidad</th>
+                <th>Ocupación %</th>
+                <th>ADR</th>
+                <th>Ingresos</th>
+                <th>Reservas</th>
+                <th>Noches</th>
+                <th>Ticket promedio</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${unitStats.map(u=>`
+                <tr>
+                  <td><strong>${U.escHtml(u.name)}</strong></td>
+                  <td>${u.occupancy.toFixed(1)}%</td>
+                  <td>${U.fmtMoney(u.adr,curr)}</td>
+                  <td>${U.fmtMoney(u.income,curr)}</td>
+                  <td>${u.reservationsCount}</td>
+                  <td>${u.nightsBooked}</td>
+                  <td>${U.fmtMoney(u.avgTicket,curr)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="metrics-row">
+        ${rankHTML('Ranking por ingreso generado', byIncome, u => U.fmtMoney(u.income,curr))}
+        ${rankHTML('Ranking por ocupación', byOccupancy, u => `${u.occupancy.toFixed(1)}%`)}
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Ranking por ticket promedio</div>
+        <div class="rank-list">
+          ${byTicket.map((u,idx)=>`
+            <div class="rank-item">
+              <div class="rank-pos">${idx+1}</div>
+              <div>
+                <div class="rank-name">${U.escHtml(u.name)}</div>
+                <div class="rank-meta">ADR ${U.fmtMoney(u.adr,curr)} · ${u.reservationsCount} reserva${u.reservationsCount!==1?'s':''}</div>
+              </div>
+              <div class="rank-value">${U.fmtMoney(u.avgTicket,curr)}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+  },
+
+  // =============================================
+  // ADMIN - CONFIG
+  // =============================================
+  renderConfig() {
+    const c = S.data.config;
+    document.getElementById('admin-content').innerHTML = `
+      <div class="config-sections">
+        <div class="config-card">
+          <div class="config-card-title">Identidad del negocio</div>
+          <div class="config-grid">
+            <div class="config-field">
+              <label>Nombre del negocio</label>
+              <input data-key="businessName" value="${U.escHtml(c.businessName||'')}">
+              <div class="config-hint">Aparece en el título y encabezados</div>
+            </div>
+            <div class="config-field">
+              <label>Subtítulo</label>
+              <input data-key="subtitle" value="${U.escHtml(c.subtitle||'')}">
+            </div>
+            <div class="config-field">
+              <label>Texto hero (cliente)</label>
+              <input data-key="heroText" value="${U.escHtml(c.heroText||'')}">
+            </div>
+            <div class="config-field">
+              <label>Badge landing</label>
+              <input data-key="badge" value="${U.escHtml(c.badge||'')}">
+            </div>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <div class="config-card-title">WhatsApp y contacto</div>
+          <div class="config-grid">
+            <div class="config-field">
+              <label>Número de WhatsApp</label>
+              <input data-key="whatsapp" value="${U.escHtml(c.whatsapp||'')}" placeholder="5491112345678">
+              <div class="config-hint">Código de país + número, sin espacios ni símbolos</div>
+            </div>
+            <div class="config-field">
+              <label>Moneda</label>
+              <select data-key="currency">
+                <option value="ARS"${c.currency==='ARS'?' selected':''}>ARS – Peso argentino</option>
+                <option value="USD"${c.currency==='USD'?' selected':''}>USD – Dólar</option>
+                <option value="EUR"${c.currency==='EUR'?' selected':''}>EUR – Euro</option>
+                <option value="BRL"${c.currency==='BRL'?' selected':''}>BRL – Real</option>
+              </select>
+            </div>
+            <div class="config-field config-full">
+              <label>Plantilla de mensaje WhatsApp</label>
+              <textarea data-key="waTemplate" rows="8">${U.escHtml(c.waTemplate||DEFAULT_DATA.config.waTemplate)}</textarea>
+              <div class="config-hint">Variables disponibles: {nombre} {unidad} {entrada} {salida} {noches} {personas} {total} {seña} {pago} {notas}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <div class="config-card-title">Seguridad</div>
+          <div class="config-grid">
+            <div class="config-field">
+              <label>Nueva contraseña de acceso</label>
+              <input data-key="adminPassword" type="password" placeholder="••••••••">
+              <div class="config-hint">Dejá en blanco para no cambiar</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+
+    // Bind auto-save
+    document.querySelectorAll('#admin-content [data-key]').forEach(input => {
+      const key = input.dataset.key;
+      input.addEventListener('input', () => {
+        const val = input.value;
+        if (key === 'adminPassword' && !val) return; // Don't save empty password
+        S.data.config[key] = val;
+        this.applyConfig();
+        this.save();
+        Toast.show('Cambios guardados', 'ok');
+      });
+    });
+  },
+
+  // =============================================
+  // MODAL
+  // =============================================
+  openModal() {
+    const el = document.getElementById('modal-overlay');
+    el.classList.remove('hidden');
+    setTimeout(()=>el.classList.add('open'), 10);
+  },
+
+  closeModal(event) {
+    if (event && event.target !== document.getElementById('modal-overlay')) return;
+    const el = document.getElementById('modal-overlay');
+    el.classList.remove('open');
+    setTimeout(()=>el.classList.add('hidden'), 250);
+  }
+};
+
+// =============================================
+// INIT
+// =============================================
+document.addEventListener('DOMContentLoaded', () => App.init());
+</script>
+</body>
+</html>
