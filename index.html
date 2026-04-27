@@ -1218,6 +1218,21 @@ const App = {
   init() {
     S.data = DB.load();
     this.applyConfig();
+
+    // Fechas cliente: salida siempre posterior a entrada
+    const checkinInput = document.getElementById('checkin');
+    const checkoutInput = document.getElementById('checkout');
+
+    if (checkinInput && checkoutInput) {
+      checkinInput.addEventListener('change', () => {
+        App.syncCheckoutMinDate();
+      });
+
+      checkoutInput.addEventListener('change', () => {
+        App.validateCheckoutDate();
+      });
+    }
+
     setTimeout(() => {
       document.getElementById('loader').classList.add('fade-out');
       this.showView('landing');
@@ -1286,11 +1301,17 @@ const App = {
   goClient() {
     this.showView('client');
     // Set default dates
-    const today = U.todayStr();
-    const next3 = new Date(); next3.setDate(next3.getDate()+3);
-    document.getElementById('checkin').value = today;
-    document.getElementById('checkout').value = next3.toISOString().split('T')[0];
+    const checkin = document.getElementById('checkin');
+    const checkout = document.getElementById('checkout');
+    if (checkin && checkout) {
+      checkin.value = U.todayStr();
+      checkout.value = U.nextDayStr(checkin.value);
+      checkout.min = U.nextDayStr(checkin.value);
+      S.checkIn = checkin.value;
+      S.checkOut = checkout.value;
+    }
     document.getElementById('guests').value = 2;
+    S.guests = 2;
     document.getElementById('client-results').innerHTML = '';
     document.getElementById('client-booking-panel').innerHTML = '';
     S.selectedUnit = null;
@@ -1361,12 +1382,63 @@ const App = {
   },
 
   // ---- CLIENT AVAILABILITY ----
+  syncCheckoutMinDate() {
+    const checkin = document.getElementById('checkin');
+    const checkout = document.getElementById('checkout');
+    if (!checkin || !checkout || !checkin.value) return;
+
+    const minCheckout = U.nextDayStr(checkin.value);
+    checkout.min = minCheckout;
+
+    if (!checkout.value || checkout.value <= checkin.value) {
+      checkout.value = minCheckout;
+    }
+
+    S.checkIn = checkin.value;
+    S.checkOut = checkout.value;
+  },
+
+  validateCheckoutDate() {
+    const checkin = document.getElementById('checkin');
+    const checkout = document.getElementById('checkout');
+    if (!checkin || !checkout || !checkin.value || !checkout.value) return true;
+
+    if (checkout.value <= checkin.value) {
+      checkout.value = U.nextDayStr(checkin.value);
+      Toast.show('La fecha de salida debe ser posterior a la entrada', 'err');
+      return false;
+    }
+
+    S.checkOut = checkout.value;
+    return true;
+  },
+
+  validateSearchDates() {
+    const checkin = document.getElementById('checkin');
+    const checkout = document.getElementById('checkout');
+
+    if (!checkin || !checkout || !checkin.value || !checkout.value) {
+      Toast.show('Seleccioná fecha de entrada y salida', 'err');
+      return false;
+    }
+
+    if (checkout.value <= checkin.value) {
+      checkout.value = U.nextDayStr(checkin.value);
+      Toast.show('La fecha de salida debe ser posterior a la entrada', 'err');
+      return false;
+    }
+
+    S.checkIn = checkin.value;
+    S.checkOut = checkout.value;
+    return true;
+  },
+
   checkAvailability() {
+    if (!this.validateSearchDates()) return;
+
     const ci = document.getElementById('checkin').value;
     const co = document.getElementById('checkout').value;
     const g = parseInt(document.getElementById('guests').value) || 2;
-    if (!ci || !co) { Toast.show('Seleccioná fechas de entrada y salida', 'err'); return; }
-    if (ci >= co) { Toast.show('La salida debe ser posterior a la entrada', 'err'); return; }
     S.checkIn = ci; S.checkOut = co; S.guests = g;
     S.availabilityChecked = true;
     S.selectedUnit = null;
